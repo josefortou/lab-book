@@ -1,0 +1,1164 @@
+# (PART) II: Análisis Descriptivo {-}
+
+# Trabajar con datos {#datos}
+
+## Resumen
+
+En esta clase, vamos a revisar algunas de las principales operaciones que tenemos que realizar con bases de datos para ordenarlas y para hacer algunos análisis. Entre estas se encuentran hacer subconjuntos de datos, lidiar con datos no disponibles, agrupar observaciones y unir bases de datos. Las herramientas que vamos a utilizar para hacer estas operaciones están principalmente contenidas en la metalibrería `tidyverse`, en particular las librerías `dplyr` y `tidyr`.
+
+- Principales conceptos: hacer subconjuntos de datos; agrupar observaciones; unir bases de datos relacionales.
+- Principales funciones: `filter()`; `select()`; `group_by()`; `summarize()`; `left_join()`.
+
+## Cargar bases de datos
+
+Para efectos de nuestra discusión, una base de datos es una recopilación de información en un formato de filas (que representan casos u observaciones) y columnas (que representan variables o características de esos casos). Las celdas contienen información sobre características de cada caso. La mayor parte de los análisis estadísticos se realizan al hacer operaciones o aplicar funciones a bases de datos.
+
+Como mencionamos anteriormente, vamos a trabajar con distintas librerías del `tidyverse`, así que empecemos por cargarlas a la sesión. Estaremos utilizando varias funciones de `dplyr` y `tidyr` para transformar bases de datos y organizarlos de tal manera que podamos realizar análisis exploratorios.
+
+```{r}
+library(tidyverse)
+```
+
+### Datos incluidos en R
+
+R incluye unas cuantas bases de datos que podemos usar sin descargar primero - ya están incluidas y disponibles. La lista es extensa e incluye:
+- `AirPassengers`: viajeros mensuales en aerolíneas americanas, 1949-1960.
+- `Titanic`: sobrevivientes del hundimiento del *RMS Titanic*.
+- `mtcars`: tests de carros de la revista *MotorTrend*. 
+- `airquality`: calidad del aire en New York.
+- `iris`: especies de plantas _iris_.
+
+Otras vienen en librerías adicionales. Como cargamos `tidyverse`, podemos mirar `economics`, una base de datos macroeconómicos básicos de Estados Unidos:
+
+```{r}
+economics
+```
+
+Esta base de datos contiene datos en serie de tiempo -mes a mes- del desempleo en Estados Unidos, de julio de 1967 a abril de 2015 (la columna `unemploy`). Son en total `r nrow(economics)` observaciones. ¿Cuál ha sido el comportamiento de este indicador en este periodo? Utilicemos `ggplot2` para visualizar esta serie de tiempo. 
+
+Calculamos la tasa de desempleo dentro de la misma función (`unemploy/pop`) y graficamos el resultado a través del tiempo. Podemos observar claramente un pico durante la "Gran Recesión" (2007-2009).
+
+```{r}
+ggplot(data = economics, aes(x = date, y = unemploy/pop)) + # variables a usar
+  geom_line(color = "darkred") # tipo de gráfica: línea
+```
+
+Otras librerías vienen con sus propias bases de datos. Aquí cargamos datos de la librería `gapminder`, que se deriva del trabajo educativo de la [Gapminder Foundation](https://www.gapminder.org/).
+
+```{r}
+library(gapminder)
+```
+
+Etsa librería contiene una base de datos llamada `gapminder` también. Veamos 10 observaciones aleatorias de esta base de datos, usando la función `sample_n()`.
+
+```{r}
+sample_n(gapminder, size = 10)
+```
+
+Vemos que hay información sobre expectativa de vida al nacer (`lifeExp`) y el PIB per cápita (`gdpPercap`) para `r length(unique(gapminder$country))` países en intervalos de 5 años. ¿Cuál es la relación entre estas dos variables? Podemos hacer una gráfica de dispersión. 
+
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) + # variables
+  geom_point(alpha = 0.5, color = "darkblue") # tipo de gráfica, puntos con con opacidad 50%
+```
+
+Parece que hay una relación positiva, pero no estrictamente lineal. Más bien, puede ser de tipo logarítmico, indicando rendimientos decrecientes. Nuevamente, podemos hacer la transformación de la variable `gdpPercap` directamente en la función `ggplot()`.
+
+```{r}
+ggplot(data = gapminder, aes(x = log(gdpPercap), y = lifeExp)) + # variables
+  geom_point(alpha = 0.5, color = "darkgreen") # tipo de gráfica, puntos con con opacidad 50%
+```
+
+Por otro lado, si nos interesa ver la frecuencia de una variable categórica, podríamos contar cuántas observaciones (países-año) hay por continente usando la función `count()`, algo similar a lo que produce `table()`:
+
+```{r}
+count(gapminder, continent)
+```
+
+### Archivos locales
+
+Es más frecuente que estemos interesados en trabajar con otros datos que recogimos o descargamos de otras fuentes. En ese caso, debemos empezar por subirlos a RStudio Cloud y ubicarlos en una carpeta dentro del proyecto.[^1] Si queremos ver qué archivos ya hay en una carpeta, podemos usar la función `list.files()`, dándole la dirección de la carpeta:
+
+[^1]: Vamos al panel inferior derecho, pestaña `Files`, click en `Upload` y seguimos las indicaciones.
+
+```{r}
+list.files("data/")
+```
+
+Vemos que en esta carpeta ya hay varios archivos. Dependiendo del tipo de archivo (Excel, valores separados por comas, Stata, etc.) utilizamos una función distinta. Las librerías `readr`, `readxl` y `haven` del `tidyverse` son nuestras amigas.
+
+Carguemos los datos del proyecto [Polity IV](http://www.systemicpeace.org/inscrdata.html) sobre democracia institucional. Como están en formato Excel (`.xls`), usamos `read_excel()` de la librería `readxl` y le asignamos un nombre al objeto (los datos) que estamos creando.[^2] 
+
+[^2]: También los podemos cargar usando los menús del programa; el asistente para cargar datos en RStudio (pestaña `Environment`, opción `Import Dataset`) es bastante bueno y nos arroja código que después podemos copiar en un Rmarkdown o Rscript para replicar nuestros análisis. Para confirmar que todo está bien, revisemos las primeras filas del objeto que creamos:
+
+```{r}
+library(readxl)
+polity4 <- read_excel("data/p4v2017.xls")
+polity4
+```
+
+Parece que todo está bien. Miremos la distribución de la variable `polity2`, el popular indicador combinado de democracia de Polity IV. Aquí volvemos a usar la librería `ggplot2` en vez de las funciones de "base R" (como `plot()` y `barplot()`):
+
+```{r}
+ggplot(data = polity4, aes(x = polity2)) + # variables
+  geom_histogram(binwidth = 1) # tipo de gráfica y ancho de las barras
+```
+
+Vemos que hay más casos de democracia (valores altos del indicador) y de autocracia (valores bajos) que anocracias (valores medios).
+
+### Descarga web
+
+Por último, carguemos unos datos directamente de la web, sin tener que descargarlos primero. El *Uppsala Conflict Data Program* (UCDP) tiene una de las bases de datos más completas sobre conflicto armado y está fácilmente disponible para su uso. Con `read_csv()` podemos darle a R el URL del archivo y cargarlo como un objeto.
+
+```{r, cache = TRUE, message = FALSE}
+ucdp <- read_csv("http://ucdp.uu.se/downloads/ucdpprio/ucdp-prio-acd-191.csv")
+```
+
+UCDP distingue entre cuatro tipos de conflicto armado: interestatal, extraestatal, interno e interno internacionalizado. ¿Cuántos casos hay de cada tipo en la base de datos? Si leemos el libro de códigos, vemos que la variable `type_of_conflict` toma cuatro valores: 1 (inter-), 2 (extra-), 3 (intra-) y 4 (intra- inter-). La prevalencia de los conflictos armados internos es clara.
+
+```{r}
+ggplot(ucdp, aes(type_of_conflict)) +
+  geom_bar()
+```
+
+## Transformar datos
+
+Una vez tenemos una base de datos cargada en R (o sea, que es un objeto que aparece en `Environment`, con nombre y todo) queremos hacer algo con esos datos. Usualmente, ese algo implica *transformarlos*. Hay muchas formas de transformar una base de datos en R:
+
+- Seleccionar filas (observaciones o casos).
+- Organizar y ordenar estas observaciones.
+- Seleccionar columnas (variables).
+- Computar nuevas variables o transformar las existentes.
+- Resumir datos por grupos.
+- Trabajar con datos no disponibles (`NA`).
+
+Miremos cada una de estas operaciones. Al final, veremos que, en conjunto, ofrecen una caja de herramientas potente -y necesaria- para el analista de datos políticos.
+  
+## Seleccionar filas: `filter()`
+
+A veces no necesitamos todas las filas en una base de datos, sino que queremos concentrarnos en algunas observaciones o casos que creemos son relevantes. Por ejemplo, puede que solo queramos estudiar los países más pobres según los datos de `gapminder()` o solo las guerras civiles de UCDP. Para esto, la principal función que usamos es `filter()`.
+
+### Seleccionar filas por condiciones
+
+El tipo de selección más sencilla consiste en seleccionar condicionalmente filas usando evaluaciones lógicas. Por ejemplo, puede que nos interese ver solamente las observaciones para el año 2007 de la base de datos de `gapminder`, para lo cual usamos `filter()` en conjunción con el operador `==`, el cual nos ayuda a seleccionar las filas que tienen exactamente el valor 2007 en la variable `year`.
+
+```{r}
+filter(gapminder, year == 2007)
+```
+
+Así mismo, podemos hacer una selección según valores de más de una variable. Nos valemos de otros operadores, como `&` y `|`. El operador `&` es el booleano "y" (AND). Con este, podemos seleccionar observaciones que cumplan dos condiciones simultáneamente (año 2007 y expectativa de vida por encima de los 60 años)
+
+```{r}
+head(filter(gapminder, year == 2007 & lifeExp > 60))
+```
+
+`filter()` (y `dplyr` en general) nos permite reemplazar los `&` por `,`:
+
+```{r}
+filter(gapminder, year == 2007, lifeExp > 60)
+```
+
+Mientras, el operador `|` es el booleano "o" (OR): seleccionamos observaciones que cumplan una condición o la otra (el año 2007 o el año 1997).
+
+```{r}
+filter(gapminder, year == 2007 | year == 1997)
+```
+
+Si tenemos muchas condiciones de tipo OR (`|`) usamos el operador `%in%` seguido de una lista de condiciones concatenadas con `c()` para simplificar el código, así:
+
+```{r}
+sample_n(filter(gapminder, continent %in% c("Europe", "Americas", "Oceania")), 5) 
+```
+
+También podemos usar funciones dentro de `filter()`. Además, podemos utilizar otros operadores como `<`, `<=`, `>` y `>=`. Por ejemplo, a continuación seleccionamos solo los casos que tengan una expectativa de vida mayor o igual a la media global de esa variable.
+
+```{r}
+filter(gapminder, lifeExp >= mean(lifeExp, na.rm = TRUE))
+```
+
+A veces, es más fácil pedirle a R que seleccione los datos que *no* cumplen una condición. Para eso está el operador `!=` (no es igual a):
+
+```{r}
+sample_n(filter(gapminder, continent != "Asia"), 5)
+```
+
+Dos funciones -`top_n()` y `top_frac`-nos permiten seleccionar las primeras observaciones cuando ordenamos los datos según una variable (como cuando hacemos "Sort" u "Ordenar" en Excel). Por ejemplo, aquí seleccionamos el "top 5" de países según PIB per cápita:
+
+```{r}
+top_n(gapminder, 5, gdpPercap)
+```
+
+Y aquí los 5 peores:
+
+```{r}
+top_n(gapminder, -5, gdpPercap)
+```
+
+Veamos el top 99.5% de los países con mayor expectativa de vida al nacer:
+
+```{r}
+top_frac(gapminder, 0.005, lifeExp)
+```
+
+Finalmente, podemos guardar los resultados de esta selección como un objeto, para seguir trabajando con este subconjunto de los datos. Esto es altamente recomendable, para no tener que repetir el mismo código cada vez que queremos trabajar con un subconjunto de datos. 
+
+```{r}
+gapminder_reciente <- filter(gapminder, year %in% c(1997, 2002, 2007))
+gapminder_america <- filter(gapminder, continent == "Americas")
+```
+
+Además, si guardamos el objeto como un archivo `.csv` o `.xlsx` por ejemplo y lo cargamos después, podemos "saltarnos" muchas líneas de código. Si queremos guardar un archivo de Excel, usamos la función `write_xlsx()` de `writexl`.
+
+```{r}
+library(writexl)
+write_xlsx(gapminder_america, "data/gapminder_america.xlsx")
+```
+
+### Seleccionar filas por posición
+
+Si con `filter()` podemos usar valores de variables como criterios de selección, con `slice()` podemos seleccionar un número arbitrario de observaciones según su posición en la base de datos. Por ejemplo, si queremos solo la observación número 100:
+
+```{r}
+slice(gapminder, 100)
+```
+
+O las observaciones de la 55 a la 65 de una base de datos:
+
+```{r}
+slice(gapminder, 55:65)
+```
+
+Quizás la última observación:
+
+```{r}
+slice(gapminder, n())
+```
+
+O todas, menos de la 8 hasta la última:
+
+```{r}
+slice(gapminder, -8:-n())
+```
+
+En cierto sentido, `slice()` es similar a `head()` y `tail()`, pero estas dos últimas funciones no pueden seleccionar filas en la mitad de una base de datos.
+
+## Reordenar filas: `arrange()`
+
+Todos conocemos la opción "Ordernar" ("Sort") en Excel: nos permite ordenar datos de mayor a menor (o menor a mayor) según los valores de una variables. En el `tidyverse`, tenemos `arrange()`, una función que cambia el orden de las filas. En vez del orden alfabético por defecto de `gapminder`, organicemos la base de datos por PIB per cápita, de menor a mayor:
+
+```{r}
+arrange(gapminder, gdpPercap)
+```
+
+Así mismo, podemos ordenar los datos de manera descendente usando el operador `-`:
+
+```{r}
+arrange(gapminder, -gdpPercap)
+```
+
+## Seleccionar variables: `select()`
+
+Ya vimos cómo seleccionar filas u observaciones (casos). En algunas ocasiones, no necesitamos todas las columnas en una base de datos: solo nos interesan las variables económicas o queremos eliminar unas columnas y mantener otras. Para esto, usamos la función `select()`. Por ejemplo, a continuación seleccionamos solo tres columnas de una base de datos:
+
+```{r}
+select(gapminder, country, year, gdpPercap)
+```
+
+Podemos usar el operador `:` para seleccionar un rango de variables (desde `year` hasta `pop`):
+
+```{r}
+select(gapminder, year:pop)
+```
+
+De manera análoga a `filter()`, podemos seleccionar todo excepto ciertas variables. Aquí, seleccionamos todas menos `continent` y `pop`:
+
+```{r}
+select(gapminder, -c(continent, pop))
+```
+
+La función `select()` tiene unas funciones hermanas que le agregan flexibilidad y expanden lo que podemos hacer con ella. Por ejemplo, con `select_if()` podemos seleccionar variables que cumplen una condición - en este caso, solo las columnas numéricas (según su clase en R):
+
+```{r}
+select_if(gapminder, is.numeric)
+```
+
+Usando `starts_with`, podemos quedarnos solo con las columnas cuyo nombre comienza por una letra o una expresión en específico. Esto puede ser útil cuando tenemos columnas con nombres como `indicador_a`, `indicador_b`, `indicador_c`, etc. y queremos seleccionarlas. Por ejemplo, columnas que empiezan por "c":
+
+```{r}
+select(gapminder, starts_with("c"))
+```
+
+La función `ends_with()` hace lo opuesto: las que terminan.
+
+```{r}
+select(gapminder, c(country, ends_with("p")))
+```
+
+Mientras, `contains()` busca columnas que tengan ciertos caracteres, sea al principio, final o en la mitad:
+
+```{r}
+select(gapminder, contains("Exp"))
+```
+
+### Renombrar columnas: `rename()`
+
+Podemos renombrar columnas dentro de `select()`, pero esto elimina todas las variables no renombradas.
+
+```{r}
+select(gapminder, pib_percap = gdpPercap)
+```
+
+En cambio, `rename()` nos permite renombrar y mantener las demás:
+
+```{r}
+rename(
+  gapminder, 
+  # nombre_nuevo = nombre_viejo
+  continente = continent, ano = year, exp_vida = lifeExp, pob = pop, pib_percap = gdpPercap
+)
+```
+
+## Crear y transformar variables: `mutate()`
+
+Las bases de datos no siempre tienen todas las variables que necesitamos. Pero pueden tener la información necesaria para que las creemos nosotros mismos. `mutate()` es la principal función que usamos para crear variables o modificar variables existentes. `mutate()` siempre adiciona columnas nuevas a la base de datos, pero -como veremos- si queremos que queden grabadas al objeto, debemos usar el operador de asignación `<-`. 
+
+Como ejemplo, tomemos `gapminder`. Tenemos información sobre PIB per cápita (`gdpPercap`), pero en realidad queremos el PIB. Esa columna no existe en los datos, pero tenemos la información suficiente para construirle. El PIB per cápita se define como $\frac{PIB}{población}$, así que si utilizamos la variable `pop` tenemos lo necesario para calcular el PIB.
+
+
+```{r}
+mutate(gapminder, gdp = gdpPercap*pop)
+```
+
+Si solo queremos mantener las variables creadas (y descartar las originales), usamos `transmute()`, pero rara vez queremos deshacernos de todo:
+
+```{r}
+transmute(gapminder, gdp = gdpPercap*pop)
+```
+
+Además, podemos usar muchas otras funciones, como `log()`, para crear nuevas variables. Por ejemplo, si queremos el logaritmo del PIB per cápita:
+
+```{r}
+mutate(gapminder, gdpPercap_log = log(gdpPercap))
+```
+
+Si queremos que las variables creadas permanezcan y se vuelvan parte de la base de datos en R, debemos reescribir el objeto o crear uno nuevo, usando el operador de asignación `<-`. Si usamos el mismo nombre del objeto original, lo reescribimos. Si usamos un nuevo nombre, creamos un objeto adicional en el `Environment`. 
+
+```{r}
+gapminder <- mutate(
+  gapminder, 
+  gdp = gdpPercap*pop, 
+  gdp_log = log(gdp), 
+  gdpPercap_log = log(gdpPercap)
+)
+select(gapminder, country, year, gdp_log, gdpPercap_log)
+```
+
+Otro ejemplo útil: podemos calcular valores acumulados, rezagados y adelantados de una variable. Para ilustrar, hagamos un pequeño subconjunto de datos: 
+
+```{r}
+gapminder_colombia <- filter(gapminder, country == "Colombia")
+```
+
+Ahora, creemos cuatro nuevas variables: para cada observación, queremos ver el PIB per cápita más alto de la serie (`cummax()`), el valor de la observación anterior (`lag()`), el valor de hace 2 observaciones (con el argumento `n =`), y el del año siguiente (`lead()`)
+
+```{r}
+gapminder_colombia <- mutate(
+  gapminder_colombia, 
+  gdpPercap_max = cummax(gdpPercap),
+  gdpPercap_lag = lag(gdpPercap),
+  gdpPercap_lag2 = lag(gdpPercap, n = 2),
+  gdpPercap_lead = lead(gdpPercap)
+)
+select(gapminder_colombia, year, gdpPercap, gdpPercap_max, gdpPercap_lag, gdpPercap_lag2, gdpPercap_lead)
+```
+
+### Cambiar clases
+
+Todos los objetos en R tienen una clase, incluyendo las columnas de una base de datos. Las principales clases de variables en R son: `numeric`, `integer`, `date`, `factor`, `character` y `logical`. A veces, tenemos una variable tipo caracter o texto que queremos como categórica (factor). O sucede que cargamos los datos y hay una variable numérica que R interpreta como texto. Miremos cómo cambiar tipos de variables usando los datos de PolityIV.
+
+```{r}
+polity4 <- select(polity4, ccode, country, year, polity2, parreg, parcomp, exconst)
+polity4
+```
+
+Hay varias funciones que nos permite hacer cambios de tipo fácilmente en conjunción con `mutate()`: `as.numeric()`, `as.factor()`, `as.integer()`, `as.character()`... Convirtamos el código de país y el año a factor (variable categórica) y a (número) entero, respectivamente.
+
+```{r}
+mutate(polity4, ccode = as.factor(ccode), year = as.integer(year))
+```
+
+Si tenemos muchas variables que aparecen con la clase incorrecta, podemos cambiarlas masivamente usando `mutate_if()`. Esta función nos permite imponer una condición para seleccionar qué variables vamos a transformar y seleccionar una función (`as.factor`() en este ejemplo) para aplicarles:
+
+```{r}
+mutate_if( # cambiar si
+  polity4, 
+  is.character, # característica que tienen las variables que queremos cambiar
+  as.factor # función que queremos aplicarles
+)
+```
+
+### Variables categóricas
+
+Ya hemos visto cómo crear nuevas variables numéricas aplicando funciones en el contexto de `mutate()`. Pero también podemos crear variables categóricas o cualitativas. En R, estas son llamadas "factores" (_factors_).
+
+#### Numérica a categórica
+
+Primero, utilicemos los valores de una variable numérica para crear una categórica. Por ejemplo, clasifiquemos como "democracias" a los países que tienen un valor mayor de 5 en el indicador `polity2`. Para esto, la función `if_else()` nos permite evaluar con expresiones lógicas si se cumplen condiciones y reemplazar valores. A su vez, la función `factor()` le dice a R que la variable creada es categórica - es importante seguir bien los paréntesis. Usamos `<-` para asegurarnos que los resultados queden guardados en `polity4`. Revisamos el resultado:
+
+```{r}
+polity4 <- mutate(
+  polity4, 
+  democracia = factor( # creamos una nueva variable categórica o factor llamada democracia
+    if_else(
+      condition = polity2 > 5, # qué condición se tiene que cumplir
+      true = "democracia", # qué hacer si se cumple
+      false = "otro" # qué hacer si no se cumple
+    ),
+    ordered = FALSE # especificamos que la variable no es ordenada
+  )
+)
+count(polity4, democracia)
+```
+
+Podemos crear mas de una categoría a la vez usando `case_when()`, la cual evalúa si cumple con unas condiciones y crea una variable acordemente:
+
+```{r}
+polity4 <- mutate( 
+  polity4, 
+  regimen = factor( # crear una nueva variable tipo factor
+    case_when( 
+      polity2 > 5 ~ "democracia", # condición ~ resultado
+      polity2 < -5 ~ "autocracia",
+      TRUE ~ "anocracia" # para los demás casos ~ resultado
+    ),
+    ordered = FALSE # el factor no es ordenado
+  )
+)
+count(polity4, regimen)
+```
+
+Otra forma de hacer esto es con la función `cut()`. A continuación, la utilizamos para partir la variable `polity2` en 5 grupos o categorías. 
+
+```{r}
+polity4 <- mutate( 
+  polity4, 
+  regimen_cut = cut(polity2, 5)
+)
+count(polity4, regimen_cut)
+```
+
+Si anidamos esta operación dentro de `factor()` podemos darle nombres a las categorías con el argumento `labels =`:
+
+
+```{r}
+polity4 <- mutate( 
+  polity4, 
+  regimen_cut = factor(
+    cut(polity2, 5),
+    labels = c("bajo", "med-bajo", "medio", "med-alto", "alto")
+  )
+)
+count(polity4, regimen_cut)
+```
+
+##### Reordenar factores
+
+Tenemos varias maneras de reordenar o recodificar factores; algunos de estos son funciones de la librería `forcats` del `tidyverse`.
+
+Si queremos especificar los niveles de un factor al crealo, usamos el argumento `"levels ="` en `factor()`. El orden de un factor importa a la hora de saber cuál es la categoría base para comparar a la hora de hacer gráficas o estimar modelos estadísticos.
+
+```{r}
+polity4 <- mutate(
+  polity4, 
+  regimen = factor(regimen, levels = c("democracia", "anocracia", "autocracia"))
+)
+count(polity4, regimen)
+```
+
+En `forcats` podemos hacer algo similar -un reordenamiento manual- con `fct_relevel()` cuando tenemos una variable categórica ya existente.
+
+```{r}
+polity4 <- mutate(
+  polity4, 
+  regimen = fct_relevel(regimen, c("autocracia", "anocracia", "democracia"))
+)
+count(polity4, regimen)
+```
+
+Igualmente, podemos reordenar por frecuencias, trayendo al frente a la categoría con más observaciones. Hacemos esto con `fct_infreq()` y es útil cuando queremos construir una gráfica.
+
+```{r}
+ggplot(polity4, aes(fct_infreq(regimen_cut))) +
+  geom_bar() +
+  coord_flip()
+```
+
+También podemos ordenar los niveles de un factor según los valores de otra variable con `fct_reorder()`. En la siguiente gráfica, vemos el PIB per cápita de cuatro países suramericanos para el año 2007, pero el orden de los países en la gráfica corresponde a la expectativa de vida promedio en cada país.
+
+```{r}
+gapminder_sub <- filter(gapminder, year == max(year), country %in% c("Colombia", "Argentina", "Peru", "Venezuela"))
+ggplot(gapminder_sub, aes(fct_reorder(country, lifeExp), gdpPercap)) +
+  geom_col()
+```
+
+
+Finalmente, podemos combinar o colapsar categorías en una categoría de "otros" usando la función `fct_lump()` con el argumento opcional `other_level = ` para especificar el nombre de la categoría residual (por defecto, es "Other").
+
+```{r}
+polity4 <- mutate(
+  polity4, 
+  regimen_bin = fct_lump(regimen_cut, n = 2, other_level = "otros")
+)
+count(polity4, regimen_bin)
+```
+
+#### Categórica a numérica
+
+Finalmente, utilizamos los valores de una variable categórica para crear una numérica discreta. Ojo: debemos asegurarnos que esto tenga sentido: por ejemplo, en términos de democratización, ¿es igual pasar de autocracia a anocracia, que pasar anocracia a democracia? El truco que usamos es la función `recode()` que nos permite asignar nuevos valores.
+
+```{r}
+polity4 <- mutate(
+  polity4,
+  regimen_num = recode(
+    regimen,
+    "autocracia" = -1, # valor original = valor nuevo
+    "anocracia" = 0,
+    "democracia" = 1
+  )
+)
+count(polity4, regimen_num)
+```
+
+## Resumir: `count()`, `group_by()` y `summarize()`
+
+Con frecuencia, nuestros datos están agrupados: las observaciones pertenecen a grupos, indicador por una variable categórica. Por ejemplo, los países del mundo están ubicados en distintos continentes:
+
+```{r}
+count(gapminder, continent)
+```
+
+Si queremos una nueva variable que nos diga, para cada observación, cuántas observaciones hay en su grupo, usamos `add_count()`.
+
+```{r}
+sample_n(select(add_count(gapminder, continent), country, continent, n), 5)
+```
+
+### Tablas cruzadas
+
+La función `count()` sirve para hacer tablas cruzadas con dos variables categóricas. Primero, creamos una nueva variable para niveles altos de PIB per cápita (por encima de la media global):
+
+```{r}
+gapminder <- mutate(
+  gapminder, 
+  pib_dummy = if_else(
+    gdpPercap >= mean(gdpPercap, na.rm = TRUE), "alto", "bajo"
+  )
+)
+```
+
+Ahora, tabulamos:
+
+```{r}
+count(gapminder, continent, pib_dummy)
+```
+
+Si queremos tener una tabla para importar a un documento Word, usamos la libreria `knitr()` y la funcion `kable()`. Primero, creamos la tabla:
+
+```{r}
+library(knitr)
+tabla <- kable(
+  count(gapminder, continent, pib_dummy), # datos
+  format = "html", # formato .html
+  col.names = c("Continente", "Nivel PIB", "Casos"), # nombres de columnas
+  caption = "Tabla cruzada" # titulo
+)
+```
+
+Creamos una nueva carpeta para guardar la tabla:
+
+```{r, eval = FALSE}
+#dir.create("/cloud/project/output")  # ya existe en el proyecto, pero así lo haríamos
+```
+
+Y luego guardamos la tabla con `write_file()` de `readr`.
+
+```{r}
+write_file(tabla, "output/tabla.doc")
+```
+
+### Agrupar y resumir
+
+Aprovechamos que los datos son agrupados para aplicar operaciones que los resumen. Además, estas agrupaciones nos permiten hacer comparaciones interesantes. Por si solo, `summarize()` resume variables y el resultado siempre es un solo valor.
+
+```{r}
+summarize(gapminder, lifeExp_media = mean(lifeExp, na.rm = TRUE))
+```
+
+Por si solo, `group_by()` aparentemente no hace mucho
+
+```{r}
+group_by(gapminder, country)
+```
+
+Aunque sí nos permite hallar valores razagados y adelantadas por grupo.
+
+```{r}
+head(mutate(
+  group_by(gapminder, country),
+    gdp_lag = lag(gdpPercap), 
+    gdp_lead = lead(gdpPercap)
+))
+```
+
+Por sus poderes combinados... Uno de los "combos" mas potentes: `group_by()` junto a `summarize()`. Agrupamos los datos (con una variable categórica) y resumimos. Así, calculamos la media de la expectativa de vida de cada ano en los datos, por ejemplo:
+
+```{r}
+summarize(
+  group_by(gapminder, year), # agrupamos
+  lifeExp_media = mean(lifeExp, na.rm = TRUE) # creamos una variable que resume cada grupo
+)
+```
+
+Cuántas observaciones hay en cada grupo (usando `n()`):
+
+```{r}
+summarize(
+  group_by(gapminder, continent), 
+  num_obs = n()
+)
+```
+
+O cuál ha sido el nivel más alto del PIB per cápita para cada país en la muestra:
+
+```{r}
+summarize(
+  group_by(gapminder, country), 
+  gdpPercap_max = max(gdpPercap, na.rm = TRUE)
+)
+```
+
+El combo `group_by()` + `summarize()` es clave porque permite empezar a explorar relaciones entre variables. Por ejemplo, continente y PIB per cápita:
+
+```{r}
+summarize(
+  group_by(gapminder, continent), 
+  gdpPercap_media = mean(gdpPercap, na.rm = TRUE)
+)
+```
+
+## Datos no disponibles: `na_if()`, `replace_na()` y `drop_na()`
+
+En R, las celdas con datos disponibles deben aparecer como `NA.` Este valor es distinto al texto "NA" o cosas como "N/A", "No disponible" y "-". `NaN` es similar, pero distinto: "Not a Number". En R, los datos no disponibles **deben** aparecer como `NA` para que poder tratarlos correctamente. Con `dplyr`, contamos con tres funciones para lidiar con valores `NA`: `na_if()`, `replace_na()` y `drop_na()`.
+
+### Convertir a NA
+
+Algunas bases de datos especifican en el libro de códigos como vienen los NA. En el caso de Polity IV, los valores -66 pueden ser interpretados como valores no disponibles. Si miramos la variables `exconst` podemos entender un poco mejor a qué nos referimos:
+
+```{r}
+polity4 %>% count(exconst)
+```
+
+Podemos cambiar estos valores a `NA` en una variable con `na_if()` dentro de un `mutate()`.
+
+```{r}
+polity4 <- polity4 %>%
+  mutate(
+    exconst_mod = na_if(exconst, "-66") # variable nueva; podríamos reescribir la original
+  ) 
+count(polity4, exconst_mod) # revisamos que los convertimos a NA
+```
+
+Este cambio a `NA` l podemos realizar para una variable solamente o para toda la base de datos.
+
+```{r}
+polity4 <- na_if(polity4, "-66") # reemplazamos los valores -66 con NA en la totalidad de la base de datos
+```
+
+Como "-77" y "-88" también pueden ser vistos como `NA`, repetimos la operaciones:
+
+```{r}
+polity4 <- na_if(polity4, "-77") 
+polity4 <- na_if(polity4, "-88") 
+count(polity4, exconst)
+```
+
+### Reemplazar NA
+
+Puede suceder que hay valores que aparecen como `NA` pero que sabemos que no lo son. Por ejemplo, puede que sean igual a 0 y no indiquen una falta de datos. Para tratar con estas situaciones, usamos `replace_na()`:
+
+```{r}
+polity4 %>%
+  mutate(
+    exconst_mod2 = replace_na(exconst_mod, "-999")
+  ) %>%
+  count(exconst_mod2)
+```
+
+### Descartar NA
+
+Por último, si queremos descartar las observaciones que tienen valores `NA`, usamos `drop_na()`. Nuevamente, lo podemos usar para una variable -descartar observaciones con `NA` en esa columna en particular- o para toda la base de datos -descartar observaciones con `NA` en cualquier variable. Comparemos el número de observaciones cuando descartamos filas con `NA` en la variable `polity2`:
+
+```{r}
+drop_na(polity4, polity2)
+```
+
+Con el número de filas restantes cuando descartamos filas con `NA` en cualquier columna:
+
+```{r}
+drop_na(polity4)
+```
+
+## Simplificar código: tuberías `%>%`
+
+Ya que dominamos las principales formas de trabajar con datos, nos damos cuenta que el código a veces se vuelve engorroso y largo. En particular, se vuelve difícil hacerle seguimiento a todos los paréntesis incluidos. En esta sección, damos un paso adelante hacia la simplificación de nuestro código a través del uso del operador `%>%`.
+
+El operador `%>%` (*pipe*, tubo o o tubería) sirve para simplificar nuestro código. Viene de la librería `magrittr` (¿sí agarran la referencia?) y es usado extensamente en el `tidyverse`. Para entender la utilidad de los *pipes*, comparemos distintas formas de usar varias funciones al mismo tiempo:
+
+1. Anidadas: se vuelve confuso tener tantos paréntesis.
+
+```{r}
+head(arrange(select(filter(gapminder, year == 2007, continent == "Americas"), country, gdpPercap), desc(gdpPercap)))
+```
+
+Romper el código en líneas -como hemos hecho hasta ahora- ayuda un poco a entender qué está pasando, pero sigue exigiendo jugar una ronda de "veo, veo":
+
+```{r}
+head(
+  arrange(
+    select(
+      filter(gapminder, year == 2007, continent == "Americas"), country, gdpPercap
+    ), 
+    desc(gdpPercap)
+  )
+)
+```
+
+2. Paso a paso: ineficiente, pues estamos crenado nuevos objetos "intermedios" o temporales que luego debemos eliminar (para eso está `rm()`).
+
+```{r}
+gapminder_2007 <- filter(gapminder, year == 2007, continent == "Americas")
+gapminder_2007 <- select(gapminder_2007, country, gdpPercap)
+gapminder_2007 <- arrange(gapminder_2007, desc(gdpPercap))
+head(gapminder_2007)
+rm(gapminder_2007)
+```
+
+3. *Pipes*: "entonces". Se leen izquierda-derecha o de arriba-abajo, si partimos el código en líneas.
+
+```{r}
+c(1, 1, 2, 3, 5, 8, 13, 21) %>% mean() %>% round() # tomar el vector, encontrar la media, redondear
+```
+
+Pueden usarse como "tuberías" que conectan varias funciones, como `filter()`, `select()` y `arrange()`, cada una construyendo sobre los resultados que arroja la anterior:
+
+```{r}
+gapminder %>% # tomar gapminder
+  filter(year == 2007, continent == "Americas") %>% # filtrar por valores de year y continent
+  select(country, gdpPercap) %>%  # seleccionar solo las variables country y gdpPercap
+  arrange(desc(gdpPercap)) %>% # ordenar descendente segun gdpPercap
+  head() # ver las primeras filas
+```
+
+Con tuberías más largas, podemos responder a preguntas interesantes y comparaciones relevantes de forma más eficiente. Por ejemplo, digamos que queremos encontrar la media continental del PIB per cápita en el ultimo ano para el que tenemos información, porque estamos interesados en explorar la variación espacial en la riqueza de las naciones. ¿Cómo lo hacemos? ¡Pues armamos una tubería con `group_by()` y `summarize()`! Comparar medidas entre dos grupos nos permite ver la relación entre una variable numérica y una categórica.
+
+```{r}
+gapminder %>%
+  filter(year == max(year, na.rm = TRUE)) %>% # el ultimo año presente en los datos
+  group_by(continent) %>% # agrupar por continente
+  summarize( # hacemos un resumen
+    pib_media = mean(gdpPercap, na.rm = TRUE),
+    pib_mediana = median(gdpPercap, na.rm = TRUE),
+    pib_max = max(gdpPercap, na.rm = TRUE),
+    pib_min = min(gdpPercap, na.rm = TRUE),
+    pib_de = sd(gdpPercap, na.rm = TRUE),
+    num_casos = n() # n() cuenta las observaciones por grupo
+  )
+```
+
+O nos interesa saber cuál es el promedio de varios indicadores de la base de datos de Polity IV para cada tipo de régimen (usando la variable categórica que creamos anteriormente):
+
+```{r}
+polity4 %>%
+  filter(year %in% c(1997:2017)) %>% # solo unos años
+  group_by(regimen) %>% # agrupamos por tipo de régimen (demo-ano-auto)
+  summarize( # hacemos un resumen
+    media_polity2 = mean(polity2, na.rm = TRUE),
+    media_parreg = mean(parreg, na.rm = TRUE),
+    media_parcomp = mean(parcomp, na.rm = TRUE)
+  )
+```
+
+La versión `summarize_if()` nos permite seleccionar variables a resumir si cumplen alguna condición:
+
+```{r}
+polity4 %>%
+  filter(year %in% c(1997:2017)) %>% # solo unos años
+  group_by(regimen) %>% # agrupamos por tipo de régimen (demo-ano-auto)
+  summarize_if( # hacemos un resumen
+    is.numeric, # condicion
+    mean, na.rm = TRUE
+  )
+```
+
+`summarize_at()` nos permite usar otro tipo de condiciones, como solo resumir variables que empiezan por "pa":
+
+```{r}
+polity4 %>%
+  filter(year %in% c(1997:2017)) %>% # solo unos años
+  group_by(regimen) %>% # agrupamos por tipo de régimen (demo-ano-auto)
+  summarize_at( # hacemos un resumen
+    vars(starts_with("pa")),
+    mean, na.rm = TRUE
+  )
+```
+
+Las tablas cruzados que hicimos arriba también se benfician del uso de *pipes*. Hagamos una tabla que tabule y muestre la relación entre la variable continente (`continent`) y la variable binaria de nivel de ingreso alto o bajo que construimos anteriormente (`pib_dummy`). Usando `prop.table()` podemos hacer esta tabla con proporciones en vez de cuentas. Al final, guardamos como archivo de Word. 
+
+Noten que aquí agregamos una función más: `ungroup()` - si queremos seguir la tubería sin hacer operaciones por grupo, esta función nos permite hacerlo, de lo contrario todas las operaciones se harían por grupos.
+
+```{r}
+gapminder %>%
+  count(continent, pib_dummy) %>%
+  group_by(continent) %>%
+  mutate(prop = round(prop.table(n), 2)) %>%
+  ungroup() %>%
+  kable(
+    format = "html",
+    col.names = c("Continente", "Nivel PIB", "Casos", "Prop."),
+    caption = "Tabla cruzada",
+    format.args = list(decimal.mark = ",")
+  ) %>%
+  write_file("output/tabla2.doc")
+```
+
+Otro uso común de `group_by()` seguido de `summarize()` es agregar datos. Al agrupar y resumir podemos cambiar el nivel de análisis. Por ejemplo, en vez de país-año podemos pasar a continente-año: cada fila sería un continente en un año y las columnas son resúmenes (la media en este caso) de las variables para cada continente. Por cierto, tanto `summarize()` como `summarise()` son válidas.
+
+```{r}
+gapminder_cont <- gapminder %>%
+  group_by(continent, year) %>%
+  summarise_at(vars(lifeExp:gdp), mean, na.rm = TRUE) %>%
+  ungroup()
+gapminder_cont
+```
+
+Por último, estos *pipes* y los verbos que hemos utilizado sirven para hacer gráficas de manera eficiente y clara.
+
+```{r}
+gapminder_cont %>% # tomar datos
+  ggplot(mapping = aes(x = log(gdpPercap), y = lifeExp)) + # seleccionar variables
+  geom_point(color = "darkblue") + # gráfica de dispersion
+  labs(x = "PIB per cápita (USD, log.)", y = "Expectativa de vida al nacer (años)") # titulos de los ejes
+```
+
+Construyamos una gráfica similar, pero trabajando con los datos a nivel-país año:
+
+```{r}
+gapminder %>% # tomar datos
+  filter(year %in% c(1962, 1972, 1982, 1992, 2002)) %>% # filtrar para incluir ciertos anos
+  ggplot(mapping = aes(x = log(gdpPercap), y = lifeExp)) + # seleccionar variables
+  geom_point(color = "darkblue", alpha = 0.5) + # gráfica de dispersion, transparencia 50%
+  labs(x = "PIB per cápita (USD, log.)", y = "Expectativa de vida al nacer (años)") # titulos de los ejes
+```
+
+Finalmente, si queremos ver las trayectorias de los distintos continentes, usamos el agumento `color =` de `ggplot()` para graficar una línea de color distinto para cada grupo:
+
+```{r}
+gapminder_cont %>%
+  ggplot(aes(year, log(gdpPercap), color = continent)) +
+  geom_line() +
+  labs(x = "Año", y = "PIB per cápita (USD, log.)", color = "Continente")
+```
+
+## Ordenar y reformatear: `pivot_()`
+
+Muy frecuentemente, los datos que encontramos están desordenados. Por ejemplo, usualmente debemos corregir los `NA`.
+
+Otro paso habitual es "limpiar" los nombres de las variables. No es recomendable tener espacios o caracteres especiales en los nombres de las variables y en general de los objetos en R. La librería `janitor` facilita hacer estos cambios con la función `clean_names()`, la cual automáticamente cambia el formato del nombre de las variables a snake_case.
+
+```{r}
+library(janitor)
+```
+
+Veamos esto que hace con `gapminder`:
+
+```{r}
+gapminder %>% clean_names() %>% head()
+```
+
+Lidiar con `NA` y nombres de variables es sencillo. Más complejo es asegurarse que una base de datos estén ordenadas ("tidy data"). Es el principio central del `tidyverse()`. Según este principio, cada fila debe ser una observacion y cada columna una variable. A veces es conocido como formato "largo" (el otro es "ancho"). `gapminder` está en formato largo y *tidy*. Cada fila es una observación, cada columna una variable.
+
+```{r}
+sample_n(gapminder, 10) ## ver 15 filas aleatorias de los datos
+```
+
+A continuación, veamos un ejemplo sencillo de datos desordenados, o en formato ancho. 
+
+```{r}
+ancho <- tibble(
+  pais = c("Colombia", "Argentina", "Brazil"),
+  indicador_2000 = rnorm(3, 2),
+  indicador_2010 = rnorm(3, 3),
+  indicador_2020 = rnorm(3, 4)
+)
+ancho
+```
+
+Según el principio *tidy*, debería haber tres columnas: `pais`, `indicador` y `ano`. Aquí, en vez de hacerlo completamente "a mano", usamos `expand_grid()` para repetir los nombres de país y años, para luego agregar el indicador.
+
+```{r}
+largo <- expand_grid(
+  pais = c("Colombia", "Argentina", "Brazil"),
+  ano = c(2000, 2010, 2020)
+) %>%
+  mutate(indicador = rnorm(9, 3))
+largo
+```
+
+Pero, ¿cómo hacemos para pasar fácilmente de un formato al otro? Para reformatear datos de esta manera hacemos uso de funciones de la librería `tidyr`. Usamos `pivot_wider()` para pasar de largo a ancho y `pivot_longer()` para hacer lo contrario.
+
+### Largo a ancho
+
+Ocasionalmente, tenemos datos en formato largo y queremos pasarlos a un forma más ancho. Esto puede ser porque queremos hacer una tabla para presentar la información (una tabla muy larga es difícil de leer) o porque queremos cambiar el nivel de análisis de los datos ("agregarlos") para analizarlos o graficarlos.
+
+```{r}
+gapminder_ancho <- gapminder %>%
+  pivot_wider(
+    id_cols = country,
+    names_from = year,
+    names_prefix = "year_",
+    values_from = lifeExp, 
+  )
+gapminder_ancho
+```
+
+### Ancho a largo:
+
+Es más común tener que pasar de ancho (desordenado) a largo (ordenado). Usamos `pivot_longer()` para realizar este reformateo:
+
+```{r}
+gapminder_largo <- gapminder_ancho %>% # creamos un objeto nuevo usando los datos "anchos"
+  pivot_longer(
+    -country,
+    names_to = "year",
+    names_prefix = "year_",
+    values_to = "lifeExp"
+  ) %>%
+  arrange(country, year)
+gapminder_largo
+```
+
+Convertimos el ejemplo que construimos arriba:
+
+```{r}
+ancho %>%
+  pivot_longer(
+    -pais,
+    names_to = "ano",
+    names_prefix = "indicador_",
+    values_to = "indicador"
+  )
+```
+
+### Datos del Banco Mundial
+
+La librería `tidyr` incluye unos datos del Banco Mundial.
+
+```{r}
+world_bank_pop
+```
+
+Los datos está en formato ancho. Nuestro objetivo es tener una base de datos donde cada variable esté en una columna y cada fila sea una observación. Nuestro problema es que el año está en multiples columnas.
+
+```{r}
+pop2 <- world_bank_pop %>%
+  pivot_longer(
+    `2000`:`2017`, # comillas para que R entienda que son nombres de columnas, no valores
+    names_to = "year", 
+    values_to = "value"
+  )
+pop2
+```
+
+Aun tenemos que considerar la variable `indicator`:
+
+```{r}
+pop2 %>% count(indicator)
+```
+
+Aquí:
+
+- `SP.POP.GROW` es la tasa de crecimiento poblacional.
+- `SP.POP.TOTL` es la población total.
+- `SP.URB.*` es lo mismo, pero para áreas urbanas
+
+Dividamos `indicator` dos variables, área (total o urbana) y
+la variable en si (población o crecimiento). Usamos la función `separate()`:
+
+```{r}
+pop3 <- pop2 %>% 
+  separate(indicator, c(NA, "area", "variable"))
+pop3
+```
+
+Ahora podemos terminar de limpiar los datos: convertir los valores `TOTAL` y `GROW` en variables:
+
+```{r}
+wb_tidy <- pop3 %>% 
+  pivot_wider(names_from = variable, values_from = value)
+wb_tidy
+```
+
+Guardamos los datos como archivo tipo `.csv`:
+
+```{r}
+write_csv(wb_tidy, "data/wb_tidy.csv")
+```
+
+## Combinar/unir: `_join()`
+
+Tenemos dos bases de datos relacionadas, de pronto porque ambas incluyen información sobre los mismos casos, y queremos combinarlas. Volvamos a los datos de Polity IV:
+
+```{r}
+polity4
+```
+
+Pero esta base de datos solo tiene informacion sobre algunas características institucionales de la democracia. ¿Qué pasa si queremos explorar la relación de estas medidas con otros factores? Necesitaríamos unir otra base de datos que tenga información sobre los mismos casos (o un subconjunto de estos). Por ejemplo, miremos la _base de datos _Database of Political Institutions_. Cargamos el archivo (en formato `.dta` de Stata), seleccionamos unas variables y hacemos un poco de limpieza.
+
+```{r, warning = FALSE, message = FALSE, cache = TRUE}
+library(haven)
+dpi <- read_dta("data/DPI2017.dta") %>%
+  select(countryname, ifs, year, system, pr, numopp) %>%
+  zap_labels() %>% # quita las etiquetas de variable de Stata
+  na_if("-999")
+sample_n(dpi, 10)
+```
+
+Ahora tenemos dos bases de datos y queremos unirlas o combinarlas. Seguimos tres pasos para alcanzar este objetivo.
+
+1. Encontrar variables en común.
+2. Combinar las dos bases de datos.
+3. Guardar el resultado como un nuevo objeto en R.
+
+### Variables en común
+
+Debe haber variables en común para poder unir dos bases de datos. También debemos pensar en la unidad de análisis: ¿a qué corresponde cada fila en las bases de datos? 
+
+En este ejemplo, ambas bases de datos están en un formato largo de país-año: cada fila es un país observado en un año (repetidamente, o sea, es un panel). Entonces, podemos usar el año y el nombre de los de países para unir las bases de datos pues son elementos en común. Por un lado, `polity4` y `dpi` ambas tienen la columna `year` que representa el año de la observación. 
+
+Por otro lado, es recomendable usar códigos de país, en vez de nombres, ya que los códigos tienen estándares y los nombres no tanto (y dependen del idioma también). Los códigos de país de `dpi`, que están en la columna `ifs`, siguen el estándar del Fondo Monetario Internacional (FMI). Por tanto, convertimos los codigos de `polity4` a ese formato, apoyándonos en la libreria `countrycode`. Creamos una nueva variable que aloja los códigos de país según el estándar del FMI, usando los códigos de país que ya había en `polity4` (la columna `ccode`, que sigue el estándar numérico del Correlates of War, COW) como fuente.
+
+```{r}
+library(countrycode)
+polity4 <- polity4 %>%
+  mutate(
+    ifs = as.character(countrycode( 
+      sourcevar = ccode, # variable de origen
+      origin = "cown", # formato de origen: COW numerico
+      destination = "iso3c" # formato de destino: ISO 3 caracteres
+    ))
+  ) %>%
+  select(ifs, ccode, year, polity2, regimen)
+polity4
+```
+
+### Combinar bases de datos
+
+Ya tenemos la primera parte del proceso: encontramos variables en común. Para unir o combinar las bases de datos, usamos las funciones `join()` de `dplyr`. 
+
+Existen varios tipos de "joins". Podemos ejecutar `?dplyr::join` para ver todas las opciones. Hay dos grandes categorías, cada una con varios tipos de "joins". Asumiendo que `x` y `y` son dos bases de datos relacionadas con variables en común:
+- Joins para "mutar" datos: todas toman dos bases de datos (X y Y) y las combinan Combinar variables de X y de Y
+    - `left_join(x, y)`: El mas comun es left_join(X, Y) Mantiene todas las filas de X y todas las columnas de X y Y Filas de X sin pareja en Y tienen NA en las nuevas columnas
+    - `inner_join(x, y)`: Mantiene solo las filas de X que tienen pareja en Y y todas las columnas de X y Y
+Si hay multiples parejas, mantiene todas las combinaciones
+    - `right_join(x, y)`: Complemento de left_join()
+Mantiene todas las filas de Y y todas las columnas de X y Y
+Filas de Y sin pareja en X tienen NA en las nuevas columnas
+    - `full_join(x, y)`: Combinacion completa Mantiene todas las filas y columnas de X y Y. Si no hay parejas, da NA en esas columnas
+- Joins para "filtrar" datos: unir para mantener las filas de X
+    - `semi_join(x, y)`: Todas las filas de X con pareja en Y
+Solo columnas de X
+    - `anti_join(x, y)`: Todas las filas de X sin pareja en Y Solo columnas de X
+
+Usualmente usamos `left_join()`, la cual es la más común y cubre la mayoría de nuestras necesidades. Esta función une las dos bases de datos, agregando las columnas de una (aquí, `dpi`) a la otra (`polity4`). Este "join" mantiene todas las filas de la primera base de datos (`polity4`), las filas de ambas que coinciden (según las variables en común que especificamos) y todas las columnas de las dos bases de datos. Las filas de la primera base de datos que no tienen una "pareja" en la otra, aparecen con valores `NA` en las nuevas columnas (las de `dpi` que se agregan a `polity4`). Revisamos mirando algunos países:
+
+```{r}
+datos <- polity4 %>%
+  left_join(
+  dpi,
+  by = c("ifs", "year") # variables para combinar; mismo nombre y tipo
+)
+datos %>% select(ifs, year, polity2, regimen, pr, numopp) %>% sample_n(10)
+```
+
+Podemos guardar o exportar este nuevo objeto en diversos formatos. Por ejemplo, `write_excel_csv()` crea archivos `.csv` para Excel.
+
+```{r}
+write_excel_csv(datos, path = "data/datos_polity_dpi.csv")
+```
+
+Unir estas dos bases relacionadas nos permite evaluar más hipótesis. Podríamos sugerir que la presencia de una oposición fuerte (en términos de su presencia en el legislativo) lleva a un nivel de democracia más alto en términos de límites al ejecutivo. O al revés: cuando hay niveles de democracia liberal altos en los que se limita el poder del ejecutivo, es más probable que la oposición creza. Pero ¿hay alguna asociación empírica entre el número de curules que tiene la oposición y el nivel de democracia de un país?
+
+```{r, warning = FALSE}
+datos %>%
+  ggplot(aes(x = factor(polity2), y = numopp)) +
+  geom_boxplot() +
+  labs(x = "Indicador de democracia", y = "Número de curules de la oposición")
+```
+
+### Homicidios en Medellin
+
+Un último ejemplo para entender cómo unir bases de datos y lo que esto nos permite hacer. Supongamos que estamos interesados en analizar los homicidios de Medellín por zona a través del tiempo. Sin embargo, solo tenemos datos sobre homicidios en Medellin (tomados del SISC) en formato comuna-año. ¡No podemos hacer el análisis por zona si no tenemos una columna que nos indique la zona a la que pertenece cada observación!
+
+```{r}
+homicidio <- read_csv("data/mde_homicidio.csv")
+homicidio
+```
+
+Afortunadamente, encontramos un archivo `.csv` que contiene el listado comunas y corregimientos de Medellín y las zonas a las que pertenecen. Está en formato comuna-año para preparar un panel de datos y podemos usarlo para añadir a los datos sobre homicidios las variables `cod_zona` y `nom_zona`. Esto nos ahorra tener que clasificar las observaciones a mano.
+
+```{r}
+mde <- read_csv("data/mde_df.csv")
+mde
+```
+
+En ambas bases de datos hay codigos de comuna y años en común. Y las variables tienen la misma clase (caracter y numérico, respectivamente). Están relacionadas y podemos unirlas; queremos unirlas porque nos interesan los homicidios por zona, no por comuna. Como ya habíamos mencionado, podemos especificar las columnas que queremos usar para combinar las bases de datos (las columnas que identifican a cada observación). Si tienen nombres distintos en las dos bases de datos, podemos ser más explícitos usando `"nombre_en_x" = "nombre_en_y"`. 
+
+```{r}
+mde_right <- left_join(
+  homicidio, mde, 
+  by = c("cod_comuna" = "cod_comuna", "ano" = "ano")
+)
+mde_right
+```
+
+Ahora tenemos la información necesaria para nuestro análisis. Empezamos usando `group_by()` y `summarize()` para agregar los datos a nivel de zona-año: ahora, tenemos el número de homicidios por zona en cada año.
+
+```{r}
+mde_zonas <- mde_right %>%
+  group_by(nom_zona, ano) %>% # agrupar por zona y ano
+  summarize(
+    homicidios_total = sum(homicidios_total, na.rm = TRUE) # homicidios por comuna y ano 
+  ) %>% 
+  ungroup() %>%
+  drop_na() # eliminar NA
+mde_zonas
+```
+
+Por último, construimos una gráfica con funciones de `ggplot2`, capa por capa: una serie de tiempo anual de los homicidios en la ciudad, zona a zona (`color = nom_zona` crea una línea por zona de la ciudad). Agregamos títulos, cambiamos colores, etc. y guardamos la gráfica como un archivo `.png` con `ggsave()`.
+
+```{r}
+mde_zonas %>%
+  ggplot(aes(x = ano, y = homicidios_total, color = nom_zona)) + # asignar variables
+  geom_line(size = 1, alpha = 0.75) + # gráfica de lineas
+  scale_x_continuous(breaks = seq(min(mde_right$ano), max(mde_right$ano))) + # etiquetas de eje X
+  scale_color_brewer(palette = "Dark2") + # paleta de colores 
+  labs(
+    title = "Heterogeneidad temporal y espacial del homicidio en Medellín", # título
+    subtitle = "Homicidios por comuna, Medellín, 2003-2018", # subtítulo
+    caption = "Fuente: Elaboración propia con datos del Sistema de Información para la Seguridad y Convivencia (SISC).", # pie de imagen
+    x = NULL, y = "Número de homicidios", color = NULL # títulos de ejes y leyenda
+  ) + 
+  theme_classic(base_size = 12) + # fondo, tema y tamaño de letra
+  theme(legend.position = "bottom") + # mover leyenda
+  ggsave("output/homicidios_mde.png") # guardar
+```

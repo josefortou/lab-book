@@ -1,0 +1,421 @@
+cod_comuna,ano,nom_comuna,cod_zona,nom_zona
+01,2000,Popular,1,Zona 1 - Nororiental
+02,2000,Santa Cruz,1,Zona 1 - Nororiental
+03,2000,Manrique,1,Zona 1 - Nororiental
+04,2000,Aranjuez,1,Zona 1 - Nororiental
+05,2000,Castilla,2,Zona 2 - Noroccidental
+06,2000,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2000,Robledo,2,Zona 2 - Noroccidental
+08,2000,Villa Hermosa,3,Zona 3 - Centroriental
+09,2000,Buenos Aires,3,Zona 3 - Centroriental
+10,2000,La Candelaria,3,Zona 3 - Centroriental
+11,2000,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2000,La América,4,Zona 4 - Centroccidental
+13,2000,San Javier,4,Zona 4 - Centroccidental
+14,2000,El Poblado,5,Zona 5 - Suroriental
+15,2000,Guayabal,6,Zona 6 - Suroccidental
+16,2000,Belén,6,Zona 6 - Suroccidental
+50,2000,San Sebastián de Palmitas,7,Corregimientos
+60,2000,San Cristóbal,7,Corregimientos
+70,2000,Altavista,7,Corregimientos
+80,2000,San Antonio de Prado,7,Corregimientos
+90,2000,Santa Elena,7,Corregimientos
+01,2001,Popular,1,Zona 1 - Nororiental
+02,2001,Santa Cruz,1,Zona 1 - Nororiental
+03,2001,Manrique,1,Zona 1 - Nororiental
+04,2001,Aranjuez,1,Zona 1 - Nororiental
+05,2001,Castilla,2,Zona 2 - Noroccidental
+06,2001,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2001,Robledo,2,Zona 2 - Noroccidental
+08,2001,Villa Hermosa,3,Zona 3 - Centroriental
+09,2001,Buenos Aires,3,Zona 3 - Centroriental
+10,2001,La Candelaria,3,Zona 3 - Centroriental
+11,2001,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2001,La América,4,Zona 4 - Centroccidental
+13,2001,San Javier,4,Zona 4 - Centroccidental
+14,2001,El Poblado,5,Zona 5 - Suroriental
+15,2001,Guayabal,6,Zona 6 - Suroccidental
+16,2001,Belén,6,Zona 6 - Suroccidental
+50,2001,San Sebastián de Palmitas,7,Corregimientos
+60,2001,San Cristóbal,7,Corregimientos
+70,2001,Altavista,7,Corregimientos
+80,2001,San Antonio de Prado,7,Corregimientos
+90,2001,Santa Elena,7,Corregimientos
+01,2002,Popular,1,Zona 1 - Nororiental
+02,2002,Santa Cruz,1,Zona 1 - Nororiental
+03,2002,Manrique,1,Zona 1 - Nororiental
+04,2002,Aranjuez,1,Zona 1 - Nororiental
+05,2002,Castilla,2,Zona 2 - Noroccidental
+06,2002,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2002,Robledo,2,Zona 2 - Noroccidental
+08,2002,Villa Hermosa,3,Zona 3 - Centroriental
+09,2002,Buenos Aires,3,Zona 3 - Centroriental
+10,2002,La Candelaria,3,Zona 3 - Centroriental
+11,2002,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2002,La América,4,Zona 4 - Centroccidental
+13,2002,San Javier,4,Zona 4 - Centroccidental
+14,2002,El Poblado,5,Zona 5 - Suroriental
+15,2002,Guayabal,6,Zona 6 - Suroccidental
+16,2002,Belén,6,Zona 6 - Suroccidental
+50,2002,San Sebastián de Palmitas,7,Corregimientos
+60,2002,San Cristóbal,7,Corregimientos
+70,2002,Altavista,7,Corregimientos
+80,2002,San Antonio de Prado,7,Corregimientos
+90,2002,Santa Elena,7,Corregimientos
+01,2003,Popular,1,Zona 1 - Nororiental
+02,2003,Santa Cruz,1,Zona 1 - Nororiental
+03,2003,Manrique,1,Zona 1 - Nororiental
+04,2003,Aranjuez,1,Zona 1 - Nororiental
+05,2003,Castilla,2,Zona 2 - Noroccidental
+06,2003,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2003,Robledo,2,Zona 2 - Noroccidental
+08,2003,Villa Hermosa,3,Zona 3 - Centroriental
+09,2003,Buenos Aires,3,Zona 3 - Centroriental
+10,2003,La Candelaria,3,Zona 3 - Centroriental
+11,2003,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2003,La América,4,Zona 4 - Centroccidental
+13,2003,San Javier,4,Zona 4 - Centroccidental
+14,2003,El Poblado,5,Zona 5 - Suroriental
+15,2003,Guayabal,6,Zona 6 - Suroccidental
+16,2003,Belén,6,Zona 6 - Suroccidental
+50,2003,San Sebastián de Palmitas,7,Corregimientos
+60,2003,San Cristóbal,7,Corregimientos
+70,2003,Altavista,7,Corregimientos
+80,2003,San Antonio de Prado,7,Corregimientos
+90,2003,Santa Elena,7,Corregimientos
+01,2004,Popular,1,Zona 1 - Nororiental
+02,2004,Santa Cruz,1,Zona 1 - Nororiental
+03,2004,Manrique,1,Zona 1 - Nororiental
+04,2004,Aranjuez,1,Zona 1 - Nororiental
+05,2004,Castilla,2,Zona 2 - Noroccidental
+06,2004,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2004,Robledo,2,Zona 2 - Noroccidental
+08,2004,Villa Hermosa,3,Zona 3 - Centroriental
+09,2004,Buenos Aires,3,Zona 3 - Centroriental
+10,2004,La Candelaria,3,Zona 3 - Centroriental
+11,2004,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2004,La América,4,Zona 4 - Centroccidental
+13,2004,San Javier,4,Zona 4 - Centroccidental
+14,2004,El Poblado,5,Zona 5 - Suroriental
+15,2004,Guayabal,6,Zona 6 - Suroccidental
+16,2004,Belén,6,Zona 6 - Suroccidental
+50,2004,San Sebastián de Palmitas,7,Corregimientos
+60,2004,San Cristóbal,7,Corregimientos
+70,2004,Altavista,7,Corregimientos
+80,2004,San Antonio de Prado,7,Corregimientos
+90,2004,Santa Elena,7,Corregimientos
+01,2005,Popular,1,Zona 1 - Nororiental
+02,2005,Santa Cruz,1,Zona 1 - Nororiental
+03,2005,Manrique,1,Zona 1 - Nororiental
+04,2005,Aranjuez,1,Zona 1 - Nororiental
+05,2005,Castilla,2,Zona 2 - Noroccidental
+06,2005,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2005,Robledo,2,Zona 2 - Noroccidental
+08,2005,Villa Hermosa,3,Zona 3 - Centroriental
+09,2005,Buenos Aires,3,Zona 3 - Centroriental
+10,2005,La Candelaria,3,Zona 3 - Centroriental
+11,2005,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2005,La América,4,Zona 4 - Centroccidental
+13,2005,San Javier,4,Zona 4 - Centroccidental
+14,2005,El Poblado,5,Zona 5 - Suroriental
+15,2005,Guayabal,6,Zona 6 - Suroccidental
+16,2005,Belén,6,Zona 6 - Suroccidental
+50,2005,San Sebastián de Palmitas,7,Corregimientos
+60,2005,San Cristóbal,7,Corregimientos
+70,2005,Altavista,7,Corregimientos
+80,2005,San Antonio de Prado,7,Corregimientos
+90,2005,Santa Elena,7,Corregimientos
+01,2006,Popular,1,Zona 1 - Nororiental
+02,2006,Santa Cruz,1,Zona 1 - Nororiental
+03,2006,Manrique,1,Zona 1 - Nororiental
+04,2006,Aranjuez,1,Zona 1 - Nororiental
+05,2006,Castilla,2,Zona 2 - Noroccidental
+06,2006,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2006,Robledo,2,Zona 2 - Noroccidental
+08,2006,Villa Hermosa,3,Zona 3 - Centroriental
+09,2006,Buenos Aires,3,Zona 3 - Centroriental
+10,2006,La Candelaria,3,Zona 3 - Centroriental
+11,2006,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2006,La América,4,Zona 4 - Centroccidental
+13,2006,San Javier,4,Zona 4 - Centroccidental
+14,2006,El Poblado,5,Zona 5 - Suroriental
+15,2006,Guayabal,6,Zona 6 - Suroccidental
+16,2006,Belén,6,Zona 6 - Suroccidental
+50,2006,San Sebastián de Palmitas,7,Corregimientos
+60,2006,San Cristóbal,7,Corregimientos
+70,2006,Altavista,7,Corregimientos
+80,2006,San Antonio de Prado,7,Corregimientos
+90,2006,Santa Elena,7,Corregimientos
+01,2007,Popular,1,Zona 1 - Nororiental
+02,2007,Santa Cruz,1,Zona 1 - Nororiental
+03,2007,Manrique,1,Zona 1 - Nororiental
+04,2007,Aranjuez,1,Zona 1 - Nororiental
+05,2007,Castilla,2,Zona 2 - Noroccidental
+06,2007,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2007,Robledo,2,Zona 2 - Noroccidental
+08,2007,Villa Hermosa,3,Zona 3 - Centroriental
+09,2007,Buenos Aires,3,Zona 3 - Centroriental
+10,2007,La Candelaria,3,Zona 3 - Centroriental
+11,2007,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2007,La América,4,Zona 4 - Centroccidental
+13,2007,San Javier,4,Zona 4 - Centroccidental
+14,2007,El Poblado,5,Zona 5 - Suroriental
+15,2007,Guayabal,6,Zona 6 - Suroccidental
+16,2007,Belén,6,Zona 6 - Suroccidental
+50,2007,San Sebastián de Palmitas,7,Corregimientos
+60,2007,San Cristóbal,7,Corregimientos
+70,2007,Altavista,7,Corregimientos
+80,2007,San Antonio de Prado,7,Corregimientos
+90,2007,Santa Elena,7,Corregimientos
+01,2008,Popular,1,Zona 1 - Nororiental
+02,2008,Santa Cruz,1,Zona 1 - Nororiental
+03,2008,Manrique,1,Zona 1 - Nororiental
+04,2008,Aranjuez,1,Zona 1 - Nororiental
+05,2008,Castilla,2,Zona 2 - Noroccidental
+06,2008,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2008,Robledo,2,Zona 2 - Noroccidental
+08,2008,Villa Hermosa,3,Zona 3 - Centroriental
+09,2008,Buenos Aires,3,Zona 3 - Centroriental
+10,2008,La Candelaria,3,Zona 3 - Centroriental
+11,2008,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2008,La América,4,Zona 4 - Centroccidental
+13,2008,San Javier,4,Zona 4 - Centroccidental
+14,2008,El Poblado,5,Zona 5 - Suroriental
+15,2008,Guayabal,6,Zona 6 - Suroccidental
+16,2008,Belén,6,Zona 6 - Suroccidental
+50,2008,San Sebastián de Palmitas,7,Corregimientos
+60,2008,San Cristóbal,7,Corregimientos
+70,2008,Altavista,7,Corregimientos
+80,2008,San Antonio de Prado,7,Corregimientos
+90,2008,Santa Elena,7,Corregimientos
+01,2009,Popular,1,Zona 1 - Nororiental
+02,2009,Santa Cruz,1,Zona 1 - Nororiental
+03,2009,Manrique,1,Zona 1 - Nororiental
+04,2009,Aranjuez,1,Zona 1 - Nororiental
+05,2009,Castilla,2,Zona 2 - Noroccidental
+06,2009,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2009,Robledo,2,Zona 2 - Noroccidental
+08,2009,Villa Hermosa,3,Zona 3 - Centroriental
+09,2009,Buenos Aires,3,Zona 3 - Centroriental
+10,2009,La Candelaria,3,Zona 3 - Centroriental
+11,2009,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2009,La América,4,Zona 4 - Centroccidental
+13,2009,San Javier,4,Zona 4 - Centroccidental
+14,2009,El Poblado,5,Zona 5 - Suroriental
+15,2009,Guayabal,6,Zona 6 - Suroccidental
+16,2009,Belén,6,Zona 6 - Suroccidental
+50,2009,San Sebastián de Palmitas,7,Corregimientos
+60,2009,San Cristóbal,7,Corregimientos
+70,2009,Altavista,7,Corregimientos
+80,2009,San Antonio de Prado,7,Corregimientos
+90,2009,Santa Elena,7,Corregimientos
+01,2010,Popular,1,Zona 1 - Nororiental
+02,2010,Santa Cruz,1,Zona 1 - Nororiental
+03,2010,Manrique,1,Zona 1 - Nororiental
+04,2010,Aranjuez,1,Zona 1 - Nororiental
+05,2010,Castilla,2,Zona 2 - Noroccidental
+06,2010,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2010,Robledo,2,Zona 2 - Noroccidental
+08,2010,Villa Hermosa,3,Zona 3 - Centroriental
+09,2010,Buenos Aires,3,Zona 3 - Centroriental
+10,2010,La Candelaria,3,Zona 3 - Centroriental
+11,2010,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2010,La América,4,Zona 4 - Centroccidental
+13,2010,San Javier,4,Zona 4 - Centroccidental
+14,2010,El Poblado,5,Zona 5 - Suroriental
+15,2010,Guayabal,6,Zona 6 - Suroccidental
+16,2010,Belén,6,Zona 6 - Suroccidental
+50,2010,San Sebastián de Palmitas,7,Corregimientos
+60,2010,San Cristóbal,7,Corregimientos
+70,2010,Altavista,7,Corregimientos
+80,2010,San Antonio de Prado,7,Corregimientos
+90,2010,Santa Elena,7,Corregimientos
+01,2011,Popular,1,Zona 1 - Nororiental
+02,2011,Santa Cruz,1,Zona 1 - Nororiental
+03,2011,Manrique,1,Zona 1 - Nororiental
+04,2011,Aranjuez,1,Zona 1 - Nororiental
+05,2011,Castilla,2,Zona 2 - Noroccidental
+06,2011,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2011,Robledo,2,Zona 2 - Noroccidental
+08,2011,Villa Hermosa,3,Zona 3 - Centroriental
+09,2011,Buenos Aires,3,Zona 3 - Centroriental
+10,2011,La Candelaria,3,Zona 3 - Centroriental
+11,2011,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2011,La América,4,Zona 4 - Centroccidental
+13,2011,San Javier,4,Zona 4 - Centroccidental
+14,2011,El Poblado,5,Zona 5 - Suroriental
+15,2011,Guayabal,6,Zona 6 - Suroccidental
+16,2011,Belén,6,Zona 6 - Suroccidental
+50,2011,San Sebastián de Palmitas,7,Corregimientos
+60,2011,San Cristóbal,7,Corregimientos
+70,2011,Altavista,7,Corregimientos
+80,2011,San Antonio de Prado,7,Corregimientos
+90,2011,Santa Elena,7,Corregimientos
+01,2012,Popular,1,Zona 1 - Nororiental
+02,2012,Santa Cruz,1,Zona 1 - Nororiental
+03,2012,Manrique,1,Zona 1 - Nororiental
+04,2012,Aranjuez,1,Zona 1 - Nororiental
+05,2012,Castilla,2,Zona 2 - Noroccidental
+06,2012,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2012,Robledo,2,Zona 2 - Noroccidental
+08,2012,Villa Hermosa,3,Zona 3 - Centroriental
+09,2012,Buenos Aires,3,Zona 3 - Centroriental
+10,2012,La Candelaria,3,Zona 3 - Centroriental
+11,2012,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2012,La América,4,Zona 4 - Centroccidental
+13,2012,San Javier,4,Zona 4 - Centroccidental
+14,2012,El Poblado,5,Zona 5 - Suroriental
+15,2012,Guayabal,6,Zona 6 - Suroccidental
+16,2012,Belén,6,Zona 6 - Suroccidental
+50,2012,San Sebastián de Palmitas,7,Corregimientos
+60,2012,San Cristóbal,7,Corregimientos
+70,2012,Altavista,7,Corregimientos
+80,2012,San Antonio de Prado,7,Corregimientos
+90,2012,Santa Elena,7,Corregimientos
+01,2013,Popular,1,Zona 1 - Nororiental
+02,2013,Santa Cruz,1,Zona 1 - Nororiental
+03,2013,Manrique,1,Zona 1 - Nororiental
+04,2013,Aranjuez,1,Zona 1 - Nororiental
+05,2013,Castilla,2,Zona 2 - Noroccidental
+06,2013,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2013,Robledo,2,Zona 2 - Noroccidental
+08,2013,Villa Hermosa,3,Zona 3 - Centroriental
+09,2013,Buenos Aires,3,Zona 3 - Centroriental
+10,2013,La Candelaria,3,Zona 3 - Centroriental
+11,2013,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2013,La América,4,Zona 4 - Centroccidental
+13,2013,San Javier,4,Zona 4 - Centroccidental
+14,2013,El Poblado,5,Zona 5 - Suroriental
+15,2013,Guayabal,6,Zona 6 - Suroccidental
+16,2013,Belén,6,Zona 6 - Suroccidental
+50,2013,San Sebastián de Palmitas,7,Corregimientos
+60,2013,San Cristóbal,7,Corregimientos
+70,2013,Altavista,7,Corregimientos
+80,2013,San Antonio de Prado,7,Corregimientos
+90,2013,Santa Elena,7,Corregimientos
+01,2014,Popular,1,Zona 1 - Nororiental
+02,2014,Santa Cruz,1,Zona 1 - Nororiental
+03,2014,Manrique,1,Zona 1 - Nororiental
+04,2014,Aranjuez,1,Zona 1 - Nororiental
+05,2014,Castilla,2,Zona 2 - Noroccidental
+06,2014,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2014,Robledo,2,Zona 2 - Noroccidental
+08,2014,Villa Hermosa,3,Zona 3 - Centroriental
+09,2014,Buenos Aires,3,Zona 3 - Centroriental
+10,2014,La Candelaria,3,Zona 3 - Centroriental
+11,2014,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2014,La América,4,Zona 4 - Centroccidental
+13,2014,San Javier,4,Zona 4 - Centroccidental
+14,2014,El Poblado,5,Zona 5 - Suroriental
+15,2014,Guayabal,6,Zona 6 - Suroccidental
+16,2014,Belén,6,Zona 6 - Suroccidental
+50,2014,San Sebastián de Palmitas,7,Corregimientos
+60,2014,San Cristóbal,7,Corregimientos
+70,2014,Altavista,7,Corregimientos
+80,2014,San Antonio de Prado,7,Corregimientos
+90,2014,Santa Elena,7,Corregimientos
+01,2015,Popular,1,Zona 1 - Nororiental
+02,2015,Santa Cruz,1,Zona 1 - Nororiental
+03,2015,Manrique,1,Zona 1 - Nororiental
+04,2015,Aranjuez,1,Zona 1 - Nororiental
+05,2015,Castilla,2,Zona 2 - Noroccidental
+06,2015,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2015,Robledo,2,Zona 2 - Noroccidental
+08,2015,Villa Hermosa,3,Zona 3 - Centroriental
+09,2015,Buenos Aires,3,Zona 3 - Centroriental
+10,2015,La Candelaria,3,Zona 3 - Centroriental
+11,2015,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2015,La América,4,Zona 4 - Centroccidental
+13,2015,San Javier,4,Zona 4 - Centroccidental
+14,2015,El Poblado,5,Zona 5 - Suroriental
+15,2015,Guayabal,6,Zona 6 - Suroccidental
+16,2015,Belén,6,Zona 6 - Suroccidental
+50,2015,San Sebastián de Palmitas,7,Corregimientos
+60,2015,San Cristóbal,7,Corregimientos
+70,2015,Altavista,7,Corregimientos
+80,2015,San Antonio de Prado,7,Corregimientos
+90,2015,Santa Elena,7,Corregimientos
+01,2016,Popular,1,Zona 1 - Nororiental
+02,2016,Santa Cruz,1,Zona 1 - Nororiental
+03,2016,Manrique,1,Zona 1 - Nororiental
+04,2016,Aranjuez,1,Zona 1 - Nororiental
+05,2016,Castilla,2,Zona 2 - Noroccidental
+06,2016,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2016,Robledo,2,Zona 2 - Noroccidental
+08,2016,Villa Hermosa,3,Zona 3 - Centroriental
+09,2016,Buenos Aires,3,Zona 3 - Centroriental
+10,2016,La Candelaria,3,Zona 3 - Centroriental
+11,2016,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2016,La América,4,Zona 4 - Centroccidental
+13,2016,San Javier,4,Zona 4 - Centroccidental
+14,2016,El Poblado,5,Zona 5 - Suroriental
+15,2016,Guayabal,6,Zona 6 - Suroccidental
+16,2016,Belén,6,Zona 6 - Suroccidental
+50,2016,San Sebastián de Palmitas,7,Corregimientos
+60,2016,San Cristóbal,7,Corregimientos
+70,2016,Altavista,7,Corregimientos
+80,2016,San Antonio de Prado,7,Corregimientos
+90,2016,Santa Elena,7,Corregimientos
+01,2017,Popular,1,Zona 1 - Nororiental
+02,2017,Santa Cruz,1,Zona 1 - Nororiental
+03,2017,Manrique,1,Zona 1 - Nororiental
+04,2017,Aranjuez,1,Zona 1 - Nororiental
+05,2017,Castilla,2,Zona 2 - Noroccidental
+06,2017,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2017,Robledo,2,Zona 2 - Noroccidental
+08,2017,Villa Hermosa,3,Zona 3 - Centroriental
+09,2017,Buenos Aires,3,Zona 3 - Centroriental
+10,2017,La Candelaria,3,Zona 3 - Centroriental
+11,2017,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2017,La América,4,Zona 4 - Centroccidental
+13,2017,San Javier,4,Zona 4 - Centroccidental
+14,2017,El Poblado,5,Zona 5 - Suroriental
+15,2017,Guayabal,6,Zona 6 - Suroccidental
+16,2017,Belén,6,Zona 6 - Suroccidental
+50,2017,San Sebastián de Palmitas,7,Corregimientos
+60,2017,San Cristóbal,7,Corregimientos
+70,2017,Altavista,7,Corregimientos
+80,2017,San Antonio de Prado,7,Corregimientos
+90,2017,Santa Elena,7,Corregimientos
+01,2018,Popular,1,Zona 1 - Nororiental
+02,2018,Santa Cruz,1,Zona 1 - Nororiental
+03,2018,Manrique,1,Zona 1 - Nororiental
+04,2018,Aranjuez,1,Zona 1 - Nororiental
+05,2018,Castilla,2,Zona 2 - Noroccidental
+06,2018,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2018,Robledo,2,Zona 2 - Noroccidental
+08,2018,Villa Hermosa,3,Zona 3 - Centroriental
+09,2018,Buenos Aires,3,Zona 3 - Centroriental
+10,2018,La Candelaria,3,Zona 3 - Centroriental
+11,2018,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2018,La América,4,Zona 4 - Centroccidental
+13,2018,San Javier,4,Zona 4 - Centroccidental
+14,2018,El Poblado,5,Zona 5 - Suroriental
+15,2018,Guayabal,6,Zona 6 - Suroccidental
+16,2018,Belén,6,Zona 6 - Suroccidental
+50,2018,San Sebastián de Palmitas,7,Corregimientos
+60,2018,San Cristóbal,7,Corregimientos
+70,2018,Altavista,7,Corregimientos
+80,2018,San Antonio de Prado,7,Corregimientos
+90,2018,Santa Elena,7,Corregimientos
+01,2019,Popular,1,Zona 1 - Nororiental
+02,2019,Santa Cruz,1,Zona 1 - Nororiental
+03,2019,Manrique,1,Zona 1 - Nororiental
+04,2019,Aranjuez,1,Zona 1 - Nororiental
+05,2019,Castilla,2,Zona 2 - Noroccidental
+06,2019,Doce de Octubre,2,Zona 2 - Noroccidental
+07,2019,Robledo,2,Zona 2 - Noroccidental
+08,2019,Villa Hermosa,3,Zona 3 - Centroriental
+09,2019,Buenos Aires,3,Zona 3 - Centroriental
+10,2019,La Candelaria,3,Zona 3 - Centroriental
+11,2019,Laureles-Estadio,4,Zona 4 - Centroccidental
+12,2019,La América,4,Zona 4 - Centroccidental
+13,2019,San Javier,4,Zona 4 - Centroccidental
+14,2019,El Poblado,5,Zona 5 - Suroriental
+15,2019,Guayabal,6,Zona 6 - Suroccidental
+16,2019,Belén,6,Zona 6 - Suroccidental
+50,2019,San Sebastián de Palmitas,7,Corregimientos
+60,2019,San Cristóbal,7,Corregimientos
+70,2019,Altavista,7,Corregimientos
+80,2019,San Antonio de Prado,7,Corregimientos
+90,2019,Santa Elena,7,Corregimientos
