@@ -1220,7 +1220,7 @@ mde_zonas %>%
 
 ## Taller: funciones y datos
 
-## 1. Crear una base de datos
+### Crear una base de datos
 
 Construir, guardar e imprimir un objeto `tibble` llamado `datos_pib` que contenga la siguiente información en filas y columnas:
 
@@ -1235,9 +1235,9 @@ Usando `datos_pib`, encontrar (1.0 punto):
 - El promedio del PIB per cápita para la muestra.
 - La correlación de esta variable con la expectativa de vida al nacer.
 
-### 2. Mostrar relaciones 
+### Mostrar relaciones 
 
-Usando la función apropiada, cargar el archivo de datos `datos_taller1.csv` (pueden descargarlo a la carpeta `"data/`) como un objeto tipo `tibble`.
+Usando la función apropiada, cargar el archivo de datos `datos_taller1.csv` (pueden descargarlo de [aquí](https://github.com/josefortou/lab-book/blob/master/data/) a la carpeta `"data/`) como un objeto tipo `tibble`.
 
 La base de datos incluye las siguientes variables tomadas de [Varieties of Democracy, v. 10](https://www.v-dem.net/en/data/data-version-10/):
 
@@ -1253,6 +1253,22 @@ Usando estos datos y las funciones apropiadas en R (1.0 punto):
 - Construir una tabla cruzada que cuente cuántos países con sistemas mayoritarios tienen sistemas multipartidistas.
 - Construir e interpretar una gráfica sencilla que muestre la relación entre el grado de autonomía de la oposición y el nivel de democracia electoral.
 
+### Seleccionar observaciones
 
+Cargar a la sesión de R la base de datos que piensan utilizar en el proyecto de investigación del curso. Utilizar las funciones y operadores apropiados para seleccionar las filas (casos) potencialmente interesantes o relevantes para la investigación. Guardar este subconjunto de datos (un "*subset*") como un objeto nuevo tipo `data.frame` o `tibble` nuevo (1.0 punto).
+
+- Bono: Convertir todos los nombres de columna a `snake_case` (usando funciones, no a mano). Esto les ahorrará dolores de cabeza a largo plazo.
+- Bono: mostrar que los valores `NA` de las variables de interés -si los hay- están codificados apropiadamente (no como `-999`, `"N/A"` o similares). Esto les ahorrará dolores de cabeza a largo plazo.
+
+### Seleccionar variables
+
+Usando el objeto creado en el punto anterior (el subconjunto de datos), utilizar las funciones y operadores apropiados para seleccionar las variables que tengan más sentido para su investigación. Guardar este subconjunto de datos como un objeto tipo `data.frame` o `tibble`. A su vez, deben guardar este objeto como un archivo de datos en `"data/"`; este archivo puede ser `.rds`, `.csv`, `.xlsx`, `.dta`, etc. (1.0 punto).
+
+### Medias de grupos
+
+Estimar la media de una variable numérica de interés (puede ser una variable independiente o dependiente) y comparar la media de esta variable para por lo menos dos grupos o categorías de interés teórico. En otras palabras, estimar la media de una variable para varios grupos o categorías. Interpretar los resultados (1.0 punto).
+
+- Bono: realizar e interpretar una prueba $t$ de Student para evaluar si estas dos medias son diferentes en términos estadísticos. Pista: la librería `infer` ofrece una función para hacerlo, pero R ya incluye una.
+- Bono: realizar e interpretar una tabla cruzada de dos variables y utilizar una prueba $\chi^{2}$ para evaluar si las dos variables son independientes. Pista: la librería `infer` ofrece una función para hacerlo, pero R ya incluye una.
 
 
