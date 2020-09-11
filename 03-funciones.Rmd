@@ -7,54 +7,76 @@ library(tidyverse)
 
 ## Resumen
 
-En este capítulo, finalizamos la introducción a los elementos básicos de R: objetos, bases de datos y funciones. Mostramos cómo aplicar funciones existentes y cómo escribir funciones nuevas que nos ayuden a analizar datos. Al final, ilustramos el potencial de ambas cuestiones con una aplicación a la política colombiana.
+En este capítulo, finalizamos la introducción a algunos de los elementos básicos del trabajo estadístico en R: objetos, bases de datos y funciones. Mostramos cómo aplicar funciones existentes y cómo escribir funciones nuevas que nos ayuden a analizar datos. Al final, ilustramos el potencial de ambas cuestiones con una aplicación a la política colombiana.
 
-- Principales conceptos: función; datos no disponibles (`NA`); estadísticas resumen; *web scraping*.
+- Principales conceptos: función; datos no disponibles (`NA`); estadísticas resumen.
 - Funciones clave: `mean()`; `table()`; `cor()`; `is.na()`; `function()`.
+
+### Librerías
+
+Vamos a utilizar las siguientes librerías:
+
+```{r}
+library(tidyverse)
+```
+
+### Datos
+
+Debemos descargar los siguientes archivos de datos y guardarlos en la carpeta `/data` de nuestro proyecto:
+
+- Datos de ingreso ficticios: [link](https://github.com/josefortou/lab-book/blob/master/data/datos_ingreso.csv). Para descargar, hacer click derecho, "Guardar como...".
 
 ## Qué es una función
 
-En general, queremos hacer algo con los objetos en R (con los datos).  Como ya hemos visto, en R hacemos cosas usando funciones. Se las podemos aplicar a vectores, cuadros de datos, variables y otros objetos
+En general, queremos hacer algo con los objetos en R (o sea, con los datos). Como ya hemos visto, en R hacemos operaciones usando funciones que toman un *input* y producen un *output* tras un procedimiento. Podemos aplicale funciones a valores individuales, vectores, bases de datos, variables y otros objetos.
 
-Una función es una operación en la que hay un *input*, una operación y un *output*. Por ejemplo, en la función $f(x) = x + 1$.
+Recapitulando, una función toma un *input*, le aplica una operación y nos devuelve un *output*. Por ejemplo, en la función $f(x) = x + 1$.
   
 - Input: la información que queremos transformar ($x$).
 - Operación: la transformación o relación ($x + 1$).
 - Output: el resultado de aplicar la función (si $x = 1$, entonces $f(x) = 1 + 1 = 2$).
 
-Esto en R se vería así:
+En R, esto se vería así:
 
 ```{r}
+# definimos la funcion
 sumar_uno <- function(a){a + 1}
+# definimos unos valores
 x <- 1
+# aplicamos la funcion
 sumar_uno(x)
 ```
 
-En R, las funciones toman argumentos, separados por comas: `nombre_funcion(argumento1 = valor, argumento2 = valor, ...)`. Por ejemplo, para encontrar la mediana de un vector, usamos `median()`. Esta función toma como primer argumento un vector para encontrar el valor mediano. Adicionalmente, puede tomar un argumento `na.rm =` con un valor `TRUE` o `FALSE` (`na.rm = FALSE` o `na.rm = TRUE`) que elimina los valores `NA` antes de hallar la mediana.
+En R, las funciones toman argumentos, separados por comas: `nombre_funcion(argumento1 = valor, argumento2 = valor, ...)`. Por ejemplo, para encontrar la mediana de un vector, usamos `median()`. Esta función toma como primer argumento un vector para encontrar el valor mediano. Adicionalmente, puede tomar un argumento `na.rm =` con un valor `TRUE` o `FALSE` (`na.rm = FALSE` o `na.rm = TRUE`) que elimina los valores `NA` antes de hallar la mediana igual a `mean()`. Veamos qué pasa si tenemos un valor `NA`:
 
 ```{r}
 mis_numeros <- c(1, 1, 2, 3, 5, 8, 13, 21, 34, NA)
 median(mis_numeros)
 ```
 
-Como hay un `NA` en `mis_numeros`, R no puede estimar la mediana del vector. Por eso, usamos el argumento `na.rm =`.
+Como hay un `NA` en `mis_numeros`, R no puede estimar la mediana del vector. Por eso, usamos el argumento `na.rm = TRUE`:
 
 ```{r}
 median(mis_numeros, na.rm = TRUE)
 ```
 
-Podemos consultar los argumentos de una función y sus valores por defecto ejecutando `?` en la consola, seguido del nombre de la función. Por ejemplo, intenten ejecutar `?median` o `?tibble`.
+Podemos consultar los argumentos de una función y sus valores por defecto ejecutando `?` en la consola, seguido del nombre de la función. Por ejemplo, intenten ejecutar `?median` o `?tibble`:
 
-Es posible especificar los argumentos de una función de manera explícita o implícita. Cuando hacemos explícito un argumento, usamos el nombre del argumento, como hicimos arriba con `na.rm =`. Aquí hacemos lo mismo con la función `rnorm()` y los argumentos `mean =` y `sd =`.
+```{r, eval = FALSE}
+?tibble
+```
+
+Es posible especificar los argumentos de una función de manera explícita o implícita. Cuando hacemos explícito un argumento, usamos el nombre del argumento, como hicimos arriba con `na.rm =`. Aquí hacemos lo mismo con la función `rnorm()` y los argumentos `mean =` y `sd =`:
 
 ```{r}
+set.seed(42) # para asegurar replicabilidad
 head(rnorm(n = 10000, mean = 0, sd = 1))
 ```
 
-En contraste, podemos dejar los argumentos implícitos. Cada función tiene un orden predefinido de sus argumentos; podemos consultar este orden con `?`. El siguiente código es equivalente al anterior:
+En contraste, podemos dejar los argumentos implícitos. Cada función tiene un orden predefinido de sus argumentos; podemos consultar este orden consultando la función con `?`. El siguiente bloque de código es equivalente al anterior:
 
 ```{r}
-head(rnorm(10000, 0, 1)) # las diferencias en el resultado son productor de la aleatoriedad de rnorm()
+head(rnorm(10000, 0, 1)) # diferencias en el resultado son producto de la aleatoriedad de rnorm()
 ```
 
 Muchas funciones tienen valores por defecto para cada argumento. En el caso de `rnorm()`, `mean = 0` y `sd = 1` a menos que los definamos de manera diferente. Podemos comprobarlo:
@@ -71,7 +93,7 @@ Podemos cambiar el orden en que van los argumentos si usamos sus nombres (o sea,
 head(rnorm(mean = 0, sd = 1, n = 10000))
 ```
 
-Comparen lo anterior con el siguiente código que produce una observación distribuida normalmente, con media de 10000 y desviación estándar de 0.
+Comparen lo anterior con el siguiente código que produce 1 observación distribuida normalmente, con media de 10000 y desviación estándar de 0.
 
 ```{r}
 head(rnorm(1, 10000, 0))
@@ -79,17 +101,16 @@ head(rnorm(1, 10000, 0))
 
 ## Funciones básicas
 
-Hay funciones básicas para crear objetos -- muchas ya vienen instaladas y ya hemos usado varias. Otras funciones están en librerías adicionales que descargamos y cargamos. Aquí hay algunos ejemplos:
+Hay funciones básicas para crear objetos -- muchas ya vienen instaladas y ya hemos usado varias. Otras funciones están en librerías adicionales que descargamos y cargamos, como las del `tidyverse`. Aquí hay algunos ejemplos:
 
   - `c()` pega, combina o concatena valores y objetos.
   - `data.frame()` crea un marco de datos; `tibble()` crea un tibble.
-  - `read_csv()` y `read_dta` leen archivos de datos.
+  - `read_csv()` y `read_dta` leen archivos de datos CSV o de Stata, respectivamente.
   - `as_tibble` para convertir un `data.frame` u otro objeto existente en un tibble.
-  - `as.factor()` para convertir una variable numérica en una categórica.
-  - `factor()` para crear un factor (una variable categórica).
+  - `as.factor()` para convertir una variable numérica en una categórica y `factor()` para crear un factor (una variable categórica).
   - `as.numeric()`, `as.character()`, etc.
 
-A continuación, revisamos algunas funciones centrales para usar R en el contexto de hacer análisis de datos estadístico.
+A continuación, revisamos algunas funciones centrales para usar R en el contexto de hacer análisis de datos.
 
 ### Estadisticas resumen
 
@@ -102,41 +123,41 @@ max(mis_numeros, na.rm = TRUE) # encontrar el valor máximo
 range(mis_numeros, na.rm = TRUE) # rango (mínimo y máximo)
 ```
 
-Hablando de resumir, en R usamos la función `round()` para redondear variables numéricas. `pi` es una función de R que nos da la constante $\pi. Especificamos el número de dígitos después del decimal con el argumento `digits =`.
+Hablando de resumir, en R usamos la función `round()` para redondear variables numéricas. `pi` es una función de R que nos da el valor de la constante $\pi. Especificamos el número de dígitos después del decimal con el argumento `digits = `:
 
 ```{r}
 round(pi, digits = 2) # redondea al segundo decimal
 ```
 
-Finalmente, podemos hacer resúmenes de objetos más grandes -por ejemplo, una base de datos- con `summary()`. Este resumen incluye información importante sobre cada columna/variable.
+Finalmente, podemos hacer resúmenes de objetos más grandes --por ejemplo, una base de datos-- con `summary()`. Este resumen incluye información importante sobre cada columna/variable:
 
 ```{r}
 summary(mtcars)
 ```
 
-### `NA` o datos no disponibles
+### Datos `NA` o no disponibles
 
-Para saber si tenemos `NA` (y dónde están), usamos `is.na()`
+A veces, no tenemos información para una observación. Decimos entonces que el dato no está disponible. R tiene un tipo de dato específicamente para esta situación: `NA`. Para saber si tenemos `NA` en un objeto (y dónde están), usamos `is.na()`:
 
 ```{r}
 is.na(mis_numeros)
 ```
 
-Si queremos contar cuántos `NA` tenemos en un vector, podemos aprovechar que los vectores lógicos como el producido por `is.na()` puede ser "sumados" y si le aplicamos la función `sum()`, nos arroja el número de `NA`. 
+Si queremos contar cuántos `NA` tenemos en un vector, podemos aprovechar que los vectores lógicos como el producido por `is.na()` puede ser "sumados" y si le aplicamos la función `sum()`, nos arroja el número de `NA` en el vector:
 
 ```{r}
 sum(is.na(mis_numeros)) ## contar cuantos NA
 ```
 
-Es importante entender que hay una diferencia importante entre datos verdaderamente no disponibles (que R marca como `NA`) y celdas o valores "N/A", "No disponible" o "NA". R interpreta estos últimos como texto, no como datos no disponibles.
+Es importante entender que hay una diferencia importante entre datos verdaderamente no disponibles (que R marca como `NA`) y celdas o valores `"N/A"`, `"No disponible"` o incluso `"NA"`. También es distinto a códigos de valores no disponibles que a veces se utilizan en bases de datos (como -99). R interpreta estos como valores, no como datos no disponibles:
 
 ```{r}
-is.na(c(1, 3, NA, "N/A", "No disponible", "NA"))
+is.na(c(1, 3, NA, "N/A", "No disponible", "NA", -99))
 ```
 
 ### Dimensiones de un objeto
 
-Podemos ver cuantos elementos tiene un objeto y cuáles son sus dimensiones. Carguemos una base de datos que creamos anteriormente:
+Podemos ver cuantos elementos tiene un objeto y cuáles son sus dimensiones. Carguemos una base de datos que creamos en un capítulo anterior:
 
 ```{r}
 datos_ingreso <- read_csv("data/datos_ingreso.csv")
@@ -151,6 +172,8 @@ nrow(datos_ingreso) # número de filas
 ncol(datos_ingreso) # número de columnas
 dim(datos_ingreso) # dimensiones (filas por columnas)
 ```
+
+Vemos que esta base de datos tiene `r nrow(datos_ingreso)` filas y `ncol(datos_ingreso)` columnas. 
 
 ### Medidas de tendencia central y de dispersión
 
@@ -167,31 +190,42 @@ mean(x) # media aritmética
 median(x) # mediana
 ```
 
-Y ahora, dos algunas de tendencia central:
+Y ahora, dos de tendencia central:
 
 ```{r}
 sd(x) # desviación estándar
 var(x) # varianza
 ```
 
+La estadística descriptiva e inferencial depende crucialmente de medidas de dispersión y de tendencia central como estas.
+
 ### Relaciones entre variables
 
-Con frecuencia, no nos interesa saber algo sobre una variable aislada. Más bien, queremos ver cómo se relaciona con otras. Digamos que queremos calcular el coeficiente de correlación entre `x` y otra variable `y`:
+Con frecuencia, no nos interesa saber algo sobre una variable aislada. Más bien, queremos ver cómo se relaciona con otras. Digamos que queremos calcular el coeficiente de correlación entre `x` como la definimos arriba y otra variable `y` definida así:
 
 ```{r}
 y <- rnorm(1000, 10, 3) # argumentos implícitos
+```
+
+¿Cuál es la correlación? Usemos la función `cor()`:
+
+```{r}
 cor(x, y)
 ```
 
-
-Podemos aprovechar las propiedades de los vectores para crear nuevos objetos a partir de los ya existentes. En este caso, la correlación entre `x` y `z` es perfecta porque una está definida en términos de la otra.
+Podemos aprovechar las propiedades de los vectores en R para crear nuevos objetos a partir de los ya existentes, como una vector de valores `z` que dependen del valor de `x`:
 
 ```{r}
 z <- x + 3
+```
+
+En este caso, la correlación entre `x` y `z` es perfecta porque una está definida en términos de la otra:
+
+```{r}
 cor(x, z)
 ```
 
-Funciona también con otros datos:
+`cor()` funciona también con bases de datos. Por ejemplo, veamos que en nuestros datos ficticios de ingreso individual hay una correlación positiva entre edad e ingreso:
 
 ```{r}
 cor(datos_ingreso$edad, datos_ingreso$ingreso)
@@ -199,7 +233,7 @@ cor(datos_ingreso$edad, datos_ingreso$ingreso)
 
 ## Anidar funciones
 
-No estamos limitados a utilizar una función a la vez. Es fácil usar múltiples funciones al mismo tiempo para realizar operaciones más complejas. Para esto, las "anidamos". El orden de operaciones es sencillo: se leen de adentro hacia afuera. Pero esto a veces puede ser confuso -- ¡hay que tener cuidado con los paréntesis! 
+No estamos limitados a utilizar una función a la vez. En R, es fácil usar múltiples funciones al mismo tiempo para realizar operaciones más complejas. Para esto, las "anidamos". El orden de operaciones es sencillo: se leen de adentro hacia afuera. Pero esto a veces puede ser confuso -- ¡hay que tener cuidado con los paréntesis! 
 
 ```{r}
 round(mean(mis_numeros, na.rm = TRUE)) # si no especificamos, redondea al primer decimal
@@ -216,7 +250,7 @@ Hay funciones para contar o hacer resúmenes de variables cualitativas. Por ejem
 table(mis_numeros)
 ```
 
-A veces queremos "cruzar" variables categóricas, esto es, ver cuántas observaciones tienen distintas combinaciones de valores de dos variables. `table()` también sirve para hacer lo que llamamos una tabla cruzada, tabulación cruzada o tabla de contingencia:
+A veces queremos "cruzar" variables categóricas, esto es, ver cuántas observaciones tienen distintas combinaciones de valores de dos variables. `table()` también sirve para hacer lo que llamamos una tabla cruzada, tabulación cruzada o tabla de contingencia entre dos variables discretas o categóricas, en este caso, el tipo de transmisión y el número de cilindros de los carros en `mtcars`:
 
 ```{r}
 table(mtcars$am, mtcars$cyl)
@@ -224,18 +258,19 @@ table(mtcars$am, mtcars$cyl)
 
 ## Escribir funciones
 
-Podemos escribir nuestras propias funciones. Es más, ya lo hemos hecho en un par de ocasiones (¿sí saben dónde?). A veces no existe la función para lo que queremos hacer. Podemos crear funciones para hacer otras operaciones o incluso construir indicadores - ¿cómo creían que se calculaba el coeficiente de Gini o la volatilidad electoral?. 
+Podemos escribir nuestras propias funciones. Es más, ya lo hemos hecho en un par de ocasiones (¿sí saben dónde?). A veces no existe la función para lo que queremos hacer. Podemos crear funciones para hacer otras operaciones o incluso construir indicadores -- ¿o cómo creían que se calculaba el coeficiente de Gini o la volatilidad electoral?
 
 Las funciones también son útiles cuando queremos hacer algo muchas veces o cuando queremos simplificar nuestro código. Algunos sugieren que si hacemos la misma operación mas de 2 veces, *deberíamos* escribir una función.[^5]
 
 [^5]: Wickham, Hadley, y Garrett Grolemund. *R for Data Science: Import, Tidy, Transform, Visualize, and Model Data*. O'Reilly Media, 2016.
 
 El proceso para crear una función en R tiene tres pasos:
+
 1. Darle un nombre descriptivo a la función (`calc_indicador` en vez de `mi_funcion`).
 2. Listar los argumentos que toma.
 3. Escribir el código que especifica las operaciones que realiza.
   
-Este proceso lo hacemos con la función `function()`. Escribamos una  función. Digamos que queremos tomar unos datos numérico y ponerlos en una escala que vaya de 0 a 1, donde 1 sea el valor más alto. Formalmente:
+Este proceso lo hacemos con la función `function()`. Escribamos una función. Digamos que queremos tomar unos datos numéricos y ponerlos en una escala que vaya de 0 a 1, donde 1 sea el valor más alto. Formalmente:
 
 $$ f(x) = (x - min) / (max - min) $$
 
@@ -244,16 +279,18 @@ Donde $x$ es un vector numérico, $min$ es el valor mínimo del vector y $max$ e
 Para crear la función en R, seguimos los tres pasos especificados arriba. Primero, le damos nombre a la función: digamos `reescalar01`. Segundo, definimos qué argumentos toma la función: en este caso, uno solo, que vamos a llamar `x`. Tercero, escribimos el código de la operación que realiza nuestra función:
 
 ```{r}
-reescalar01 <- function(x){ # nombre y argumentos
+# nombre y argumentos de la función
+reescalar01 <- function(x){ 
   # operaciones
   minimo <- min(x, na.rm = TRUE) # encontrar el mínimo y guardarlo
   maximo <- max(x, na.rm = TRUE) # encontrar el máximo y guardarlo
+  reescalados <- (x - minimo) / (maximo - minimo) # calcular
   # resultado
-  (x - minimo) / (maximo - minimo) # calcular e imprimir
+  return(reescalados)
 }
 ```
 
-Aplicamos nuestra función a un vector:
+Aplicamos nuestra función a un vector de números cualquiera:
 
 ```{r}
 vector_num <- c(0, 25, 60, 80)
@@ -269,8 +306,12 @@ $$ m = \frac{\sum(x_i)}{n} $$
 Donde $x_i$ son todos los valores de $x$ y $n$ es el número de observaciones. Entonces, creamos un objeto llamado `media` que es la función. Esa función recibe un solo argumento, que aquí llamamos `z`. La función toma `x`, suma todos sus elementos y los divide por el numero de elementos
 
 ```{r}
+# nombre y argumentos de la función
 media <- function(z){
-  sum(z)/length(z)
+  # operaciones
+  med <- sum(z)/length(z)
+  # resultado
+  return(med)
 }
 ```
 
@@ -288,23 +329,25 @@ media(vector_num) == mean(vector_num)
 
 ### Número efectivo de partidos
 
-Queremos saber cuántos partidos efectivos hay en una legislatura o congreso. Escribimos una función siguiendo la formula de M. Laakso y R. Taagepera.[^1] Formalmente:
+Queremos saber cuántos partidos efectivos hay en una legislatura o congreso. Escribimos una función siguiendo la formula clásica de M. Laakso y R. Taagepera.[^1] Formalmente:
 
 $$ NEP = \frac{1}{\sum_{i=1}^{n}{p_i^2}} $$
-Donde $NEP$ es el indicador, $n$ el número de partidos $i$ que ganaron votos o curules y $p_i$ es la proporción de votos o curules obtenidas por cada partido.
+Donde $NEP$ es el indicador del número efectivo de partidos, $n$ el número de partidos $i$ que ganaron votos o curules y $p_i$ es la proporción de votos o de curules obtenidas por cada partido.
 
 [^1]: Laakso, Markku, y Rein Taagepera. “‘Effective’ Number of Parties: A Measure with Application to West Europe.” *Comparative Political Studies*, vol. 12, no. 1, Abr. 1979, pp. 3–27, [doi:10.1177/001041407901200101](https://journals.sagepub.com/doi/10.1177/001041407901200101).
 
-Para implementar esta función en R, empezamos por asignarle un nombre: `nep`. Siguiendo la fórmula, tiene un solo argumento: `votos =`, el número de votos o curules por partido. Vamos a suponer que no tenemos proporciones aún, solo votos o curules. Entonces, hallamos la proporción del total de votos que saco cada partido: dividimos los votos de cada partido por el total de votos `sum()`. Elevamos al cuadrado esa proporción usando el operador `^`. Finalmente, sumamos los cuadrados de las proporciones con `sum()` y hallamos el inverso (dividimos sobre 1):
-
+Para implementar esta función en R, empezamos por asignarle un nombre: `nep`. Siguiendo la fórmula, esta tiene un solo argumento: `votos = `, el número de votos o curules por partido. Vamos a suponer que no tenemos proporciones aún, solo votos o curules. Entonces, hallamos la proporción del total de votos que obtuvo cada partido: dividimos los votos de cada partido por el total de votos con `sum()`. Elevamos al cuadrado esa proporción usando el operador `^`. Finalmente, sumamos los cuadrados de las proporciones con `sum()` y hallamos el inverso (dividimos sobre 1):
 
 ```{r}
+# nombre y argumentos de la función
 nep <- function(votos){
+  # operaciones
   proporcion_votos <- votos/sum(votos) # hallar prop.
   proporcion_votos2 <- proporcion_votos^2 # elevar prop. al cuadrado
   sum_proporcion_votos2 <- sum(proporcion_votos2) # sumar props.
+  nep <- 1/sum_proporcion_votos2
   # resultado
-  1/sum_proporcion_votos2
+  return(nep)
 }
 ```
 
@@ -314,7 +357,12 @@ Ahora, solo necesitamos unos resultados electorales para probar nuestra función
 eleccion1 = tibble(
   partido = LETTERS[1:6],
   num_votos = c(10000, 500000, 35000, 66000, 3000, 1700)
-) 
+)
+```
+
+Veamos estos datos:
+
+```{r}
 eleccion1
 ```
 
@@ -334,58 +382,60 @@ eleccion2 <- tibble(
 eleccion2
 ```
 
+El resultado es bastante diferente y refleja la distribución de votos en este contexto:
+
 ```{r}
 nep(eleccion2$num_votos)
 ```
 
-#### Congreso colombiano, 2018-2022
+<!-- #### Congreso colombiano, 2018-2022 -->
 
-Estas elecciones ficticias están muy bien, ¿pero sí podemos usar nuestra función en un conjunto de datos reales? ¿Cuántos partidos efectivos hay en la Cámara de representantes de Colombia en el periodo actual? Intentemos responder esta pregunta aplicando la función que acabamos de escribir. Para eso, necesitamos datos.
+<!-- Estas elecciones ficticias están muy bien, ¿pero sí podemos usar nuestra función en un conjunto de datos reales? ¿Cuántos partidos efectivos hay en la Cámara de representantes de Colombia en el periodo actual? Intentemos responder esta pregunta aplicando la función que acabamos de escribir. Para eso, necesitamos datos. -->
 
-Como pueden ver (`list.files("data/")`), no contamos con una base de datos con información sobre los partidos colombianos y sus votos o curules... Pero, podemos crearla con información fácilmente disponible: [Wikipedia](https://es.wikipedia.org/wiki/Elecciones_legislativas_de_Colombia_de_2018). Recuperar información de una página web que no tiene un archivo de datos se conoce como *web scraping* y es precisamente lo que vamos a hacer.
+<!-- Como pueden ver (`list.files("data/")`), no contamos con una base de datos con información sobre los partidos colombianos y sus votos o curules... Pero, podemos crearla con información fácilmente disponible: [Wikipedia](https://es.wikipedia.org/wiki/Elecciones_legislativas_de_Colombia_de_2018). Recuperar información de una página web que no tiene un archivo de datos se conoce como *web scraping* y es precisamente lo que vamos a hacer. -->
 
-Para este ejercicio, nos vamos a apoyar en varias funciones de la librería `rvest` (también del `tidyverse`). Primero, le especificamos a R la URL de la página de Wikipedia que tiene los resultados de las elecciones a Congreso de 2018 (`read_html()`). Luego, usando trucos de magia,[^7] le señalamos a R qué elemento en esa página tiene la información usar (`html_node()`) y le decimos que se trata de una tabla (`html_table()`). Limpiamos un poco el resultado: la librería `janitor` nos permite limpiar un poco los nombres de las variables con `clean_names()` y convertimos la variable `escanos` de texto a número con `mutate()` y `as.numeric()`. Finalmente, desechamos las dos últimas filas de la tabla con `slice()`, pues se trata de los totales y una nota al pie que venía en la tabla original de Wikipedia. En todo el proceso, nos apoyamos en el operador `%>%` para simplificar el código -menos funciones anidadas- y leerlo de manera lineal.
+<!-- Para este ejercicio, nos vamos a apoyar en varias funciones de la librería `rvest` (también del `tidyverse`). Primero, le especificamos a R la URL de la página de Wikipedia que tiene los resultados de las elecciones a Congreso de 2018 (`read_html()`). Luego, usando trucos de magia,[^7] le señalamos a R qué elemento en esa página tiene la información usar (`html_node()`) y le decimos que se trata de una tabla (`html_table()`). Limpiamos un poco el resultado: la librería `janitor` nos permite limpiar un poco los nombres de las variables con `clean_names()` y convertimos la variable `escanos` de texto a número con `mutate()` y `as.numeric()`. Finalmente, desechamos las dos últimas filas de la tabla con `slice()`, pues se trata de los totales y una nota al pie que venía en la tabla original de Wikipedia. En todo el proceso, nos apoyamos en el operador `%>%` para simplificar el código -menos funciones anidadas- y leerlo de manera lineal. -->
 
-[^7]: Hagan clic derecho en la página de Wikipedia y escojan la opción "Inspeccionar".
+<!-- [^7]: Hagan clic derecho en la página de Wikipedia y escojan la opción "Inspeccionar". -->
 
-```{r eval=FALSE, include=FALSE}
-library(rvest)
-library(janitor)
+<!-- ```{r eval=FALSE, include=FALSE} -->
+<!-- library(rvest) -->
+<!-- library(janitor) -->
 
-url <- "https://es.wikipedia.org/wiki/Elecciones_legislativas_de_Colombia_de_2018"
+<!-- url <- "https://es.wikipedia.org/wiki/Elecciones_legislativas_de_Colombia_de_2018" -->
 
-camara2018 <- url %>%
-  read_html() %>%
-  html_node('#mw-content-text > div > table:nth-child(20)') %>% # este elemento contiene la tabla
-  html_table() %>%
-  as_tibble() %>%
-  clean_names() %>%
-  mutate(escanos = as.numeric(escanos)) %>%
-  slice(1:(n()-2))
-```
+<!-- camara2018 <- url %>% -->
+<!--   read_html() %>% -->
+<!--   html_node('#mw-content-text > div > table:nth-child(20)') %>% # este elemento contiene la tabla -->
+<!--   html_table() %>% -->
+<!--   as_tibble() %>% -->
+<!--   clean_names() %>% -->
+<!--   mutate(escanos = as.numeric(escanos)) %>% -->
+<!--   slice(1:(n()-2)) -->
+<!-- ``` -->
 
-Después de todo esto, tenemos:
+<!-- Después de todo esto, tenemos: -->
 
-```{r eval=FALSE, include=FALSE}
-camara2018
-```
+<!-- ```{r eval=FALSE, include=FALSE} -->
+<!-- camara2018 -->
+<!-- ``` -->
 
-Veamos estos datos ordenados en una tabla más "presentable" con una función de la librería `knitr`, enfocándonos en tres columnas solamente:
+<!-- Veamos estos datos ordenados en una tabla más "presentable" con una función de la librería `knitr`, enfocándonos en tres columnas solamente: -->
 
-```{r eval=FALSE, include=FALSE}
-library(knitr)
-camara2018 %>%
-  select(partido_o_movimiento, votos, escanos) %>%
-  kable(
-  caption = "Partidos políticos en la Cámara de Representantes colombiana, 2018-2022.",
-  col.names = c("Partido", "Votos", "Curules")
-)
-```
+<!-- ```{r eval=FALSE, include=FALSE} -->
+<!-- library(knitr) -->
+<!-- camara2018 %>% -->
+<!--   select(partido_o_movimiento, votos, escanos) %>% -->
+<!--   kable( -->
+<!--   caption = "Partidos políticos en la Cámara de Representantes colombiana, 2018-2022.", -->
+<!--   col.names = c("Partido", "Votos", "Curules") -->
+<!-- ) -->
+<!-- ``` -->
 
-Estamos listos para calcular el número efectivo de partidos en la Cámara. En este caso, como la fórmula del NEP está diseñada tanto para votos (NEP electoral), como para curules (NEP parlamentario), hagamos el cálculo con el número de escaños o curules. 
+<!-- Estamos listos para calcular el número efectivo de partidos en la Cámara. En este caso, como la fórmula del NEP está diseñada tanto para votos (NEP electoral), como para curules (NEP parlamentario), hagamos el cálculo con el número de escaños o curules.  -->
 
-Pese a que hay XX partidos con representación en la Cámara, el número efectivo de partidos está alrededor de 6.
+<!-- Pese a que hay XX partidos con representación en la Cámara, el número efectivo de partidos está alrededor de 6. -->
 
-```{r eval=FALSE, include=FALSE}
-nep(camara2018$escanos)
-```
+<!-- ```{r eval=FALSE, include=FALSE} -->
+<!-- nep(camara2018$escanos) -->
+<!-- ``` -->

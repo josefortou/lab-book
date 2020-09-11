@@ -1,19 +1,35 @@
 # Elementos básicos {#basics}
 
-En este capítulo, seguimos profundizando nuestro conocimiento sobre las bases de R. Introducimos una característica central de este lenguaje: su orientación hacia los objetos. Además, mostramos cómo cargar bases de datos, cómo guardar objetos de R y cómo hacer algunas operaciones básicas con datos.
+## Resumen
+
+En este capítulo, seguimos profundizando nuestro conocimiento sobre las bases del lenguaje de programación estadística R usando RStudio. Introducimos una característica central de este lenguaje: los objetos. Además, mostramos cómo cargar bases de datos, cómo guardar objetos de R y cómo hacer algunas operaciones básicas con datos.
 
 - Principales conceptos: objeto; bases de datos; importar, cargar y guardar datos.
 - Funciones clave: `c()`; `read_csv()`; `read_excel()`; `write_csv()`; `head()`; `tibble()`; `plot()`; `ggplot()`.
 
+### Librerías
+
+Vamos a utilizar las siguientes librerías:
+
+```{r}
+library(tidyverse)
+```
+
+### Datos
+
+Debemos descargar los siguientes archivos de datos y guardarlos en la carpeta `/data` de nuestro proyecto:
+
+- Ingreso de empleados de un hospital en Riverside, California: [link](https://raw.githubusercontent.com/josefortou/lab-book/master/data/riverside_final.csv). Para descargar, hacer click derecho, "Guardar como...".
+
 ## Objetos, vectores y nombres
 
-En R, todo es un objeto y a los objetos les asignamos un nombre. Podemos crear objetos sencillos, como un vector de números. La función `c()` pega o combina valores. Esto imprime el objeto (en este caso, un vector) a la consola:
+En R, todo es un objeto y a los objetos les asignamos un nombre. Podemos crear objetos sencillos, como un vector de números. La función `c()` pega o combina valores, los cuales separamos por comas. El siguiente bloque de código imprime el objeto (en este caso, un vector) a la consola:
 
 ```{r}
 c(1, 1, 2, 3, 5, 8, 13, 21)
 ```
 
-Pero no lo guarda y entonces no podemos usarlo más adelante. Podemos asignarle un nombre a este vector, usando el operador de asignación `<-`. Podemos darle cualquier nombre, pero es aconsejable usar un estándar (`camelCase` o `snake_case`, por ejemplo) y ser consistente. Una vez le asignamos nombre, este vector queda guardado en el `Environment` global ![environment](images/icons_rstudio/environment_icon.png) de la sesión y estará ahí hasta que lo borremos o cerremos la sesión. El listado de todos los objetos cargados en la sesión de R, incluyendo los que vienen de librerías cargadas ![newfolder](images/icons_rstudio/package_icon.png), aparece en la pestaña `Environment`. Aquí, la *asignamos* un nombre a nuestro vector de números:
+Sin embargo, el objeto no queda guardado en el `Environment` de R (el listado de objetos disponibles en la sesión) y entonces no podemos usarlo más adelante. Podemos asignarle un nombre a este vector, usando el operador de asignación `<-` y así, convertirlo en un objeto. Podemos darle cualquier nombre, pero es aconsejable usar un estándar (`camelCase` o `snake_case`, por ejemplo) y ser consistente. Una vez le asignamos nombre, este vector queda guardado en el `Environment` global ![environment](images/icons_rstudio/environment_icon.png) de la sesión y estará ahí hasta que lo borremos manualmente (con la función `rm()`) o cerremos la sesión de R. El listado de todos los objetos cargados en la sesión de R, incluyendo los que vienen de librerías cargadas ![newfolder](images/icons_rstudio/package_icon.png), aparece en la pestaña `Environment`. Aquí, la *asignamos* un nombre a nuestro vector de números:
 
 ```{r}
 misNumeros <- c(1, 1, 2, 3, 5, 8, 13, 21)
@@ -28,7 +44,7 @@ misNumeros
 Un vector puede ser un objeto simple, pero su composición puede ser algo más compleja. Puede tener caracteres o texto y mezclar distintos tipos de información:
 
 ```{r}
-vector_mixto <- c(10, "rojo", TRUE, log(10))
+vector_mixto <- c(10, "rojo", TRUE, log(10)) # noten que los valores que son caracteres van entre comillas
 vector_mixto
 ```
 
@@ -39,31 +55,46 @@ mis_numeros <- misNumeros
 mis_numeros
 ```
 
-La función `rm()` sirve para remover o eliminar cualquier objeto existente en la sesión de R. La copia que hicimos todavía existe. 
+La función `rm()` sirve para remover o eliminar cualquier objeto existente en la sesión de R:
 
 ```{r}
 rm(misNumeros)
 ```
 
+La copia que hicimos en el `Environment` todavía existe:
+
+```{r}
+mis_numeros
+```
+
 ### Clases de objetos
 
-Todo objeto en R tiene una clase, esto es qué tipo de objeto es: un vector numérico, lógico o de texto, una base de datos, un modelo, una tabla, etc. Podemos consultar la clase de un objeto con `class()`. Es importante tener esto en cuenta porque algunas operaciones solo funcionan en objetos de cierto tipo. Por ejemplo, `mean()` solo funciona si la aplicamos a un objeto numérico; de lo contrario, arroja un error.
-
-Por defecto, un vector con números, caracteres y otros tipos de información (o sea, mixto), es clasificado como de tipo caracter.
+Todo objeto en R tiene una clase, esto es, qué tipo de objeto es: un vector numérico, lógico o de texto, una base de datos, un modelo, una tabla, etc. Podemos consultar la clase de un objeto con la función `class()`:
 
 ```{r}
 class(mis_numeros)
+```
+
+Es importante tener en cuenta la clase de un objeto, porque algunas operaciones solo funcionan en objetos de cierto tipo. Por ejemplo, `mean()` solo funciona si la aplicamos a un objeto numérico; de lo contrario, arroja un error:
+
+```{r}
+mean("1")
+```
+
+Por defecto, un vector con números, caracteres y otros tipos de información (o sea, mixto), es clasificado como de tipo caracter:
+
+```{r}
 class(vector_mixto)
 ```
 
-Alternativamente, podemos evaluar lógicamente qué clase de objeto tenemos usando la familia de funciones `is.()`:
+Alternativamente, podemos evaluar lógicamente qué clase de objeto tenemos usando la familia de funciones `is.*()`:
 
 ```{r}
 is.numeric(mis_numeros)
 is.integer(vector_mixto)
 ```
 
-Los objetos también tiene una estructura (que contiene el objeto) que podemos ver con la función `str()`. En este caso, vemos que `mis_numeros` es un objeto numérico, con 8 elementos (los números 1, 1, 2, 3, 5, 8, 13 y 21).
+Los objetos también tiene una estructura (que contiene el objeto) que podemos ver con la función `str()`. En este caso, vemos que `mis_numeros` es un objeto numérico, con 8 elementos (los números 1, 1, 2, 3, 5, 8, 13 y 21):
 
 ```{r}
 str(mis_numeros)
@@ -71,43 +102,74 @@ str(mis_numeros)
 
 ## Bases de datos en R
 
-Los vectores como los que hemos visto hasta ahora son relativamente simples: tienen una sola dimensión. Pero este no es la realidad de la mayoría de los datos que nos encontramos en el mundo real: frecuentemente, trabajos con bases de datos que tienen filas y columnas (o sea, dos dimensiones).
+Los vectores como los que hemos visto hasta ahora son relativamente simples: tienen una sola dimensión. Pero este no es la realidad de la mayoría de los datos que nos encontramos en el mundo real: frecuentemente, trabajos con bases de datos que tienen filas y columnas (o sea, dos dimensiones). A este tipo de bases de datos las llamamos "rectangulares".
 
-Podemos crear objetos más complejos en R, como un `data.frame`. Un `data.frame` es el objeto base para trabajar con datos en R. Posteriormente, veremos cómo el `tibble`, un objeto similar, ofrece algunas mejorías. Los objetos de tipo `matrix` son más simples. Todos estos objetos son "rectangulares" en el sentido de que tienen dos dimensiones: filas y columnas. Idealmente, las *filas deben corresponder a observaciones o casos* y las *columnas deben corresponder a variables o características de los casos*.
+Podemos crear objetos más complejos en R, como un `data.frame`, un tipo de base de datos rectangular. Un `data.frame` es el objeto base para trabajar con datos en R. Posteriormente, veremos cómo el `tibble`, un objeto similar, ofrece algunas mejorías. Los objetos de tipo `matrix` son más simples: matrices sin nombres de filas o columnas. Todos estos objetos son "rectangulares" en el sentido de que tienen dos dimensiones: filas y columnas. 
+
+Idealmente, en una base de datos rectangular las **filas deben corresponder a observaciones o casos** y las **columnas deben corresponder a variables o características de los casos**. Una base de datos con estas características es "ordenada" (o *tidy*).
 
 ## Bases de datos incluidas en R 
 
-R tiene una serie de bases de datos que sirve como ejemplos para practicar. Carguemos una base de datos sobre automóviles (información sobre su peso, eficiencia, número de cilindros, etc.) ya incluida en R usando la función `data()`. Luego, miremos las primeras 5 observaciones de esta base de datos usando `head()`:
+R tiene una serie de bases de datos que sirven como ejemplos para practicar. Carguemos una base de datos sobre automóviles (información sobre su peso, eficiencia, número de cilindros, etc.) ya incluida en R usando la función `data()`.
 
 ```{r}
-data(mtcars)
-head(mtcars, n = 5) 
+mtcars <- mtcars
 ```
 
-En esta base de datos, cada fila es un modelo de carro distinto y cada columna es una característica variable. Cada fila (cada carro) puede tener distintos valores en cada variable (distinto peso, puede ser automático o manual, etc.). 
+¿Qué clase de objeto es `mtcars`? Es un `data.frame`:
 
-Indaguemos por la estructura del objeto `mtcars` (que ya debe aparecer en nuestro ambiente de trabajo) con `str()`. Como vemos, es un objeto tipo `data.frame` con 32 observaciones y 11 variables.
+```{r}
+class(mtcars)
+```
+
+Utilizando la función `dim()` vemos además que `mtcars` tiene `r nrow(mtcars)` filas y `r ncol(mtcars)` columnas:
+
+```{r}
+dim(mtcars)
+```
+
+Podemos combinar estos dos pasos. Indaguemos por la estructura del objeto `mtcars` (que ya debe aparecer en nuestro ambiente de trabajo) con `str()`. Como vemos, es un objeto tipo `data.frame` con 32 observaciones y 11 variables. Además, vemos los valores de las primeras filas de cada columna:
 
 ```{r}
 str(mtcars)
 ```
 
-Podemos mirar columnas individuales de una base de datos usando el operador `$`. Por ejemplo, podemos estar interesados en conocer el promedio de la eficiencia de los carros en la base de datos. La variable `mpg` contiene esta información:
+Ahora, miremos las primeras 5 observaciones de esta base de datos usando la función `head()`:
+ 
+```{r}
+head(mtcars, n = 5) 
+```
+
+Si queremos abrir la base de datos en una pestaña aparte, utilizamos la función `View()` -- aunque esto no es recomendado en documentos .Rmd, pues impide que compilen:
+
+```{r, eval = FALSE}
+View(mtcars)
+```
+
+En esta base de datos, cada fila es un modelo de carro distinto y cada columna es una característica *variable*. Cada fila (cada carro) puede tener distintos valores en cada variable (distinto peso, puede ser automático o manual, etc.). 
+
+Podemos mirar columnas individuales (o "atómicos") de objetos como las bases de datos usando el operador `$`. La variable `mpg` contiene información sobre las millas por galón de cada carro en la base de datos. A continuación, vemos el contenido de esta variable:
+
+```{r}
+mtcars$mpg
+```
+
+Si estamos interesados en conocer el promedio de la eficiencia de los carros en la base de datos:
 
 ```{r}
 mean(mtcars$mpg)
 ```
 
-Usar las bases de datos incluidas en "base R" es una manera de cargar datos a R, pero no es la más útil, pues la mayoría de las bases de datos incluidas por defecto son para practicar[^1].
+Usar las bases de datos incluidas en "base R" es una manera fácil de cargar datos a R, pero no es la más útil, pues la mayoría de las bases de datos incluidas por defecto son para practicar y no para realizar análisis novedosos[^1].
 
-[^1]: Pueden consultar la lista entera ejecutando `data()` en la consola.
+[^1]: Pueden consultar la lista entera de bases de datos disponibles en la sesión de R ejecutando `data()` en la consola.
 
 ## Crear una base de datos 
 
-Una segunda opción para traer bases de datos a R es crear un `data.frame`. Por ejemplo, creemos unos datos simulados. Son dos columnas (las variables `x` y `y`) con 10000 filas que siguen una distribución normal, usando la función `rnorm()`. La variable `z` en cambio, está distribuida binomial, pues la creamos usando `rbinom()`. Incluimos la función `set.seed()` para asegurarnos que el resultado de la simulación pueda ser reproducido en otros equipos y sesiones de R.
+Una segunda opción para traer bases de datos a R es crear un `data.frame` manualmente, como si estuviéramos llenando una hoja de cálculo. Por ejemplo, creemos unos datos simulados. Son dos columnas (las variables `x` y `y`) con 10000 filas que siguen una distribución normal, usando la función `rnorm()`. La variable `z` en cambio, está distribuida binomial, pues la creamos usando `rbinom()`. En ambos casos, argumentos opcionales nos permite definir características de estas distribuciones. Como `rnorm()` y `rbinom()` toman muestras de distribuiones de variables aleatorias, incluimos un llamado a la función `set.seed()` para asegurarnos que el resultado de la simulación pueda ser reproducido en otros equipos y sesiones de R:
 
 ```{r}
-set.seed(1960) # puede ser cualquier número
+set.seed(8675309) # puede ser cualquier número
 dat <- data.frame(
   x = rnorm(10000, mean = 0, sd = 1),
   y = rnorm(10000, mean = 3, sd = 2),
@@ -115,19 +177,19 @@ dat <- data.frame(
 )
 ```
 
-Como estos datos no caben en la consola, podemos ver las primeras 10 observaciones con `head()` (noten el argumento `n =`).
+Como estos datos no caben en la consola, podemos ver las primeras 10 observaciones con `head()` (noten que especificamos el argumento `n = 10`):
 
 ```{r}
 head(dat, n = 10) 
 ```
 
-Miremos cuántas observaciones tienen un valor de `x` que excede la media de la muestra (`0` por definición, como lo establecimos en el bloque de código anterior). Para esto, usamos `ifelse`, una función que evalúa si un objeto cumple con ciertas condiciones; en este caso, si una observación tiene un valor `x` por encima de la media de `x` ("if"), lo marcamos como `"por encima"`, de lo contrario ("else") lo marcamos como `"por debajo"`. Tabulamos los resultados de esta evaluación:
+Miremos cuántas observaciones tienen un valor de `x` que excede la media de la muestra (`0` por definición, como lo establecimos en el bloque de código anterior). Para esto, usamos `ifelse`, una función básica que evalúa si un objeto cumple con ciertas condiciones; en este caso, si una observación tiene un valor `x` por encima de la media de `x` ("if"), lo marcamos como `"por encima"`, de lo contrario ("else") lo marcamos como `"por debajo"`. Tabulamos los resultados de esta evaluación anidando `ifelse()` en la función `table()`:
 
 ```{r}
 table(ifelse(dat$x > mean(dat$x), "por encima", "por debajo"))
 ```
 
-Este resultado tiene sentido, porque sabemos que `x` sigue una distribución normal y en estas distribuciones aproximadamente el 50% de las observaciones se encuentra por encima de la media. Mientras, ¿cuántas observaciones fueron clasificadas como `1` en la variable `z`?
+Este resultado tiene sentido, porque sabemos que `x` sigue una distribución normal y en estas distribuciones aproximadamente el 50% de las observaciones se encuentra por encima de la media. Mientras, ¿cuántas observaciones fueron clasificadas como `1` en la variable `z`? ¿Y por qué?
 
 ```{r}
 table(dat$z)
@@ -136,17 +198,13 @@ table(dat$z)
 
 ### Crear "tibbles"
 
-Por supuesto, los datos en R no tienen que ser totalmente abstractos y simulados. Al fin y al cabo, nuestro objetivo es tener las herramientas para hacer análisis de datos políticos. 
+Por supuesto, los datos en R no tienen que ser totalmente abstractos y simulados. Al fin y al cabo, nuestro objetivo es tener las herramientas para hacer análisis de datos políticos con más contenido sustantivo. 
 
-A continuación, creamos una pequeña base de datos con 7 observaciones (filas) y 4 variables (columnas), con información sobre edad, ingreso y ciudad de vivienda de siete personas. 
+A continuación, creamos una pequeña base de datos con 7 observaciones (filas) y 4 variables (columnas), con información sobre la edad, ingreso y ciudad de vivienda de siete personas. Se trata de una base de datos rectangular, con una fila para cada observación (persona) y una columna para cada variable (características de las personas).
 
-Esta vez, en vez de usar `data.frame()`, usamos `tibble()`. Los "tibbles" son versiones mejoradas de un `data.frame`. Para poder usar la función `tibble()`, debemos cargar la librería `tibble`. Esta viene incluida en `tidyverse`, una meta-librería o colección de librerías con funcionalidad para cargar, limpiar, visualizar y analizar datos.
+Esta vez, en vez de usar `data.frame()`, usamos `tibble()`. Los "tibbles" son versiones mejoradas de un `data.frame`. Para poder usar la función `tibble()`, debemos cargar la librería `tibble`. Esta viene incluida en `tidyverse`, una meta-librería o colección de librerías con funcionalidad para cargar, limpiar, visualizar y analizar datos. Recuerden que ya cargamos la librería al principio de este capítulo, por lo que podemos usar la función.
 
-```{r}
-library(tidyverse)
-```
-
-El uso de `tibble()` es sencillo e intuitivo si estamos creando una base de datos pequeña. Le damos nombre a las columnas e insertamos su contenido -los datos- fila a fila. Cuando se trata de texto, lo incluimos dentro de comillas `"`. 
+El uso de `tibble()` es sencillo e intuitivo si estamos creando una base de datos pequeña. Le damos nombre a las columnas e insertamos su contenido -los datos- fila a fila. Cuando se trata de texto, lo incluimos entre comillas (`"`):
 
 ```{r}
 datos_ingreso <- tibble(
@@ -155,7 +213,11 @@ datos_ingreso <- tibble(
   "ciudad" = c("Barranquilla", "Medellín", "Medellín", "Medellín", "Barranquilla", "Bogotá", "Bogotá"),
   "ingreso" = c(8000000, 4000000, 9500000, 7300000, 6500000, 6000000, 9000000)
 )
+```
 
+Veamos nuestra pequeña base de datos:
+
+```{r}
 datos_ingreso
 ```
 
@@ -172,7 +234,11 @@ datos_ingreso <- tribble(
   "Catalina",   33,       "Bogotá",          6000000,
   "Cristóbal",  42,       "Bogotá",          9000000,
 )
+```
 
+Corroboremos que el resultado es el mismo:
+
+```{r}
 datos_ingreso
 ```
 
@@ -182,34 +248,40 @@ Podemos conocer las propiedades (clase y estructura) de este objeto que creamos,
 str(datos_ingreso)
 ```
 
+Si ya tenemos un `data.frame`, lo podemos convertir a `tibble` con la función `as_tibble()`:
+
+```{r}
+as_tibble(mtcars)
+```
+
 ## Guardar datos
 
 Si queremos usar este objeto (y otros) después, por ejemplo en otra sesión, en otro computador o compartirlo con un colega, tenemos dos opciones. Primero, podemos repetir el código que produjo el objeto. Segundo, podemos guardar este objeto como un archivo. A continuación, guardamos estos datos como un archivo de valores separados por comas con extensión `.csv`. Estos archivos pueden abrirse en Excel y Google Spreadsheets y ahorran espacio, así que son una excelente opción. 
 
-A continuación, grabamos la base de datos como un archivo `.csv` en la carpeta `data/` de nuestro proyecto. La función `write_csv()` es una versión mejorada de `write.csv()` y viene de la librería `readr`, también incluida en `tidyverse`.
+A continuación, grabamos la base de datos como un archivo `.csv` en la carpeta `data/` de nuestro proyecto. La función `write_csv()` viene de la librería `readr`, también incluida en `tidyverse` y toma un objeto de R y lo guarda como un archivo en una ubicación especificada en el argumento `path = `:
 
-```{r}
+```{r, eval = FALSE}
 write_csv(datos_ingreso, path = "data/datos_ingreso.csv")
 ```
 
-El archivo ahora está guardado y podemos utilizarlo en el futuro.
+El archivo ahora está guardado y podemos utilizarlo en el futuro. Podemos ver la lista de archivos en la carpeta `data/` con la función `list.files()`:
 
 ```{r}
 list.files("data/")
 ```
 
-## Graficar
+## Gráficas
 
-Al final, podemos visualizar la información de una base de datos usando unas funciones muy simples. Más adelante, veremos mejores formas de visualizar datos usando la librería `ggplot2` (otro miembro del `tidyverse`... son como los *Avengers*), pero por ahora trabajemos con "base R".
+Al final, podemos visualizar la información de una base de datos usando unas funciones muy simples. Más adelante, veremos mejores formas de visualizar datos usando la librería `ggplot2` (otro miembro del `tidyverse`... son como los *Avengers*), pero por ahora trabajemos con funciones básicas de R (`base`).
 
-Si nos preguntamos "¿cuántos individuos hay en cada ciudad?" estamos indagando por la distribución de la variable `ciudad`. En otras palabras, queremos un histograma de una variable categórica y lo podemos producir con la función `barplot()`. Pero primero, construimos una tabla de frecuencias con `table()`:
+Si nos preguntamos "¿cuántos individuos hay en cada ciudad?" estamos indagando por la distribución de la variable `ciudad`. En otras palabras, queremos un histograma de una variable categórica. Lo podemos hacer con la función `barplot()`. Esta función toma una tabla de frecuencias y construye una gráfica de barras. Entonces, primero construimos una tabla de frecuencias de la variable `ciudad` (noten el uso del operador `$`) utilizando la función `table()`:
 
 ```{r}
 tabla_ciudades <- table(datos_ingreso$ciudad)
 tabla_ciudades
 ```
 
-Ahora, envolvemos esa tabla en la función `barplot()`, especificando las etiquetas de los ejes (`xlab = ` y `ylab = `), el relleno de las barras (`col = `) y eliminamos el borde de las mismas (`border = `):
+Ahora, le pasamos esa tabla a la función `barplot()`, especificando las etiquetas de los ejes (`xlab = ` y `ylab = `), el relleno de las barras (`col = `) y eliminamos el borde de las mismas (`border = `):
 
 ```{r}
 barplot(
@@ -219,9 +291,9 @@ barplot(
 )
 ```
 
-¿Hay una relación entre la edad de las personas y el ingreso de cada una? Son pocos datos, pero podemos intentar explorarlo. Para graficar la relación entre dos variables numéricas, creamos una gráfica de dispersión con `plot()`. Además, especificamos la forma de los puntos (`pch = `) y su color y el relleno (`col = ` y `bg = `). Finalmente, agregamos una línea de tendencia roja con `abline()`[^3]:
+¿Hay una relación entre la edad de las personas y el ingreso de cada una? Son pocos datos, pero podemos intentar explora esta pregunta. Para graficar la relación entre dos variables numéricas, creamos una gráfica de dispersión con `plot()`. Además, especificamos la forma de los puntos (`pch = `) y su color y el relleno (`col = ` y `bg = `). Finalmente, agregamos una línea de tendencia roja con la función `abline()`[^3]:
 
-[^3]: Aquí, `abline()` estima una regresión lineal de `ingreso` sobre `edad` y grafica la línea $y = bx + a$.
+[^3]: Aquí, `abline()` estima una regresión lineal simple de `ingreso` sobre `edad` y grafica la línea $\text{ingreso} = b \times \text{edad} + a$.
 
 ```{r}
 plot(
@@ -230,16 +302,17 @@ plot(
   xlab = "Edad en años", ylab = "Ingreso en COP"
 )
 abline(
-  lm(datos_ingreso$ingreso ~ datos_ingreso$edad), 
+  lm(datos_ingreso$ingreso ~ datos_ingreso$edad), # regresion lineal simple
   col = "red"
 )
 ```
     
-Efectivamente, en esta muestra, la edad se relaciona de forma positiva con el ingreso, pero no deberíamos tener mucha confianza en este resultado con tan pocos puntos.
+Efectivamente, en esta muestra, la edad se relaciona de forma positiva con el ingreso, pero no deberíamos tener mucha confianza en este resultado con tan pocas observaciones.
     
 ## Importar datos 
 
-Ya vimos cómo crear una base de datos a mano. Sin embargo, es más común (y más fácil) hacer una base de datos en otro programa e importarla a R o utilizar una base de datos ya existente (LAPOP, V-Dem, Banco Mundial...) e importarla. R tiene funciones para importar datos de todo tipo, dependiendo del tipo de archivo. Básicamente, existen librerías y funciones para cargar cualquier tipo de archivo
+Ya vimos cómo crear una base de datos a mano y cómo hacer uso de datos ya incluídos en R. Sin embargo, es más común (y más fácil) hacer una base de datos en otro programa e importarla a R o utilizar una base de datos ya existente (LAPOP, *V-Dem*, Banco Mundial...) e importarla. R tiene funciones para importar datos de todo tipo, dependiendo del tipo de archivo, utilizando distintas librerías y funciones:
+
 
 | Archivo o programa          | Extensión        | Función en R                | Librería |
 |-----------------------------|------------------|-----------------------------|----------|
@@ -249,7 +322,7 @@ Ya vimos cómo crear una base de datos a mano. Sin embargo, es más común (y m�
 | Stata                       | `.dta`           | `read_dta()`                | `haven`  |
 | SPSS                        | `.sav`           | `read_sav`                  | `haven`  |
 
-Ya mencionamos que un formato popular para archivos de datos es el `.csv`. Este se lee con `read_csv()`. A continuación, cargamos un archivo de datos que se encuentra en la carpeta `/data`:
+Ya mencionamos que un formato popular para archivos de datos es el `.csv`, porque es portable entre sistemas y ocupa poco espacio. CSV significa *comma separated values* o archivo de valores separados por comas. Estos archivos se leen con `read_csv()`. A continuación, cargamos un CSV que se encuentra en la carpeta `/data`:
 
 ```{r}
 datos_lewisbeck <- read_csv("data/riverside_final.csv")
@@ -265,7 +338,9 @@ head(datos_lewisbeck, 10)
 
 Para cada empleado (cada fila), hay información sobre su nivel educativo, ingreso, experiencia laboral, género (`0` = "mujer") y hasta su filiación partidista. 
 
-Visualicemos la relación entre los años de experiencia laboral de cada empleado y su ingreso (en USD), incorporando también información sobre el género de cada uno. En esta ocasión, en vez de usar "base R", estamos usando funciones de la librería `ggplot2` (todo hay que decirlo, esta también está incluida en `tidyverse`). La función básica es `ggplot()`, en donde especificamos los datos utilizados, y a partir de ella construimos la gráfica capa a capa con más funciones.
+Rápidamente, visualicemos la relación entre los años de experiencia laboral de cada empleado y su ingreso (en USD), incorporando también información sobre el género de cada uno. En esta ocasión, en vez de usar las funciones de `base`, usemos funciones de la librería `ggplot2` (todo hay que decirlo, esta también está incluida en `tidyverse`). A partir de ahora, utilizaremos `ggplot2` para todas nuestras gráficas.
+
+La función básica es `ggplot()`, en donde especificamos los datos utilizados, y a partir de ella construimos la gráfica capa a capa con más funciones, separadas por el operador `+`:
 
 ```{r}
 ggplot(data = datos_lewisbeck, aes(x = senior, y = income, color = factor(gender))) +
@@ -274,3 +349,38 @@ ggplot(data = datos_lewisbeck, aes(x = senior, y = income, color = factor(gender
 ```
 
 Parece que hay una relación positiva entre experiencia e ingreso (mayor experiencia se asocia con mayor ingreso). Aunque no es sustancialmente diferente para hombres y mujeres, sí notamos que las mujeres perciben un ingreso un poco menor que los hombres.
+
+## Ejercicios
+
+1. Utilizando la función `tibble()`, crear una base de datos sencilla que consigne la siguiente información en filas y columnas:
+
+  + La ciudad de Medellín, Antioquia, tiene 16 comunas.
+  + Cali está dividida en 22 comunas. La ciudad está ubicada en el departamento de Valle del Cauca.
+  + La capital Bogotá, Distrito Capital, está dividida en 20 localidades.
+  + La ciudad de Barranquilla, Atlántico, tiene 5 localidades.
+  + Hay 3 localidades en Cartagena, capital de Bolívar.
+  
+```{r, eval=FALSE, include=FALSE}
+ciudades <- tibble(
+  mpio = c("Medellín", "Cali", "Bogotá", "Barranquilla", "Cartagena"),
+  depto = c("Antioquia", "Valle", "D.C.", "Atlántico", "Bolívar"),
+  div = c("Comunas", "Comunas", "Localidades", "Localidades", "Localidades"),
+  num_div = c(16, 22, 20, 5, 3)
+)
+```
+
+2. Utilizando `ggplot()` y `geom_col()` y los datos del punto anterior, construir una gráfica de barras que compare el número de divisiones administrativas entre municipios:
+
+```{r, eval=FALSE, include=FALSE}
+ciudades %>%
+  ggplot(aes(reorder(mpio, num_div), num_div)) +
+  geom_col() +
+  labs(x = "Municipio", y = "Número de divisiones administrativas")
+```
+
+3. Calcular el promedio del número de divisiones administrativas de las cinco ciudades principales del país.
+
+```{r, eval=FALSE, include=FALSE}
+mean(ciudades$num_div)
+```
+

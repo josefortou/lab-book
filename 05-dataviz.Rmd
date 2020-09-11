@@ -1,10 +1,14 @@
+# (PART) Análisis Descriptivo {-}
+
 # Visualización de datos {#dataviz}
 
-En este capítulo, aprendemos a crear varios tipos de gráficas usando la librería `ggplot2`, parte del `tidyverse`. La 
 
-## Una introducción práctica
 
-En la primera parte de este capítulo, usamos la librería `ggplot2` para realizar gráficas en R, explorando desde lo básico, hasta cuestiones más avanzadas. Seguimos varios capítulos del libro de Kieran Healey, *Data Visualization: A Practical Introduction* (Princeton UP, 2018).
+## Resumen
+
+En este capítulo, aprendemos a crear varios tipos de gráficas usando la librería `ggplot2`, parte del `tidyverse`. 
+
+<!-- En la primera parte de este capítulo, usamos la librería `ggplot2` para realizar gráficas en R, explorando desde lo básico, hasta cuestiones más avanzadas. Seguimos varios capítulos del libro de Kieran Healey, *Data Visualization: A Practical Introduction* (Princeton UP, 2018). -->
 
 - Principales conceptos: histograma, gráfica de dispersión, gráfica de barras.
 - Principales funciones: `ggplot()`, `aes()`, `geom_histogram()`, `geom_bar()`, `geom_col()`, `geom_point()`, `labs()`, `ggsave()`.
@@ -32,14 +36,21 @@ Trabajar con bases de datos:
     - Cambiar de formato largo a ancho con `pivot_longer()` y `pivot_wider()`.
     - Combinar dos bases de datos relacionadas con `left_join()`. 
 
-### Visualización de datos
+### Descargas
+
+Vamos a utilizar las siguientes librerías:
+
+```{r}
+library(tidyverse)
+library(gapminder) # datos
+library(knitr) # tablas
+```
+
+## Visualización de datos
 
 Visualizamos datos por muchas razones: análisis exploratorio, evaluación de modelos y comunicación de resultados son algunas de las principales. El problema que buscamos resolver en este instructivo es "simple": cómo hacer para transmitir información visualmente de forma efectiva. El objetivo: producir gráficos como estos:
 
 ```{r, echo = FALSE}
-library(tidyverse)
-library(gapminder)
-library(socviz)
 ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp)) +
   geom_point(mapping = aes(color = continent), size = 2, alpha = 0.5) +
   geom_smooth(method = "loess", color = "grey70", se = FALSE) +
@@ -55,31 +66,6 @@ ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp)) +
     subtitle = "Las observaciones son países-año",
     caption = "Fuente: elaboración propia con datos de Gapminder."
       ) +
-  theme_classic()
-
-ggplot(data = oecd_sum, 
-       mapping = aes(x = year, y = diff, fill = hi_lo)) +
-  scale_x_continuous(breaks = seq(1960, 2010, 10)) +
-  geom_col() +
-  guides(fill = FALSE) +
-  labs(x = NULL, y = "Diferencia en años",
-       title = "La brecha de la expectativa de vida en EEUU",
-       subtitle = "Diferencia entre expectativa de vida promedio en EEUU y países OCDE, 1960-2015",
-       caption = "Datos: OCDE. Basado en una gráfica de Christopher Ingraham publicada en el Washington Post, diciembre 27 de 2017.") +
-  theme_classic()
-
-ggplot(organdata, mapping = aes(x = roads, y = donors)) + 
-  geom_point(color = "steelblue4") +
-  annotate(geom = "text", x = 157, y = 33,
-           label = "Países con tasas sorprendentemente altas", 
-           hjust = 0) +
-  annotate(geom = "rect", fill = "red", alpha = 0.2,
-           xmin = 125, xmax = 155,
-           ymin = 30, ymax = 35) +
-  labs(title = "¿Por qué hay países donde hay más donantes de los esperados?", 
-       x = "Tasa de accidentes viales/100k habs.",
-       y = "Tasa de donantes/1M habs.",
-       caption = "Fuente: OCDE.") +
   theme_classic()
 ```
 
@@ -119,18 +105,9 @@ mpg %>%
 
 #### Librerías y datos
 
-Como vamos a trabajar extensamente con `ggplot2()` así como las librerías `dplyr()` y `tidyr()`, cargamos estas librerías:
+Como vamos a trabajar extensamente con `ggplot2()` así como las librerías `dplyr()` y `tidyr()`, cargamos estas librerías, incluidas en `tidyverse`.Además, vamos a usar los datos de `gapminder` para aprender a usar `ggplot2`. Luego introduciremos otras librerías opcionales.
 
-```{r}
-library(tidyverse)
-```
-
-En este instructivo, seguimos los capítulos 3-5 del libro de Kieran Healey, *Data Visualization: A Practical Introduction* (Princeton UP, 2018). Por eso, cargamos la librería `socviz` que acompaña al libro y que contiene algunos datos útiles para explorar. Además, vamos a usar los datos de `gapminder` para aprender a usar `ggplot2`. Luego introduciremos otras librerías opcionales.
-
-```{r}
-library(socviz)
-library(gapminder)
-```
+<!-- En este instructivo, seguimos algunos ejemplos del libro de Kieran Healey, *Data Visualization: A Practical Introduction* (Princeton UP, 2018). Por eso, cargamos la librería `socviz` que acompaña al libro y que contiene algunos datos útiles para explorar -->
 
 Para prepararnos, vamos a realizar algunas transformaciones y adiciones a esta base de datos:
 
@@ -157,777 +134,777 @@ gapminder <- gapminder %>%
   )
 ```
 
-### Gráficas de dispersión
+<!-- ### Gráficas de dispersión -->
 
-Muestran la relación entre dos variables numéricas continuas.
+<!-- Muestran la relación entre dos variables numéricas continuas. -->
 
-#### Una gráfica básica
+<!-- #### Una gráfica básica -->
 
-Empezamos seleccionar los datos y las variables a utilizar con `ggplot()`. Para ahorrarnos tiempo en este instructivo, guardamos esta primera parte como un objeto llamado `p`. Pero imprimir el objeto solo no produce resultados esperados, solo una cuadrícula vacía.
-
-```{r}
-p <- gapminder %>%
-  ggplot(mapping = aes(x = gdpPercap, y = lifeExp))
-p
-```
-
-Le agregamos una capa de puntos a esta cuadrícula para crear una gráfica de dispersión usando la función `geom_point()`:
-
-```{r}
-p + 
-  geom_point()
-```
-
-Parece que hay una relación. Podemos agregar una línea de tendencia usando agregando una capa más: `geom_smooth()`:
-
-```{r}
-p + 
-  geom_point() +
-  geom_smooth()
-```
-
-Si queremos especificar el métodos (`"lm"`, `"loess"` o `"gam"`, por ejemplo), tenemos el argumento `method = `. Declarar `method = "lm"` le indica a R que estime un modelo de regresión lineal simple (*linear model*) y grafique las predicciones del modelo:
-
-```{r}
-p + 
-  geom_point() +
-  geom_smooth(method = "lm") ## por defecto, method = "loess"
-```
-
-#### Más elementos
-
-Cambiemos la escala del eje x: apliquemos una transformación con un logaritmo base 10 y cambiemos las unidades de las etiquetas del eje:
-
-```{r}
-p + 
-  geom_point() +
-  geom_smooth(method = "gam", se = FALSE) + ## otro método; sin errores estándar
-  scale_x_log10(labels = scales::dollar) ## aplica log y cambia escala del eje a dolares
-```
-
-Para especificar el color de los puntos y de la línea y la opacidad de los puntos (`alpha = 0` es completamente transparente):
-
-```{r}
-p + 
-  geom_point(color = "purple", alpha = 0.3) +
-  geom_smooth(method = "loess", color = "green") +
-  scale_x_log10(labels = scales::dollar)
-```
-
-Al final, todo junto (puntos, tendencia, color escala, títulos, leyendas y el fondo). Usamos `labs()` para especificar los títulos y etiquetas de ejes:
-
-```{r}
-gapminder %>%
-  ggplot(mapping = aes(x = gdpPercap, y = lifeExp)) +
-  geom_point(alpha = 0.3, color = "steelblue3") +
-  geom_smooth(method = "lm", color = "firebrick3") +
-  scale_x_log10(labels = scales::dollar) +
-  labs(
-    x = "PIB per cápita", y = "Expectativa de vida al nacer",
-    title = "Crecimiento económico y expectativa de vida",
-    subtitle = "Las observaciones son paises-año",
-    caption = "Fuente: Gapminder."
-  )
-```
-
-#### Guardar objetos gráficos
-
-```{r}
-gapminder %>%
-  ggplot(mapping = aes(x = gdpPercap, y = lifeExp)) +
-  geom_point(alpha = 0.3, color = "steelblue3") +
-  geom_smooth(method = "lm", color = "firebrick3") +
-  scale_x_log10(labels = scales::dollar) +
-  labs(
-    x = "PIB per cápita", y = "Expectativa de vida al nacer",
-    title = "Crecimiento económico y expectativa de vida",
-    subtitle = "Las observaciones son paises-año",
-    caption = "Fuente: Gapminder."
-  ) +
-  ggsave("output/mi_grafica.pdf") 
-```
-
-#### Colores y grupos
-
-Variables categóricas y colores para denotar grupos y comparar. Empezamos por seleccionar datos y variables.
-
-```{r}
-p <- gapminder %>%
-  ggplot(
-    aes(
-      x = gdpPercap, y = lifeExp, ## datos de los ejes horizontal y vertical
-      color = continent ## color asignado a una variable
-    ) 
-  ) 
-```
-
-Ahora, hagamos una gráfica de dispersión, con puntos agrupados según una variable categórica. Incluimos líneas para cada grupo en los datos. Como `color = ` está asignados en `aes()`, aplica a todas las capas:
-
-```{r}
-p +  
-  geom_point() +
-  geom_smooth(method = "loess") +
-  scale_x_log10()
-```
-
-Un poco confuso... tenemos colores y líneas específicas para cada continente. Intentemos con una sola líneas y manteniendo los puntos agrupados. Noten que `color = ` pasa de `aes()` a `geom_point()`:
-
-```{r}
-p <- gapminder %>%
-  ggplot(aes(x = gdpPercap, y = lifeExp)) ## sin color
-p +  
-  geom_point(mapping = aes(color = continent)) + ## solo los puntos cambian de color
-  geom_smooth(method = "loess", color =  "gray50") +
-  scale_x_log10()
-```
-
-Podemos visualizar tres variables continuas al clasificar puntos según una variable continua:
-
-```{r}
-p +  
-  geom_point(mapping = aes(color = log(pop))) + ## puntos de distinto color según log(pop)
-  geom_smooth(method = "loess", color = "firebrick3") +
-  scale_x_log10(labels = scales::dollar) +
-  labs(x = "PIB per capita", y = "Expectativa de vida al nacer",
-       title = "Crecimiento económico y expectativa de vida",
-       subtitle = "Las observaciones son paises-año",
-       caption = "Fuente: Gapminder.") +
-  scale_color_continuous(name = "Población (log.)") ## titulo de la leyenda de color (que es continua)
-```
-
-<!-- ### Animaciones -->
-
-<!-- Podemos ver el cambio de esta relación a través del tiempo usando una animación, usando la librería `plotly`: -->
+<!-- Empezamos seleccionar los datos y las variables a utilizar con `ggplot()`. Para ahorrarnos tiempo en este instructivo, guardamos esta primera parte como un objeto llamado `p`. Pero imprimir el objeto solo no produce resultados esperados, solo una cuadrícula vacía. -->
 
 <!-- ```{r} -->
-<!-- library(plotly) -->
-<!-- q <- gapminder %>% -->
-<!--   ggplot(aes(x = gdpPercap, y = lifeExp, color = continent)) + -->
-<!--   geom_point(aes(frame = year, ids = country)) + ## cuadros y id -->
+<!-- p <- gapminder %>% -->
+<!--   ggplot(mapping = aes(x = gdpPercap, y = lifeExp)) -->
+<!-- p -->
+<!-- ``` -->
+
+<!-- Le agregamos una capa de puntos a esta cuadrícula para crear una gráfica de dispersión usando la función `geom_point()`: -->
+
+<!-- ```{r} -->
+<!-- p +  -->
+<!--   geom_point() -->
+<!-- ``` -->
+
+<!-- Parece que hay una relación. Podemos agregar una línea de tendencia usando agregando una capa más: `geom_smooth()`: -->
+
+<!-- ```{r} -->
+<!-- p +  -->
+<!--   geom_point() + -->
+<!--   geom_smooth() -->
+<!-- ``` -->
+
+<!-- Si queremos especificar el métodos (`"lm"`, `"loess"` o `"gam"`, por ejemplo), tenemos el argumento `method = `. Declarar `method = "lm"` le indica a R que estime un modelo de regresión lineal simple (*linear model*) y grafique las predicciones del modelo: -->
+
+<!-- ```{r} -->
+<!-- p +  -->
+<!--   geom_point() + -->
+<!--   geom_smooth(method = "lm") ## por defecto, method = "loess" -->
+<!-- ``` -->
+
+<!-- #### Más elementos -->
+
+<!-- Cambiemos la escala del eje x: apliquemos una transformación con un logaritmo base 10 y cambiemos las unidades de las etiquetas del eje: -->
+
+<!-- ```{r} -->
+<!-- p +  -->
+<!--   geom_point() + -->
+<!--   geom_smooth(method = "gam", se = FALSE) + ## otro método; sin errores estándar -->
+<!--   scale_x_log10(labels = scales::dollar) ## aplica log y cambia escala del eje a dolares -->
+<!-- ``` -->
+
+<!-- Para especificar el color de los puntos y de la línea y la opacidad de los puntos (`alpha = 0` es completamente transparente): -->
+
+<!-- ```{r} -->
+<!-- p +  -->
+<!--   geom_point(color = "purple", alpha = 0.3) + -->
+<!--   geom_smooth(method = "loess", color = "green") + -->
+<!--   scale_x_log10(labels = scales::dollar) -->
+<!-- ``` -->
+
+<!-- Al final, todo junto (puntos, tendencia, color escala, títulos, leyendas y el fondo). Usamos `labs()` para especificar los títulos y etiquetas de ejes: -->
+
+<!-- ```{r} -->
+<!-- gapminder %>% -->
+<!--   ggplot(mapping = aes(x = gdpPercap, y = lifeExp)) + -->
+<!--   geom_point(alpha = 0.3, color = "steelblue3") + -->
+<!--   geom_smooth(method = "lm", color = "firebrick3") + -->
+<!--   scale_x_log10(labels = scales::dollar) + -->
+<!--   labs( -->
+<!--     x = "PIB per cápita", y = "Expectativa de vida al nacer", -->
+<!--     title = "Crecimiento económico y expectativa de vida", -->
+<!--     subtitle = "Las observaciones son paises-año", -->
+<!--     caption = "Fuente: Gapminder." -->
+<!--   ) -->
+<!-- ``` -->
+
+<!-- #### Guardar objetos gráficos -->
+
+<!-- ```{r} -->
+<!-- gapminder %>% -->
+<!--   ggplot(mapping = aes(x = gdpPercap, y = lifeExp)) + -->
+<!--   geom_point(alpha = 0.3, color = "steelblue3") + -->
+<!--   geom_smooth(method = "lm", color = "firebrick3") + -->
+<!--   scale_x_log10(labels = scales::dollar) + -->
+<!--   labs( -->
+<!--     x = "PIB per cápita", y = "Expectativa de vida al nacer", -->
+<!--     title = "Crecimiento económico y expectativa de vida", -->
+<!--     subtitle = "Las observaciones son paises-año", -->
+<!--     caption = "Fuente: Gapminder." -->
+<!--   ) + -->
+<!--   ggsave("output/mi_grafica.pdf")  -->
+<!-- ``` -->
+
+<!-- #### Colores y grupos -->
+
+<!-- Variables categóricas y colores para denotar grupos y comparar. Empezamos por seleccionar datos y variables. -->
+
+<!-- ```{r} -->
+<!-- p <- gapminder %>% -->
+<!--   ggplot( -->
+<!--     aes( -->
+<!--       x = gdpPercap, y = lifeExp, ## datos de los ejes horizontal y vertical -->
+<!--       color = continent ## color asignado a una variable -->
+<!--     )  -->
+<!--   )  -->
+<!-- ``` -->
+
+<!-- Ahora, hagamos una gráfica de dispersión, con puntos agrupados según una variable categórica. Incluimos líneas para cada grupo en los datos. Como `color = ` está asignados en `aes()`, aplica a todas las capas: -->
+
+<!-- ```{r} -->
+<!-- p +   -->
+<!--   geom_point() + -->
+<!--   geom_smooth(method = "loess") + -->
+<!--   scale_x_log10() -->
+<!-- ``` -->
+
+<!-- Un poco confuso... tenemos colores y líneas específicas para cada continente. Intentemos con una sola líneas y manteniendo los puntos agrupados. Noten que `color = ` pasa de `aes()` a `geom_point()`: -->
+
+<!-- ```{r} -->
+<!-- p <- gapminder %>% -->
+<!--   ggplot(aes(x = gdpPercap, y = lifeExp)) ## sin color -->
+<!-- p +   -->
+<!--   geom_point(mapping = aes(color = continent)) + ## solo los puntos cambian de color -->
+<!--   geom_smooth(method = "loess", color =  "gray50") + -->
+<!--   scale_x_log10() -->
+<!-- ``` -->
+
+<!-- Podemos visualizar tres variables continuas al clasificar puntos según una variable continua: -->
+
+<!-- ```{r} -->
+<!-- p +   -->
+<!--   geom_point(mapping = aes(color = log(pop))) + ## puntos de distinto color según log(pop) -->
+<!--   geom_smooth(method = "loess", color = "firebrick3") + -->
 <!--   scale_x_log10(labels = scales::dollar) + -->
 <!--   labs(x = "PIB per capita", y = "Expectativa de vida al nacer", -->
-<!--        title = "Crecimiento economico y expectativa de vida", -->
-<!--        subtitle = "Las observaciones son paises-ano", -->
+<!--        title = "Crecimiento económico y expectativa de vida", -->
+<!--        subtitle = "Las observaciones son paises-año", -->
 <!--        caption = "Fuente: Gapminder.") + -->
-<!--   scale_color_discrete(name = "Continente")  -->
+<!--   scale_color_continuous(name = "Población (log.)") ## titulo de la leyenda de color (que es continua) -->
 <!-- ``` -->
 
-<!-- Le pasamos el gráfico a `ggplotly()`: -->
+<!-- <!-- ### Animaciones --> -->
 
-<!-- ```{r, cache = TRUE} -->
-<!-- ggplotly(q) -->
+<!-- <!-- Podemos ver el cambio de esta relación a través del tiempo usando una animación, usando la librería `plotly`: --> -->
+
+<!-- <!-- ```{r} --> -->
+<!-- <!-- library(plotly) --> -->
+<!-- <!-- q <- gapminder %>% --> -->
+<!-- <!--   ggplot(aes(x = gdpPercap, y = lifeExp, color = continent)) + --> -->
+<!-- <!--   geom_point(aes(frame = year, ids = country)) + ## cuadros y id --> -->
+<!-- <!--   scale_x_log10(labels = scales::dollar) + --> -->
+<!-- <!--   labs(x = "PIB per capita", y = "Expectativa de vida al nacer", --> -->
+<!-- <!--        title = "Crecimiento economico y expectativa de vida", --> -->
+<!-- <!--        subtitle = "Las observaciones son paises-ano", --> -->
+<!-- <!--        caption = "Fuente: Gapminder.") + --> -->
+<!-- <!--   scale_color_discrete(name = "Continente")  --> -->
+<!-- <!-- ``` --> -->
+
+<!-- <!-- Le pasamos el gráfico a `ggplotly()`: --> -->
+
+<!-- <!-- ```{r, cache = TRUE} --> -->
+<!-- <!-- ggplotly(q) --> -->
+<!-- <!-- ``` --> -->
+
+<!-- ### Más formas, más *geoms* -->
+
+<!-- Por supuesto, las gráficas de dispersión no cubren todas nuestras necesidades de visualización... -->
+
+<!-- #### Líneas y grupos -->
+
+<!-- Podemos hacer gráficos de lineas fácilmente: -->
+
+<!-- ```{r} -->
+<!-- gapminder %>% -->
+<!--   filter(country == "Colombia") %>% -->
+<!--   ggplot(aes(x = year, y = gdpPercap)) + -->
+<!--   geom_line() -->
 <!-- ``` -->
 
-### Más formas, más *geoms*
+<!-- ¿Qué pasa si queremos graficar datos que tienen estructura? Nos referimos a que las observaciones pertenecen a grupos, usualmente indicados por variables categóricas: -->
 
-Por supuesto, las gráficas de dispersión no cubren todas nuestras necesidades de visualización...
+<!-- ```{r} -->
+<!-- p <- gapminder %>% -->
+<!--   ggplot(aes(x = year, y = gdpPercap)) -->
+<!-- ``` -->
 
-#### Líneas y grupos
+<!-- Hay muchos países en la base de datos, o sea, hay muchas series de tiempo. `ggplot()` no sabe (aún) que las observaciones están agrupadas, pero le podemos decir. Cada líneas es un grupo, en este caso un país -->
 
-Podemos hacer gráficos de lineas fácilmente:
+<!-- ```{r} -->
+<!-- p + geom_line(aes(group = country), alpha = 0.5) -->
+<!-- ``` -->
 
-```{r}
-gapminder %>%
-  filter(country == "Colombia") %>%
-  ggplot(aes(x = year, y = gdpPercap)) +
-  geom_line()
-```
+<!-- #### Paneles -->
 
-¿Qué pasa si queremos graficar datos que tienen estructura? Nos referimos a que las observaciones pertenecen a grupos, usualmente indicados por variables categóricas:
+<!-- Se trata de graficar una variable agrupada en dos o más niveles. Una linea por país (`group = `), un panel por continente (`facet_wrap()`). Nos ayuda a desenredar la figura anterior: -->
 
-```{r}
-p <- gapminder %>%
-  ggplot(aes(x = year, y = gdpPercap))
-```
+<!-- ```{r} -->
+<!-- p +  -->
+<!--   geom_line(aes(group = country)) + -->
+<!--   facet_wrap(~ continent) -->
+<!-- ``` -->
 
-Hay muchos países en la base de datos, o sea, hay muchas series de tiempo. `ggplot()` no sabe (aún) que las observaciones están agrupadas, pero le podemos decir. Cada líneas es un grupo, en este caso un país
+<!-- Agregar elementos (etiquetas, escalas...): -->
 
-```{r}
-p + geom_line(aes(group = country), alpha = 0.5)
-```
+<!-- ```{r} -->
+<!-- p +  -->
+<!--   geom_line(aes(group = country), color = "gray70") + ## color gris -->
+<!--   geom_smooth( -->
+<!--     size = 1.1, method = "loess", se = FALSE ## curva loess, sin error típico, mas gruesa -->
+<!--   ) +  -->
+<!--   scale_x_continuous(breaks = seq(1952, 2002, 20)) + -->
+<!--   scale_y_log10(labels = scales::dollar) + ## eje y en dolares y log -->
+<!--   facet_wrap(~ continent, ncol = 5) + ## cuadro por continente, en 5 columnas -->
+<!--   labs(x = "Año", -->
+<!--        y = "PIB per cápita", -->
+<!--        title = "PIB per cápita en cinco continentes", -->
+<!--        caption = "Fuente: Gapminder.") -->
+<!-- ``` -->
 
-#### Paneles
+<!-- Ver paneles en otro conjunto de datos con mas variables categóricas: encuesta general social en USA -->
 
-Se trata de graficar una variable agrupada en dos o más niveles. Una linea por país (`group = `), un panel por continente (`facet_wrap()`). Nos ayuda a desenredar la figura anterior:
+<!-- ```{r} -->
+<!-- gss_sm -->
+<!-- ``` -->
 
-```{r}
-p + 
-  geom_line(aes(group = country)) +
-  facet_wrap(~ continent)
-```
+<!-- Empecemos por seleccionar datos y variables: -->
 
-Agregar elementos (etiquetas, escalas...):
+<!-- ```{r} -->
+<!-- p <- gss_sm %>% -->
+<!--   ggplot(aes(x = age, y = childs)) ## edad del encuestado; numero de hijos -->
+<!-- ``` -->
 
-```{r}
-p + 
-  geom_line(aes(group = country), color = "gray70") + ## color gris
-  geom_smooth(
-    size = 1.1, method = "loess", se = FALSE ## curva loess, sin error típico, mas gruesa
-  ) + 
-  scale_x_continuous(breaks = seq(1952, 2002, 20)) +
-  scale_y_log10(labels = scales::dollar) + ## eje y en dolares y log
-  facet_wrap(~ continent, ncol = 5) + ## cuadro por continente, en 5 columnas
-  labs(x = "Año",
-       y = "PIB per cápita",
-       title = "PIB per cápita en cinco continentes",
-       caption = "Fuente: Gapminder.")
-```
+<!-- Para graficar usando paneles: `facet_grid()` permite usar dos variables categóricas, a diferencia de `facet_wrap()`: -->
 
-Ver paneles en otro conjunto de datos con mas variables categóricas: encuesta general social en USA
+<!-- ```{r} -->
+<!-- p +  -->
+<!--   geom_point(alpha = 0.2, fill = "grey20") + -->
+<!--   geom_smooth(method = "lm", color = "red") +  -->
+<!--   facet_grid(sex ~ race) -->
+<!-- ``` -->
 
-```{r}
-gss_sm
-```
+<!-- #### Barras y frecuencias -->
 
-Empecemos por seleccionar datos y variables:
+<!-- Algunos *geoms* de `ggplot2` transforman los datos por nosotros. Por ejemplo, los cuentan o suman. Es el caso de `geom_bar()`. Usamos gráficos de barras cuando estamos contando el numero de casos o incidencias, así que nos da la distribución de una variable categórica. También lo usamos cuando queremos comparar valores resumidos por grupo o comparar distribuciones. -->
 
-```{r}
-p <- gss_sm %>%
-  ggplot(aes(x = age, y = childs)) ## edad del encuestado; numero de hijos
-```
+<!-- Seleccionemos unos datos y variables: -->
 
-Para graficar usando paneles: `facet_grid()` permite usar dos variables categóricas, a diferencia de `facet_wrap()`:
+<!-- ```{r} -->
+<!-- p <- gss_sm %>% -->
+<!--   ggplot(aes(x = bigregion)) ## macroregiones de USA -->
+<!-- ``` -->
 
-```{r}
-p + 
-  geom_point(alpha = 0.2, fill = "grey20") +
-  geom_smooth(method = "lm", color = "red") + 
-  facet_grid(sex ~ race)
-```
+<!-- Gráfico de barras con frecuencias (absolutas). Noten que el eje y (vertical) no es una variable que existe en los datos: es una cuenta del numero de observaciones por región -- `ggplot2` las sumó por nosotros. -->
 
-#### Barras y frecuencias
+<!-- ```{r} -->
+<!-- p + -->
+<!--   geom_bar() -->
+<!-- ``` -->
 
-Algunos *geoms* de `ggplot2` transforman los datos por nosotros. Por ejemplo, los cuentan o suman. Es el caso de `geom_bar()`. Usamos gráficos de barras cuando estamos contando el numero de casos o incidencias, así que nos da la distribución de una variable categórica. También lo usamos cuando queremos comparar valores resumidos por grupo o comparar distribuciones.
+<!-- Podemos agregar colores: -->
 
-Seleccionemos unos datos y variables:
+<!-- ```{r} -->
+<!-- p <- ggplot(data = gss_sm, mapping = aes(x = religion, fill = religion)) -->
+<!-- p + -->
+<!--   geom_bar() + -->
+<!--   labs(fill = NULL) ## elimina la leyenda para fill, que sería redundante -->
+<!-- ``` -->
 
-```{r}
-p <- gss_sm %>%
-  ggplot(aes(x = bigregion)) ## macroregiones de USA
-```
+<!-- Puede ser más interesante si usamos el relleno (`fill = `) para cruzar variables. Podemos hacer un gráfica de barras apilado. -->
 
-Gráfico de barras con frecuencias (absolutas). Noten que el eje y (vertical) no es una variable que existe en los datos: es una cuenta del numero de observaciones por región -- `ggplot2` las sumó por nosotros.
+<!-- ```{r} -->
+<!-- p <- ggplot(data = gss_sm, mapping = aes(x = bigregion, fill = religion)) -->
+<!-- p +  -->
+<!--   geom_bar() -->
+<!-- ``` -->
 
-```{r}
-p +
-  geom_bar()
-```
+<!-- Es difícil comparar entre grupos, así que podemos cambiar la posición de las barras. Con `position = "fill"`, todas las categorías deben sumar 1: -->
 
-Podemos agregar colores:
+<!-- ```{r} -->
+<!-- p + -->
+<!--   geom_bar(position = "fill") -->
+<!-- ``` -->
 
-```{r}
-p <- ggplot(data = gss_sm, mapping = aes(x = religion, fill = religion))
-p +
-  geom_bar() +
-  labs(fill = NULL) ## elimina la leyenda para fill, que sería redundante
-```
+<!-- Mientras, Con `position = "dodge"`, tenemos barras agrupadas: -->
+
+<!-- ```{r} -->
+<!-- p + -->
+<!--   geom_bar(position = "dodge") -->
+<!-- ``` -->
+
+<!-- Si queremos ver tanto el peso de cada categoría, como su contribución al total, usamos la función `aes()` dentro de `geom_bar()`, especificando `y = ..prop..`: -->
+
+<!-- ```{r} -->
+<!-- p + -->
+<!--   geom_bar(position = "dodge", ## en vez de estar apilados, están lado-a-lado -->
+<!--            mapping = aes(y = ..prop.., ## proporción del total del grupo (región) -->
+<!--                          group = religion)) -->
+<!-- ``` -->
+
+<!-- En vez de meter toda esta información en `geom_bar()`, podemos dividir el trabajo en partes. No hace falta usar color y, en cambio, usamos paneles. Ahora, es más fácil comparar a través de categorías/grupos: -->
+
+<!-- ```{r} -->
+<!-- p <- gss_sm %>% ggplot(aes(x = religion)) ## ya fill = religión no esta aquí -->
+<!-- p + -->
+<!--   geom_bar(aes(y = ..prop.., group = bigregion),  -->
+<!--            position = "dodge") + ## prop., lado a lado -->
+<!--   scale_y_continuous(labels = scales::percent) + ## cambiar etiquetas de prop a porcentaje -->
+<!--   facet_wrap(~ bigregion, ncol = 2) + ## cuadro por macroregión, 2 columnas -->
+<!--   labs(x = "Religión", -->
+<!--        y = "Porcentaje", -->
+<!--        title = "Distribución de las principales religiones por macroregión", -->
+<!--        caption = "Fuente: General Social Survey.") -->
+<!-- ``` -->
+
 
-Puede ser más interesante si usamos el relleno (`fill = `) para cruzar variables. Podemos hacer un gráfica de barras apilado.
+<!-- #### Distribuciones continuas: histogramas y graficos de densidad -->
 
-```{r}
-p <- ggplot(data = gss_sm, mapping = aes(x = bigregion, fill = religion))
-p + 
-  geom_bar()
-```
+<!-- Queremos ver cuántas observaciones hay por cada valor de una variable numérica. En otras palabras, la distribución de una variable continua. Comparar esto con barras, donde queremos ver cuantos hay de cada categoría de una variable categórica. Usemos otros datos (población en condados del Midwest) para mostrar las distribuciones de variables continuas: -->
 
-Es difícil comparar entre grupos, así que podemos cambiar la posición de las barras. Con `position = "fill"`, todas las categorías deben sumar 1:
-
-```{r}
-p +
-  geom_bar(position = "fill")
-```
+<!-- ```{r} -->
+<!-- midwest -->
+<!-- ``` -->
 
-Mientras, Con `position = "dodge"`, tenemos barras agrupadas:
+<!-- Seleccionar datos y graficar la distribución de la variable `area` (área de los condados en la región): -->
 
-```{r}
-p +
-  geom_bar(position = "dodge")
-```
-
-Si queremos ver tanto el peso de cada categoría, como su contribución al total, usamos la función `aes()` dentro de `geom_bar()`, especificando `y = ..prop..`:
-
-```{r}
-p +
-  geom_bar(position = "dodge", ## en vez de estar apilados, están lado-a-lado
-           mapping = aes(y = ..prop.., ## proporción del total del grupo (región)
-                         group = religion))
-```
-
-En vez de meter toda esta información en `geom_bar()`, podemos dividir el trabajo en partes. No hace falta usar color y, en cambio, usamos paneles. Ahora, es más fácil comparar a través de categorías/grupos:
-
-```{r}
-p <- gss_sm %>% ggplot(aes(x = religion)) ## ya fill = religión no esta aquí
-p +
-  geom_bar(aes(y = ..prop.., group = bigregion), 
-           position = "dodge") + ## prop., lado a lado
-  scale_y_continuous(labels = scales::percent) + ## cambiar etiquetas de prop a porcentaje
-  facet_wrap(~ bigregion, ncol = 2) + ## cuadro por macroregión, 2 columnas
-  labs(x = "Religión",
-       y = "Porcentaje",
-       title = "Distribución de las principales religiones por macroregión",
-       caption = "Fuente: General Social Survey.")
-```
-
+<!-- ```{r} -->
+<!-- p <- midwest %>% -->
+<!--   ggplot(aes(x = area)) -->
+<!-- p + -->
+<!--   geom_histogram() ## histograma -->
+<!-- ``` -->
 
-#### Distribuciones continuas: histogramas y graficos de densidad
+<!-- Podemos cambiar el numero de barras (*bins*): -->
 
-Queremos ver cuántas observaciones hay por cada valor de una variable numérica. En otras palabras, la distribución de una variable continua. Comparar esto con barras, donde queremos ver cuantos hay de cada categoría de una variable categórica. Usemos otros datos (población en condados del Midwest) para mostrar las distribuciones de variables continuas:
+<!-- ```{r} -->
+<!-- p + -->
+<!--   geom_histogram(bins = 50) -->
+<!-- ``` -->
 
-```{r}
-midwest
-```
+<!-- O el tamaño de cada barra (en términos de x): -->
 
-Seleccionar datos y graficar la distribución de la variable `area` (área de los condados en la región):
+<!-- ```{r} -->
+<!-- p + -->
+<!--   geom_histogram(binwidth = 0.01) -->
+<!-- ``` -->
 
-```{r}
-p <- midwest %>%
-  ggplot(aes(x = area))
-p +
-  geom_histogram() ## histograma
-```
+<!-- Podemos comparar dos distribuciones. Primero, debemos seleccionar datos y variables. Aquí, solo dos estados: Ohio y Wisconsin.Crear nuevo objeto `ggplot`: -->
 
-Podemos cambiar el numero de barras (*bins*):
+<!-- ```{r} -->
+<!-- p <- midwest %>% -->
+<!--   filter(state %in% c("OH", "WI")) %>% -->
+<!--   ggplot(aes(x = percollege, fill = state)) -->
+<!-- ``` -->
 
-```{r}
-p +
-  geom_histogram(bins = 50)
-```
+<!-- Dos histogramas en un gráfico -->
 
-O el tamaño de cada barra (en términos de x):
-
-```{r}
-p +
-  geom_histogram(binwidth = 0.01)
-```
-
-Podemos comparar dos distribuciones. Primero, debemos seleccionar datos y variables. Aquí, solo dos estados: Ohio y Wisconsin.Crear nuevo objeto `ggplot`:
-
-```{r}
-p <- midwest %>%
-  filter(state %in% c("OH", "WI")) %>%
-  ggplot(aes(x = percollege, fill = state))
-```
-
-Dos histogramas en un gráfico
-
-```{r}
-p +
-  geom_histogram(alpha = 0.4, bins = 20)
-```
-
-Alternativa: dos histogramas, cada uno en su propio cuadro
-
-```{r}
-p +
-  geom_histogram(alpha = 0.4, bins = 20) +
-  facet_wrap(~ state)
-```
-
-Alternativa a los histogramas - gráficos de densidad. Uno para toda la muestra:
-
-```{r}
-p <- midwest %>%
-  ggplot(aes(x = area))
-p +
-  geom_density()
-```
-
-Usar color para distinguir grupos (y con `color = NA` podemos eliminar las líneas y dejar solamente el relleno):
-
-```{r}
-p <- midwest %>%
-  ggplot(aes(x = area, fill = state)) ## color y área por cada estado
-p +
-  geom_density(alpha = 0.3, color = NA) +
-  labs(x = "Área",
-       y = "Densidad",
-       fill = "Estado") 
-```
-
-Finalmente, podemos usando *ridgeplots* de la librería `ggridges`:
-
-```{r}
-library(ggridges)
-midwest %>%
-  ggplot(aes(x = percollege, y = state)) +
-  geom_density_ridges(stat = "binline")
-```
-
-Y de densidad:
-
-```{r}
-library(ggridges)
-midwest %>%
-  ggplot(aes(x = percollege, y = state)) +
-  geom_density_ridges()
-```
-
-### Datos resumidos
-
-Cuando ya tenemos datos resumidos (porque usamos `summarize()`, por ejemplo) o tablas que resumen los datos, tenemos otras opciones. O sea, no necesitamos que `ggplot2` haga cálculos por nosotros, como en `geom_bar()`.
-
-### Tabla resumen
-
-Miremos esta tabla de sobrevivientes del Titanic. No son datos "crudos":
-
-```{r}
-titanic
-```
-
-Podemos usar `geom_bar()`, pero habría que usar `stat = "identity"` para pedirle que los deje como están y no haga cálculos adicionales:
-
-```{r}
-p <- ggplot(data = titanic, mapping = aes(x = fate, y = percent, fill = sex))
-p +
-  geom_bar(stat = "identity", position = "dodge") +
-  theme(legend.position = "top") ## movemos la ubicación de la leyenda
-```
-
-Más fácil: `geom_col()` es igual a `geom_bar()`, pero ya asume que tenemos datos resumidos. Así, tenemos que darle menos indicaciones. Aquí, movemos la leyenda a la parte de abajo de la gráfica:
-
-```{r}
-p +
-  geom_col(position = "dodge") + ## como hay grupos, usamos "dodge"; pero no hay que usar stat = "identity"
-  theme(legend.position = "bottom")
-```
-
-#### Datos "anchos"
-
-Miremos estos datos de la OCDE sobre expectativa de vida en EEUU y demás países. Estos datos *no* están en formato "tidy" (una fila por observación, una columna por variable), porque están resumidos... Las columnas `other` y `usa` deberían ser valores de otra columna (`pais`, quizás) y los valores actuales de esa columna deberían ir en una nueva (`expectativa`, por ejemplo). Pero los podemos visualizar así:
-
-```{r}
-oecd_sum
-```
-
-Nuevamente, hagamos una gráfico de barras/columnas:
-
-```{r}
-p <- oecd_sum %>%
-  ggplot(
-    aes(x = year, y = diff, 
-        fill = hi_lo) ## color según dummy por si USA esta arriba/abajo de la media
-  ) 
-p +
-  geom_col() + ## barras con datos resumidos
-  guides(fill = FALSE) + ## sin leyenda
-  labs(
-    x = NULL, y = "Diferencia en anos",
-    title = "La brecha de la expectativa de vida en EEUU",
-    subtitle = "Diferencia entre expectativa de vida promedio en EEUU y paises OCDE, 1960-2015",
-    caption = "Datos: OCDE. Basado en una grafica de Christopher Ingraham publicada en el Washington Post, diciembre 27 de 2017."
-  )
-```
-
-#### Numero de casos por categoría
-
-También podemos transformar/resumir los datos previamente con `%>%` y funciones de `dplyr`:
-
-```{r}
-rel_por_region <- gss_sm %>% ## tomar los datos y después...
-  group_by(bigregion, religion) %>% ## agruparlos por región y religión y después...
-  summarize(N = n()) %>% ## resumir creando una nueva tabla, 
-  ## contando numero de observaciones por religión en cada región y después...
-  mutate(freq = N / sum(N), ## calcular dos nuevas variables en la nueva tabla
-         pct = round((freq*100), 0))
-rel_por_region
-```
-
-Ahora podemos graficar:
-
-```{r}
-p <- ggplot(rel_por_region, aes(x = bigregion, y = pct, fill = religion))
-p +
-  geom_col(position = "dodge2") + ## Organiza las subcategorías lado-a-lado dentro de grupos
-  labs(x = "Region", y = "Porcentaje", fill = "Religion") +
-  theme(legend.position = "top")
-```
-
-Pero como vimos anteriormente, puede ser mejor usar paneles. Usamos `facet_grid()` y también `coord_flip()` para cambiar los ejes de posición (y unos trucos de `tidytext` para organizar las categorías):
-
-```{r}
-p <- rel_por_region %>%
-  ggplot(aes(x = tidytext::reorder_within(religion, pct, religion), y = pct, fill = religion))
-p +
-  geom_col() + 
-  tidytext::scale_x_reordered() +
-  facet_grid(~ bigregion, scales = "free_x") +
-  coord_flip() + 
-  labs(x = NULL, y = "Porcentaje") +
-  guides(fill = FALSE) 
-```
-
-#### Comparar medias por categoría
-
-Otra forma de resumir los datos, es hallar una estadística (por ejemplo la media) de una variable de interés para distintos grupos. Una vez hacemos esto, podemos pasar el resultado por `geom_col()`:
-
-```{r}
-gapminder %>%
-  group_by(continent) %>% ## agrupar
-  summarize(media_pibpc = mean(gdpPercap, na.rm = TRUE)) %>% ## resumir -- hallar media por grupo
-  ggplot(aes(x = continent, y = media_pibpc, fill = continent)) + ## seleccionar datos, variables, mapear
-  geom_col() + ## gráfico de columnas
-  labs(x = NULL, y = "PIB per cápita (promediol)") + ## títulos de ejes
-  scale_y_continuous(labels = scales::dollar) + ## eje y en dolares
-  guides(fill = FALSE) ## quitar leyenda
-```
-
-### Otros geoms
-
-Más opciones.
-
-#### Datos agrupados
-
-Veamos estos datos de la OCDE sobre donantes de órganos y trasplantes:
-
-```{r}
-organdata
-```
-
-Veamos una gráfica con una línea de tiempo por país:
-
-```{r}
-p <- organdata %>%
-  ggplot(aes(x = year, y = donors))
-p +
-  geom_line(aes(group = country)) +
-  facet_wrap(~ country)
-```
-
-Ahora, un diagrama de caja y bigote (vemos la media y la dispersión de los datos). Usamos `geom_boxplot()` - pero hay opciones similares como `geom_violin()`.
-
-```{r}
-p <- organdata %>%
-  ggplot(aes(x = country, y = donors))
-p +
-  geom_boxplot() +
-  coord_flip() ## Permite ver las etiquetas de países en el eje vertical
-```
-
-Ordenemos los datos usando la función `fct_reorder()`, ubicando a los países con medias altas primero:
-
-```{r}
-p <- organdata %>%
-  ggplot(aes(x = fct_reorder(country, donors, na.rm = TRUE), ## "sort"
-             y = donors))
-p +
-  geom_boxplot() +
-  labs(x = NULL) +
-  coord_flip() 
-```
-
-Hay muchas posibilidades de personalizar la gráfica, incluyendo rellenos y colores:
-
-```{r}
-p <- organdata %>%
-  ggplot(aes(x = fct_reorder(country, donors, na.rm = TRUE), 
-             y = donors, fill = world))
-p +
-  geom_boxplot() +
-  labs(x = NULL, fill = NULL) +
-  coord_flip() +
-  theme(legend.position = "top")
-```
-
-Si son pocas observaciones por grupo, podemos usar `geom_point()` con el argumento `alpha = ` si hay mucho traslape entre puntos:
-
-```{r}
-p <- organdata %>%
-  ggplot(aes(x = reorder(country, donors, na.rm = TRUE), 
-             y = donors, color = world))
-p +
-  geom_point(alpha = 0.5) +
-  scale_color_discrete(name = NULL) +
-  labs(x = NULL) +
-  coord_flip() +
-  theme(legend.position = "top")
-```
-
-#### Diagrama de puntos Cleveland
-
-Cuando solo tenemos una observación por grupo o queremos resumir varios puntos agrupados, podemos construir un diagrama de puntos Cleveland. Primero, necesitamos resumir los datos a una observación (puede ser la media) por país. Para esto, usamos `group_by()` y `summarize_if()` para encontrar la media y la desviación estándar de todas las variables numéricas:
-
-```{r}
-por_pais <- organdata %>% 
-  group_by(consent_law, country) %>%
-  summarize_if(is.numeric, funs(mean, sd), na.rm = TRUE) %>%
-  ungroup()
-por_pais
-```
-
-Ahora podemos construir el diagrama:
-
-```{r}
-p <- por_pais %>%
-  ggplot(aes(x = donors_mean, 
-             y = reorder(country, donors_mean, na.rm = TRUE),
-             color = consent_law))
-p +
-  geom_point(size = 3) +
-  labs(x = "Tasa de donación", y = NULL,
-       color = "Ley de consentimiento") +
-  theme(legend.position = "top")
-```
-
-Podemos incluir la incertidumbre alrededor de los datos (ya la calculamos arriba con la función `sd()`). Usamos `geom_pointrange()` para incluir un punto y su rango:
-
-```{r}
-p <- por_pais %>%
-  ggplot(aes(x = reorder(country, donors_mean, na.rm = TRUE), 
-             y = donors_mean, color = consent_law))
-p +
-  geom_pointrange(aes(ymin = donors_mean - donors_sd,
-                      ymax = donors_mean + donors_sd)) +
-  scale_color_discrete(labels = c("Informado", "Presupuesto")) +
-  labs(x = NULL, y = "Tasa de donación",
-       color = "Consentimiento") +
-  theme(legend.position = "top") +
-  coord_flip() 
-```
-
-#### Texto y etiquetas
-
-A veces, queremos incluir etiquetas para identificar las observaciones en una gráfica:
-
-```{r}
-p <- por_pais %>%
-  ggplot(aes(x = roads_mean, y = donors_mean))
-p +
-  geom_point() +
-  geom_text(aes(label = country))
-```
-
-Podríamos ajustar las etiquetas manualmente para evitar que se traslapen con los puntos. Sin embargo, también lo podemos hacer automáticamente con funciones de la librería `ggrepel`, en particular `geom_text_repel()`:
-
-```{r}
-library(ggrepel)
-p +
-  geom_point() +
-  geom_text_repel(aes(label = country))
-```
-
-##### Señalar *outliers*
-
-Para mostrar outliers usando condiciones, primero hagamos un subconjunto de datos con los casos que queremos señalar:
-
-```{r}
-subconjunto <- por_pais %>%
-  filter(gdp_mean > 25000 | health_mean < 1500 |
-           country %in% "Belgium")
-```
-
-Y añadimos estos datos a la gráfica en `geom_text_repel()`:
-
-```{r}
-p <- por_pais %>%
-  ggplot(aes(x = gdp_mean, y = health_mean))
-p +
-  geom_point() +
-  geom_text_repel(
-    data = subconjunto, aes(label = country), color = "red"
-  )
-```
-
-Para seleccionar puntos específicos y señalarlos, podemos crear una variable dummy primero que categorice los casos que cumplen una condición (los que queremos mostrar) y los que no. Nos facilita hacer la operación después.
-
-```{r}
-organdata <- organdata %>%
-  mutate(ind = organdata$ccode %in% c("Ita", "Spa") & organdata$year > 1998)
-organdata %>% count(ind)
-```
-
-Y enseguida construimos la gráfica:
-
-```{r}
-p <- organdata %>%
-  ggplot(aes(x = roads, y = donors, color = ind))
-p +
-  geom_point() + 
-  geom_text_repel(
-    data = filter(organdata, ind), ## filtrar casos == TRUE
-    mapping = aes(label = ccode)
-  ) +
-  guides(label = FALSE, color = FALSE)
-```
-
-#### Texto
-
-Podemos escribir y dibujar sobre la gráfica con `annotate()` y especificando la ubicación en los ejes x y y del texto:
-
-```{r}
-p <- organdata %>%
-  ggplot(aes(x = roads, y = donors))
-p + 
-  geom_point() +
-  annotate(
-    geom = "text", x = 91, y = 33, hjust = 0,
-    label = "Tasas sorprendentemente altas"
-  )
-```
-
-Además, podemos resaltar un área de la gráfica, agregando un rectángulo, también con `annotate()` y dándole las coordenadas:
-
-```{r}
-p + 
-  geom_point() +
-  geom_smooth(method = "lm", color = "grey50") +
-  annotate(geom = "text", x = 157, y = 33, hjust = 0,
-           label = "Tasas sorprendentemente altas") +
-  annotate(geom = "rect", fill = "red", alpha = 0.2,
-           xmin = 125, xmax = 155, ymin = 30, ymax = 35) +
-  labs(x = "Accidentes viales (por 100k habs.)",
-       y = "Donantes (por 1M habs.)",
-       caption = "Fuente: Healey (2017).")
-```
-
-### Colores y temas
-
-Empecemos con una gráfica simple:
-
-```{r}
-mpg %>%
-  ggplot(aes(displ, cty, color = factor(cyl))) +
-  geom_point(size = 2)
-```
-
-#### Paletas de colores
-
-Podemos cambiar la paleta de colores usada en `color = ` o `fill = `. Manualmente, definimos una paleta de colores y luego la usamos:
-
-```{r}
-mi_paleta <- c("orange", "green", "red", "blue")
-mpg %>%
-  ggplot(aes(displ, cty, color = factor(cyl))) +
-  geom_point(size = 2) +
-  scale_color_manual(values = mi_paleta)
-```
-
-O usando las funciones de `RColorBrewer` ya incorporadas a `ggplot2` con la función `scale_color_brewer()`:
-
-```{r}
-mpg %>%
-  ggplot(aes(displ, cty, color = factor(cyl))) +
-  geom_point(size = 2) +
-  scale_color_brewer(palette = "Set2")
-```
-
-Si es una escala continua, tanto `RColorBrewer` (`scale_color_distiller()`) como `viridis` tienen opciones:
-
-```{r}
-mpg %>%
-  ggplot(aes(hwy, cty, color = displ)) +
-  geom_point(size = 2) +
-  scale_color_viridis_c()
-```
-
-Y para los cinéfilos, la librería `wesanderson` implementa las paletas de colores de las película de Wes Anderson en `ggplot2`:
-
-```{r}
-library(wesanderson)
-mpg %>%
-  ggplot(aes(displ, cty, color = factor(cyl))) +
-  geom_point(size = 2) +
-  scale_color_manual(values = wes_palette(name = "FantasticFox1"))
-```
+<!-- ```{r} -->
+<!-- p + -->
+<!--   geom_histogram(alpha = 0.4, bins = 20) -->
+<!-- ``` -->
+
+<!-- Alternativa: dos histogramas, cada uno en su propio cuadro -->
+
+<!-- ```{r} -->
+<!-- p + -->
+<!--   geom_histogram(alpha = 0.4, bins = 20) + -->
+<!--   facet_wrap(~ state) -->
+<!-- ``` -->
+
+<!-- Alternativa a los histogramas - gráficos de densidad. Uno para toda la muestra: -->
+
+<!-- ```{r} -->
+<!-- p <- midwest %>% -->
+<!--   ggplot(aes(x = area)) -->
+<!-- p + -->
+<!--   geom_density() -->
+<!-- ``` -->
+
+<!-- Usar color para distinguir grupos (y con `color = NA` podemos eliminar las líneas y dejar solamente el relleno): -->
+
+<!-- ```{r} -->
+<!-- p <- midwest %>% -->
+<!--   ggplot(aes(x = area, fill = state)) ## color y área por cada estado -->
+<!-- p + -->
+<!--   geom_density(alpha = 0.3, color = NA) + -->
+<!--   labs(x = "Área", -->
+<!--        y = "Densidad", -->
+<!--        fill = "Estado")  -->
+<!-- ``` -->
+
+<!-- Finalmente, podemos usando *ridgeplots* de la librería `ggridges`: -->
+
+<!-- ```{r} -->
+<!-- library(ggridges) -->
+<!-- midwest %>% -->
+<!--   ggplot(aes(x = percollege, y = state)) + -->
+<!--   geom_density_ridges(stat = "binline") -->
+<!-- ``` -->
+
+<!-- Y de densidad: -->
+
+<!-- ```{r} -->
+<!-- library(ggridges) -->
+<!-- midwest %>% -->
+<!--   ggplot(aes(x = percollege, y = state)) + -->
+<!--   geom_density_ridges() -->
+<!-- ``` -->
+
+<!-- ### Datos resumidos -->
+
+<!-- Cuando ya tenemos datos resumidos (porque usamos `summarize()`, por ejemplo) o tablas que resumen los datos, tenemos otras opciones. O sea, no necesitamos que `ggplot2` haga cálculos por nosotros, como en `geom_bar()`. -->
+
+<!-- ### Tabla resumen -->
+
+<!-- Miremos esta tabla de sobrevivientes del Titanic. No son datos "crudos": -->
+
+<!-- ```{r} -->
+<!-- titanic -->
+<!-- ``` -->
+
+<!-- Podemos usar `geom_bar()`, pero habría que usar `stat = "identity"` para pedirle que los deje como están y no haga cálculos adicionales: -->
+
+<!-- ```{r} -->
+<!-- p <- ggplot(data = titanic, mapping = aes(x = fate, y = percent, fill = sex)) -->
+<!-- p + -->
+<!--   geom_bar(stat = "identity", position = "dodge") + -->
+<!--   theme(legend.position = "top") ## movemos la ubicación de la leyenda -->
+<!-- ``` -->
+
+<!-- Más fácil: `geom_col()` es igual a `geom_bar()`, pero ya asume que tenemos datos resumidos. Así, tenemos que darle menos indicaciones. Aquí, movemos la leyenda a la parte de abajo de la gráfica: -->
+
+<!-- ```{r} -->
+<!-- p + -->
+<!--   geom_col(position = "dodge") + ## como hay grupos, usamos "dodge"; pero no hay que usar stat = "identity" -->
+<!--   theme(legend.position = "bottom") -->
+<!-- ``` -->
+
+<!-- #### Datos "anchos" -->
+
+<!-- Miremos estos datos de la OCDE sobre expectativa de vida en EEUU y demás países. Estos datos *no* están en formato "tidy" (una fila por observación, una columna por variable), porque están resumidos... Las columnas `other` y `usa` deberían ser valores de otra columna (`pais`, quizás) y los valores actuales de esa columna deberían ir en una nueva (`expectativa`, por ejemplo). Pero los podemos visualizar así: -->
+
+<!-- ```{r} -->
+<!-- oecd_sum -->
+<!-- ``` -->
+
+<!-- Nuevamente, hagamos una gráfico de barras/columnas: -->
+
+<!-- ```{r} -->
+<!-- p <- oecd_sum %>% -->
+<!--   ggplot( -->
+<!--     aes(x = year, y = diff,  -->
+<!--         fill = hi_lo) ## color según dummy por si USA esta arriba/abajo de la media -->
+<!--   )  -->
+<!-- p + -->
+<!--   geom_col() + ## barras con datos resumidos -->
+<!--   guides(fill = FALSE) + ## sin leyenda -->
+<!--   labs( -->
+<!--     x = NULL, y = "Diferencia en anos", -->
+<!--     title = "La brecha de la expectativa de vida en EEUU", -->
+<!--     subtitle = "Diferencia entre expectativa de vida promedio en EEUU y paises OCDE, 1960-2015", -->
+<!--     caption = "Datos: OCDE. Basado en una grafica de Christopher Ingraham publicada en el Washington Post, diciembre 27 de 2017." -->
+<!--   ) -->
+<!-- ``` -->
+
+<!-- #### Numero de casos por categoría -->
+
+<!-- También podemos transformar/resumir los datos previamente con `%>%` y funciones de `dplyr`: -->
+
+<!-- ```{r} -->
+<!-- rel_por_region <- gss_sm %>% ## tomar los datos y después... -->
+<!--   group_by(bigregion, religion) %>% ## agruparlos por región y religión y después... -->
+<!--   summarize(N = n()) %>% ## resumir creando una nueva tabla,  -->
+<!--   ## contando numero de observaciones por religión en cada región y después... -->
+<!--   mutate(freq = N / sum(N), ## calcular dos nuevas variables en la nueva tabla -->
+<!--          pct = round((freq*100), 0)) -->
+<!-- rel_por_region -->
+<!-- ``` -->
+
+<!-- Ahora podemos graficar: -->
+
+<!-- ```{r} -->
+<!-- p <- ggplot(rel_por_region, aes(x = bigregion, y = pct, fill = religion)) -->
+<!-- p + -->
+<!--   geom_col(position = "dodge2") + ## Organiza las subcategorías lado-a-lado dentro de grupos -->
+<!--   labs(x = "Region", y = "Porcentaje", fill = "Religion") + -->
+<!--   theme(legend.position = "top") -->
+<!-- ``` -->
+
+<!-- Pero como vimos anteriormente, puede ser mejor usar paneles. Usamos `facet_grid()` y también `coord_flip()` para cambiar los ejes de posición (y unos trucos de `tidytext` para organizar las categorías): -->
+
+<!-- ```{r} -->
+<!-- p <- rel_por_region %>% -->
+<!--   ggplot(aes(x = tidytext::reorder_within(religion, pct, religion), y = pct, fill = religion)) -->
+<!-- p + -->
+<!--   geom_col() +  -->
+<!--   tidytext::scale_x_reordered() + -->
+<!--   facet_grid(~ bigregion, scales = "free_x") + -->
+<!--   coord_flip() +  -->
+<!--   labs(x = NULL, y = "Porcentaje") + -->
+<!--   guides(fill = FALSE)  -->
+<!-- ``` -->
+
+<!-- #### Comparar medias por categoría -->
+
+<!-- Otra forma de resumir los datos, es hallar una estadística (por ejemplo la media) de una variable de interés para distintos grupos. Una vez hacemos esto, podemos pasar el resultado por `geom_col()`: -->
+
+<!-- ```{r} -->
+<!-- gapminder %>% -->
+<!--   group_by(continent) %>% ## agrupar -->
+<!--   summarize(media_pibpc = mean(gdpPercap, na.rm = TRUE)) %>% ## resumir -- hallar media por grupo -->
+<!--   ggplot(aes(x = continent, y = media_pibpc, fill = continent)) + ## seleccionar datos, variables, mapear -->
+<!--   geom_col() + ## gráfico de columnas -->
+<!--   labs(x = NULL, y = "PIB per cápita (promediol)") + ## títulos de ejes -->
+<!--   scale_y_continuous(labels = scales::dollar) + ## eje y en dolares -->
+<!--   guides(fill = FALSE) ## quitar leyenda -->
+<!-- ``` -->
+
+<!-- ### Otros geoms -->
+
+<!-- Más opciones. -->
+
+<!-- #### Datos agrupados -->
+
+<!-- Veamos estos datos de la OCDE sobre donantes de órganos y trasplantes: -->
+
+<!-- ```{r} -->
+<!-- organdata -->
+<!-- ``` -->
+
+<!-- Veamos una gráfica con una línea de tiempo por país: -->
+
+<!-- ```{r} -->
+<!-- p <- organdata %>% -->
+<!--   ggplot(aes(x = year, y = donors)) -->
+<!-- p + -->
+<!--   geom_line(aes(group = country)) + -->
+<!--   facet_wrap(~ country) -->
+<!-- ``` -->
+
+<!-- Ahora, un diagrama de caja y bigote (vemos la media y la dispersión de los datos). Usamos `geom_boxplot()` - pero hay opciones similares como `geom_violin()`. -->
+
+<!-- ```{r} -->
+<!-- p <- organdata %>% -->
+<!--   ggplot(aes(x = country, y = donors)) -->
+<!-- p + -->
+<!--   geom_boxplot() + -->
+<!--   coord_flip() ## Permite ver las etiquetas de países en el eje vertical -->
+<!-- ``` -->
+
+<!-- Ordenemos los datos usando la función `fct_reorder()`, ubicando a los países con medias altas primero: -->
+
+<!-- ```{r} -->
+<!-- p <- organdata %>% -->
+<!--   ggplot(aes(x = fct_reorder(country, donors, na.rm = TRUE), ## "sort" -->
+<!--              y = donors)) -->
+<!-- p + -->
+<!--   geom_boxplot() + -->
+<!--   labs(x = NULL) + -->
+<!--   coord_flip()  -->
+<!-- ``` -->
+
+<!-- Hay muchas posibilidades de personalizar la gráfica, incluyendo rellenos y colores: -->
+
+<!-- ```{r} -->
+<!-- p <- organdata %>% -->
+<!--   ggplot(aes(x = fct_reorder(country, donors, na.rm = TRUE),  -->
+<!--              y = donors, fill = world)) -->
+<!-- p + -->
+<!--   geom_boxplot() + -->
+<!--   labs(x = NULL, fill = NULL) + -->
+<!--   coord_flip() + -->
+<!--   theme(legend.position = "top") -->
+<!-- ``` -->
+
+<!-- Si son pocas observaciones por grupo, podemos usar `geom_point()` con el argumento `alpha = ` si hay mucho traslape entre puntos: -->
+
+<!-- ```{r} -->
+<!-- p <- organdata %>% -->
+<!--   ggplot(aes(x = reorder(country, donors, na.rm = TRUE),  -->
+<!--              y = donors, color = world)) -->
+<!-- p + -->
+<!--   geom_point(alpha = 0.5) + -->
+<!--   scale_color_discrete(name = NULL) + -->
+<!--   labs(x = NULL) + -->
+<!--   coord_flip() + -->
+<!--   theme(legend.position = "top") -->
+<!-- ``` -->
+
+<!-- #### Diagrama de puntos Cleveland -->
+
+<!-- Cuando solo tenemos una observación por grupo o queremos resumir varios puntos agrupados, podemos construir un diagrama de puntos Cleveland. Primero, necesitamos resumir los datos a una observación (puede ser la media) por país. Para esto, usamos `group_by()` y `summarize_if()` para encontrar la media y la desviación estándar de todas las variables numéricas: -->
+
+<!-- ```{r} -->
+<!-- por_pais <- organdata %>%  -->
+<!--   group_by(consent_law, country) %>% -->
+<!--   summarize_if(is.numeric, funs(mean, sd), na.rm = TRUE) %>% -->
+<!--   ungroup() -->
+<!-- por_pais -->
+<!-- ``` -->
+
+<!-- Ahora podemos construir el diagrama: -->
+
+<!-- ```{r} -->
+<!-- p <- por_pais %>% -->
+<!--   ggplot(aes(x = donors_mean,  -->
+<!--              y = reorder(country, donors_mean, na.rm = TRUE), -->
+<!--              color = consent_law)) -->
+<!-- p + -->
+<!--   geom_point(size = 3) + -->
+<!--   labs(x = "Tasa de donación", y = NULL, -->
+<!--        color = "Ley de consentimiento") + -->
+<!--   theme(legend.position = "top") -->
+<!-- ``` -->
+
+<!-- Podemos incluir la incertidumbre alrededor de los datos (ya la calculamos arriba con la función `sd()`). Usamos `geom_pointrange()` para incluir un punto y su rango: -->
+
+<!-- ```{r} -->
+<!-- p <- por_pais %>% -->
+<!--   ggplot(aes(x = reorder(country, donors_mean, na.rm = TRUE),  -->
+<!--              y = donors_mean, color = consent_law)) -->
+<!-- p + -->
+<!--   geom_pointrange(aes(ymin = donors_mean - donors_sd, -->
+<!--                       ymax = donors_mean + donors_sd)) + -->
+<!--   scale_color_discrete(labels = c("Informado", "Presupuesto")) + -->
+<!--   labs(x = NULL, y = "Tasa de donación", -->
+<!--        color = "Consentimiento") + -->
+<!--   theme(legend.position = "top") + -->
+<!--   coord_flip()  -->
+<!-- ``` -->
+
+<!-- #### Texto y etiquetas -->
+
+<!-- A veces, queremos incluir etiquetas para identificar las observaciones en una gráfica: -->
+
+<!-- ```{r} -->
+<!-- p <- por_pais %>% -->
+<!--   ggplot(aes(x = roads_mean, y = donors_mean)) -->
+<!-- p + -->
+<!--   geom_point() + -->
+<!--   geom_text(aes(label = country)) -->
+<!-- ``` -->
+
+<!-- Podríamos ajustar las etiquetas manualmente para evitar que se traslapen con los puntos. Sin embargo, también lo podemos hacer automáticamente con funciones de la librería `ggrepel`, en particular `geom_text_repel()`: -->
+
+<!-- ```{r} -->
+<!-- library(ggrepel) -->
+<!-- p + -->
+<!--   geom_point() + -->
+<!--   geom_text_repel(aes(label = country)) -->
+<!-- ``` -->
+
+<!-- ##### Señalar *outliers* -->
+
+<!-- Para mostrar outliers usando condiciones, primero hagamos un subconjunto de datos con los casos que queremos señalar: -->
+
+<!-- ```{r} -->
+<!-- subconjunto <- por_pais %>% -->
+<!--   filter(gdp_mean > 25000 | health_mean < 1500 | -->
+<!--            country %in% "Belgium") -->
+<!-- ``` -->
+
+<!-- Y añadimos estos datos a la gráfica en `geom_text_repel()`: -->
+
+<!-- ```{r} -->
+<!-- p <- por_pais %>% -->
+<!--   ggplot(aes(x = gdp_mean, y = health_mean)) -->
+<!-- p + -->
+<!--   geom_point() + -->
+<!--   geom_text_repel( -->
+<!--     data = subconjunto, aes(label = country), color = "red" -->
+<!--   ) -->
+<!-- ``` -->
+
+<!-- Para seleccionar puntos específicos y señalarlos, podemos crear una variable dummy primero que categorice los casos que cumplen una condición (los que queremos mostrar) y los que no. Nos facilita hacer la operación después. -->
+
+<!-- ```{r} -->
+<!-- organdata <- organdata %>% -->
+<!--   mutate(ind = organdata$ccode %in% c("Ita", "Spa") & organdata$year > 1998) -->
+<!-- organdata %>% count(ind) -->
+<!-- ``` -->
+
+<!-- Y enseguida construimos la gráfica: -->
+
+<!-- ```{r} -->
+<!-- p <- organdata %>% -->
+<!--   ggplot(aes(x = roads, y = donors, color = ind)) -->
+<!-- p + -->
+<!--   geom_point() +  -->
+<!--   geom_text_repel( -->
+<!--     data = filter(organdata, ind), ## filtrar casos == TRUE -->
+<!--     mapping = aes(label = ccode) -->
+<!--   ) + -->
+<!--   guides(label = FALSE, color = FALSE) -->
+<!-- ``` -->
+
+<!-- #### Texto -->
+
+<!-- Podemos escribir y dibujar sobre la gráfica con `annotate()` y especificando la ubicación en los ejes x y y del texto: -->
+
+<!-- ```{r} -->
+<!-- p <- organdata %>% -->
+<!--   ggplot(aes(x = roads, y = donors)) -->
+<!-- p +  -->
+<!--   geom_point() + -->
+<!--   annotate( -->
+<!--     geom = "text", x = 91, y = 33, hjust = 0, -->
+<!--     label = "Tasas sorprendentemente altas" -->
+<!--   ) -->
+<!-- ``` -->
+
+<!-- Además, podemos resaltar un área de la gráfica, agregando un rectángulo, también con `annotate()` y dándole las coordenadas: -->
+
+<!-- ```{r} -->
+<!-- p +  -->
+<!--   geom_point() + -->
+<!--   geom_smooth(method = "lm", color = "grey50") + -->
+<!--   annotate(geom = "text", x = 157, y = 33, hjust = 0, -->
+<!--            label = "Tasas sorprendentemente altas") + -->
+<!--   annotate(geom = "rect", fill = "red", alpha = 0.2, -->
+<!--            xmin = 125, xmax = 155, ymin = 30, ymax = 35) + -->
+<!--   labs(x = "Accidentes viales (por 100k habs.)", -->
+<!--        y = "Donantes (por 1M habs.)", -->
+<!--        caption = "Fuente: Healey (2017).") -->
+<!-- ``` -->
+
+<!-- ### Colores y temas -->
+
+<!-- Empecemos con una gráfica simple: -->
+
+<!-- ```{r} -->
+<!-- mpg %>% -->
+<!--   ggplot(aes(displ, cty, color = factor(cyl))) + -->
+<!--   geom_point(size = 2) -->
+<!-- ``` -->
+
+<!-- #### Paletas de colores -->
+
+<!-- Podemos cambiar la paleta de colores usada en `color = ` o `fill = `. Manualmente, definimos una paleta de colores y luego la usamos: -->
+
+<!-- ```{r} -->
+<!-- mi_paleta <- c("orange", "green", "red", "blue") -->
+<!-- mpg %>% -->
+<!--   ggplot(aes(displ, cty, color = factor(cyl))) + -->
+<!--   geom_point(size = 2) + -->
+<!--   scale_color_manual(values = mi_paleta) -->
+<!-- ``` -->
+
+<!-- O usando las funciones de `RColorBrewer` ya incorporadas a `ggplot2` con la función `scale_color_brewer()`: -->
+
+<!-- ```{r} -->
+<!-- mpg %>% -->
+<!--   ggplot(aes(displ, cty, color = factor(cyl))) + -->
+<!--   geom_point(size = 2) + -->
+<!--   scale_color_brewer(palette = "Set2") -->
+<!-- ``` -->
+
+<!-- Si es una escala continua, tanto `RColorBrewer` (`scale_color_distiller()`) como `viridis` tienen opciones: -->
+
+<!-- ```{r} -->
+<!-- mpg %>% -->
+<!--   ggplot(aes(hwy, cty, color = displ)) + -->
+<!--   geom_point(size = 2) + -->
+<!--   scale_color_viridis_c() -->
+<!-- ``` -->
+
+<!-- Y para los cinéfilos, la librería `wesanderson` implementa las paletas de colores de las película de Wes Anderson en `ggplot2`: -->
+
+<!-- ```{r} -->
+<!-- library(wesanderson) -->
+<!-- mpg %>% -->
+<!--   ggplot(aes(displ, cty, color = factor(cyl))) + -->
+<!--   geom_point(size = 2) + -->
+<!--   scale_color_manual(values = wes_palette(name = "FantasticFox1")) -->
+<!-- ``` -->
 
 #### Temas
 
@@ -966,8 +943,7 @@ Si vamos a realizar muchas gráficas y queremos que todas tengan el mismo estilo
 ```{r}
 theme_set(
   theme_classic(
-    base_size = 14, ## cambiar tamaño de letra base
-    base_family = "serif" ## cambiar tipo de fuente
+    base_size = 12, ## cambiar tamaño de letra base
   ) +
     theme(legend.position = "bottom") ## agregar otros elementos
 )
@@ -986,41 +962,7 @@ mpg %>%
   )
 ```
 
-#### Temas adicionales
-
-Otras librerías traen temas adicionales a las opciones de `ggplot2`. Por ejemplo, está la librería `ggthemes`:
-
-```{r}
-library(ggthemes)
-```
-
-La revista _The Economist_ es reconocida por su compromiso con el periodismo de datos, en particular la división Inteligence Unit. Podemos copiar el diseño de sus gráficas: 
-
-```{r}
-mpg %>%
-  ggplot(aes(displ, cty, color = factor(cyl))) +
-  geom_point(size = 2) + 
-  labs(
-    x = "Desplazamiento del motor (en L)", y = "Millas por galón (ciudad)", 
-    color = "Cilindros", title = "Para ahorrar, busque un motor pequeño",
-    subtitle = "Desplazamiento, eficiencia y cilindros de 234 autos", caption = "Fuente: EPA."
-  ) +
-  theme_economist() 
-```
-
-Hay infinidad de temas disponibles en línea. Otras librerías son `ggthemr`. Algunas no se encuentran en CRAN. Por ejemplo, `ggtech` (descarga directa de GitHub) tiene temas que emulan el "look" de varias compañías de tecnología. Para descargar e instalar librerías directamente de GitHub, usamos `devtools::install_github()`, especificando el nombre de usuario y del repositorio:
-
-```{r, eval = FALSE}
-devtools::install_github("ricardo-bion/ggtech")
-```
-
-Otro ejemplo: el equipo de periodismo de datos de la BBC creó una biblioteca para crear y exportar gráficas de `ggplot2` en el estilo usado por esa agencia. Lo podemos instalar con:
-
-```{r, eval = FALSE}
-devtools::install_github('bbc/bbplot')
-```
-
-## La versión rápida
+## Tipos de gráficas: la versión rápida
 
 En lo que queda de este instructivo, usamos la librería `ggplot2` para realizar gráficas básicas en R. La idea es poder identificar rápidamente el tipo de gráfica para el tipo de información que queremos visualizar y hacerlo de manera sencilla.
     
@@ -1035,9 +977,9 @@ Así, el formato básico de una gráfica construida en `ggplot2()` es:
 ```{r, eval = FALSE}
 datos %>%
   ggplot(aes(x = variable_x, y = variable_y)) +
-  geom_() +
-  scale_() +
-  labs()
+  geom_*(opciones...) +
+  scale_*(opciones...) +
+  labs(x = "Etiqueta", y = "Otra etiqueta")
 ```
 
 ### Principales tipos de gráficas
@@ -1054,7 +996,7 @@ Frecuentemente, lo primero que queremos ver es la distribución de una variable 
 
 ```{r}
 gapminder %>%
-ggplot(aes(x = gdpPercap)) +
+  ggplot(aes(x = gdpPercap)) +
   geom_histogram() +
   scale_x_continuous(labels = scales::dollar) +
   labs(x = "PIB per cápita", y = "Número de observaciones") 
@@ -1064,7 +1006,7 @@ Variables como el PIB per cápita y la población de países con frecuencia pres
 
 ```{r}
 gapminder %>%
-ggplot(aes(x = gdpPercap)) +
+  ggplot(aes(x = gdpPercap)) +
   geom_histogram() +
   scale_x_log10(labels = scales::dollar) +
   labs(x = "PIB per cápita", y = "Número de observaciones") 
@@ -1076,7 +1018,7 @@ Otra forma de visualizar la distribución de una variable continua mirando su de
 
 ```{r}
 gapminder %>%
-ggplot(aes(x = gdpPercap)) +
+  ggplot(aes(x = gdpPercap)) +
   geom_density(alpha = 0.5) +
   scale_x_log10(labels = scales::dollar) +
   labs(x = "PIB per cápita", y = "Densidad") 
@@ -1099,7 +1041,7 @@ Si no hay orden en las categorías, igual usamos `geom_bar()`. Si creemos que el
 
 ```{r}
 gapminder %>%
-ggplot(aes(x = continent)) +
+  ggplot(aes(x = continent)) +
   geom_bar() +
   labs(x = NULL, y = "Número de observaciones") 
 ```
@@ -1107,7 +1049,8 @@ ggplot(aes(x = continent)) +
 Podemos darle orden según el número de observaciones en cada categoría (o sea, según su frecuencia en los datos) con `fct_infreq()`. Si, además, las etiquetas del eje horizontal son muy largas, podemos girar los ejes con `coord_flip()`:
 
 ```{r}
-ggplot(gapminder, aes(x = fct_infreq(continent))) +
+gapminder %>%
+  ggplot(aes(x = fct_infreq(continent))) +
   geom_bar() +
   coord_flip() +
   labs(x = NULL, y = "Número de observaciones") 
@@ -1119,7 +1062,7 @@ Puede que busquemos lo mismo, pero con proporciones (con base al total), añadie
 
 ```{r}
 gapminder %>%
-ggplot(aes(x = continent)) +
+  ggplot(aes(x = continent)) +
   geom_bar(aes(y = ..prop.., group = 1)) +
   scale_y_continuous(labels = scales::percent) +
   labs(x = NULL, y = "Porcentaje de observaciones")
@@ -1135,7 +1078,7 @@ Junto a las gráficas de barras, los gráficos de dispersión para ver relacione
 
 ```{r}
 gapminder %>%
-ggplot(aes(x = gdpPercap, y = lifeExp)) +
+  ggplot(aes(x = gdpPercap, y = lifeExp)) +
   geom_point() +
   scale_x_continuous(labels = scales::dollar) +
   labs(x = "PIB per cápita", y = "Expectativa de vida al nacer")
@@ -1145,7 +1088,7 @@ Como la relación parece no es estrictamente lineal, cambiamos el eje a una esca
 
 ```{r}
 gapminder %>%
-ggplot(aes(x = gdpPercap, y = lifeExp)) +
+  ggplot(aes(x = gdpPercap, y = lifeExp)) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "lm", color = "grey50") +
   scale_x_log10(labels = scales::dollar) +
@@ -1184,7 +1127,7 @@ gapminder %>%
 
 Otra alternativa para ver relaciones entre variables categóricas es usar `geom_count()`. Es posible, pero los resultados no son los mejores:
 
-```{r}
+```{r count}
 gapminder %>%
   ggplot(aes(x = continent, y = gdpPercap_factor)) +
   geom_count() +
@@ -1194,7 +1137,7 @@ gapminder %>%
 
 Sin embargo, puede ser preferible hacer tablas cruzadas para este tipo de información. Si queremos imprimirla, podemos usar `kable()` de `knitr` junto a un poco de magia de `tidyr`:
 
-```{r}
+```{r cross-tab}
 library(knitr)
 gapminder %>%
   group_by(continent, gdpPercap_factor)%>%
@@ -1216,35 +1159,35 @@ Comparamos la distribución de una variable continua en dos o más grupos (defin
 
 ```{r}
 gapminder %>%
-ggplot(aes(x = gdpPercap, group = continent)) +
+  ggplot(aes(x = gdpPercap, group = continent)) +
   geom_histogram() +
   facet_wrap(~ continent) +
   scale_x_log10(labels = scales::dollar) +
   labs(x = "PIB per cápita", y = "Número de observaciones") 
 ```
 
-##### Una cont., una cat.: *ridgeplots*
+<!-- ##### Una cont., una cat.: *ridgeplots* -->
 
-Una alternativa son los *ridgeplots* o diagramas de cresta, los cuales creamos con la función `geom_density_ridges()` de `ggridges`:
+<!-- Una alternativa son los *ridgeplots* o diagramas de cresta, los cuales creamos con la función `geom_density_ridges()` de `ggridges`: -->
 
-```{r ridge}
-library(ggridges)
-gapminder %>%
-ggplot(aes(x = gdpPercap, y = continent)) +
-  geom_density_ridges() +
-  scale_x_log10(labels = scales::dollar) +
-  labs(x = "PIB per cápita", y = NULL) 
-```
+<!-- ```{r ridge} -->
+<!-- library(ggridges) -->
+<!-- gapminder %>% -->
+<!-- ggplot(aes(x = gdpPercap, y = continent)) + -->
+<!--   geom_density_ridges() + -->
+<!--   scale_x_log10(labels = scales::dollar) + -->
+<!--   labs(x = "PIB per cápita", y = NULL)  -->
+<!-- ``` -->
 
-Si queremos un histograma por grupo, en vez de densidad:
+<!-- Si queremos un histograma por grupo, en vez de densidad: -->
 
-```{r}
-gapminder %>%
-ggplot(aes(x = gdpPercap, y = continent)) +
-  geom_density_ridges(stat = "binline") +
-  scale_x_log10(labels = scales::dollar) +
-  labs(x = "PIB per cápita", y = NULL) 
-```
+<!-- ```{r} -->
+<!-- gapminder %>% -->
+<!-- ggplot(aes(x = gdpPercap, y = continent)) + -->
+<!--   geom_density_ridges(stat = "binline") + -->
+<!--   scale_x_log10(labels = scales::dollar) + -->
+<!--   labs(x = "PIB per cápita", y = NULL)  -->
+<!-- ``` -->
 
 ##### Una cont., una cat.: barras
 
@@ -1280,7 +1223,7 @@ Por otro lado, si queremos ver un solo valor (no un resumen, como la media), `ge
 ```{r}
 gapminder %>%
   filter(year == 2007) %>% # solo un año
-  top_n(20, gdpPercap) %>% # solo las 20 observaciones con mayor PIB per cápita
+  top_n(20, gdpPercap) %>% # solo las 20 observaciones con mayor PIB per capita
   ggplot(aes(x = fct_reorder(country, gdpPercap), y = gdpPercap)) +
   geom_col() +
   scale_y_continuous(labels = scales::dollar) +
@@ -1406,23 +1349,23 @@ gapminder %>%
   labs(x = "Año", y = "PIB per cápita") 
 ```
 
-### Muchas variables: exploración
+<!-- ### Muchas variables: exploración -->
 
-En ocasiones, queremos tener el mapa general de las relaciones entre variables de una base de datos como primer paso de nuestro análisis exploratorio. En este punto, quizás sea mejor hacer una matriz de correlaciones. Una forma es con la función `ggcorr()` de `GGally`, seleccionando solo las variables numéricas:
+<!-- En ocasiones, queremos tener el mapa general de las relaciones entre variables de una base de datos como primer paso de nuestro análisis exploratorio. En este punto, quizás sea mejor hacer una matriz de correlaciones. Una forma es con la función `ggcorr()` de `GGally`, seleccionando solo las variables numéricas: -->
 
-```{r corr}
-library(GGally)
-gapminder %>%
-  select_if(is.numeric) %>%
-  ggcorr(nbreaks = 5)
-```
+<!-- ```{r corr} -->
+<!-- library(GGally) -->
+<!-- gapminder %>% -->
+<!--   select_if(is.numeric) %>% -->
+<!--   ggcorr(nbreaks = 5) -->
+<!-- ``` -->
 
-Otra es `ggpairs()`, de la misma librería:
+<!-- Otra es `ggpairs()`, de la misma librería: -->
 
-```{r pairs}
-gapminder %>%
-  ggpairs(columns = 4:6)
-```
+<!-- ```{r pairs} -->
+<!-- gapminder %>% -->
+<!--   ggpairs(columns = 4:6) -->
+<!-- ``` -->
 
 ### Guardar objetos gráficos
 

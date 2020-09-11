@@ -1,24 +1,23 @@
-# (PART) III: Análisis de Regresión {-}
+# (PART) Análisis de Regresión {-}
 
 # Regresión lineal {#lm-applied}
-
-```{r, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
-library(tidyverse)
-library(lmtest)
-library(broom)
-library(modelr)
-library(sjPlot)
-theme_set(theme_classic(base_size = 14))
-set.seed(12345)
-```
 
 ## Resumen
 
 En este instructivo, usamos la librería `ggplot2` para realizar gráficas en R, explorando desde lo básico, hasta cuestiones más avanzadas. Seguimos varios capítulos del libro de Kieran Healey, *Data Visualization: A Practical Introduction* (Princeton UP, 2018).
 
 - Principales conceptos: regresión lineal, tabla de regresión, predicciones (valores esperados), diagnósticos.
-- Principales funciones: `lm()`, `tidy()`, `glance()`, `augment()` `tab_model()`, `plot_model()`.
+- Principales funciones: `lm()`, `tab_model()`, `ggpredict()`.
+
+
+Vamos a utilizar las siguientes librerías:
+
+```{r}
+library(tidyverse)
+library(ggeffects) # efectos en modelos de regresion
+library(sjPlot) # tablas de regresion
+theme_set(theme_classic(base_size = 12))
+```
 
 ## Repaso
 
@@ -49,12 +48,16 @@ Estimar modelos de regresión lineal:
 
 ## Modelos de regresión lineal en R
 
-Supongamos que tenemos una pregunta sobre la relación causal entre el ingreso de un individuo y su nivel educativo. Nuestra hipótesis es que a mayor número de años de educación, mayor ingreso anual en promedio. Buscamos y encontramos datos al respecto, los cargamos en R, reorganizamos un poco y miramos las primeras filas de la base de datos.
+Supongamos que tenemos una pregunta sobre la relación causal entre el ingreso de un individuo y su nivel educativo. Nuestra hipótesis es que a mayor número de años de educación, mayor ingreso anual en promedio. Buscamos y encontramos datos al respecto (y los guardamos en el archivo `riverside_final.csv`) y los cargamos en R: 
 
 ```{r cargar-datos}
 # cargar datos
 riverside <- read_csv("data/riverside_final.csv")
+```
 
+Reorganizamos un poco -recodificamos unas variables- y miramos las primeras filas de la base de datos:
+
+```{r ver-datos}
 # recodificar variables categóricas
 riverside <- riverside %>%
   mutate(
@@ -64,7 +67,7 @@ riverside <- riverside %>%
   )
 
 # imprimir los datos a la consola
-riverside
+head(riverside)
 ```
 
 Vemos que tenemos información sobre ingreso, nivel educativo, experiencia laboral, género y afiliación partidista para `r tally(riverside)` individuos. Podemos empezar a trabajar.
@@ -78,11 +81,7 @@ summary(riverside)
 ```
 
 
-Una implementación moderna de este tipo de resúmenes está en la librería `gtsummary` y su función `tbl_summary`.^[Otra opción es la librería `skimr`.]
-
-```{r summary}
-gtsummary::tbl_summary(riverside)
-```
+Una implementación moderna de este tipo de resúmenes son las librería `gtsummary`, `vtable` y `skimr`.
 
 Como nuestras variables de interés (ingreso y educación) ambas son numéricas, un gráfico de dispersión es apropiado:
 
@@ -248,59 +247,75 @@ Noten que el modelo incluye tanto el término multiplicativo (`edu:genderHombre`
 
 ### Interpretación
 
-Hasta ahora, hemos discutido brevemente cómo interpretar los coeficientes de un modelo de regresión múltiple con distintas especificaciones, utilizando la función `summary()` para ver estos resultados. Pero podemos tanto refinar un poco más la interpretación, como mejorar el "look" de los resultados. 
+Hasta ahora, hemos discutido brevemente cómo interpretar los coeficientes de un modelo de regresión múltiple con distintas especificaciones, utilizando la función `summary()` para ver estos resultados. Pero podemos refinar un poco más la interpretación. 
 
-La librería `broom` ofrece varias funciones para trabajar con modelos estadísticos. Primero, la función `tidy()` nos permite ver los coeficientes y su significancia en forma de `tibble`:
+<!-- La librería `broom` ofrece varias funciones para trabajar con modelos estadísticos. Primero, la función `tidy()` nos permite ver los coeficientes y su significancia en forma de `tibble`: -->
 
-```{r mod-tidy}
-tidy(modelo_ingreso)
+<!-- ```{r mod-tidy} -->
+<!-- tidy(modelo_ingreso) -->
+<!-- ``` -->
+
+```{r}
+summary(modelo_ingreso)
 ```
 
 Podemos interpretar la dirección, magnitud y significancia de cada uno de los coeficientes:
 
-- Educación (variable continua): *ceteris paribus*, cada incremento de una unidad en la variable se asocia con un incremento de aproximadamente `r tidy(modelo_ingreso) %>% filter(term == "edu") %>% pull(estimate) %>% round()` unidades en la variable dependiente. En otras palabras, manteniendo las demás variables constantes, un año adicional de educación se asocia en promedio con un incremento de `r tidy(modelo_ingreso) %>% filter(term == "edu") %>% pull(estimate) %>% round()` USD en el ingreso anual.
-- Experiencia (continua): *ceteris paribus*, cada incremento de de una unidad en la variable se asocia con un incremento de aproximadamente `r tidy(modelo_ingreso) %>% filter(term == "senior") %>% pull(estimate) %>% round() * 0.01` unidades en la variable dependiente. En otras palabras, manteniendo las demás variables constantes, un año adicional de experiencia laboral se asocia en promedio con un incremento de `r tidy(modelo_ingreso) %>% filter(term == "senior") %>% pull(estimate) %>% round() * 0.01` USD en el ingreso anual.
-- Género (*dummy*): *ceteris paribus*, ser hombre se asocia con un incremento de `r tidy(modelo_ingreso) %>% filter(term == "genderHombre") %>% pull(estimate) %>% round()` unidades en la variable dependiente, comparado con la categoría de base (ser mujer). En otras palabras, manteniendo las demás variables constantes, el ingreso anual de un hombre es en promedio `r tidy(modelo_ingreso) %>% filter(term == "genderHombre") %>% pull(estimate) %>% round()` USD que el de una mujer.
+- Educación (variable continua): *ceteris paribus*, cada incremento de una unidad en la variable se asocia con un incremento de aproximadamente `r coef(modelo_ingreso)[[2]] %>% round()` unidades en la variable dependiente. En otras palabras, manteniendo las demás variables constantes, un año adicional de educación se asocia en promedio con un incremento de `r coef(modelo_ingreso)[[2]] %>% round()` USD en el ingreso anual.
+- Experiencia (continua): *ceteris paribus*, cada incremento de de una unidad en la variable se asocia con un incremento de aproximadamente `r coef(modelo_ingreso)[[3]] %>% round() * 0.01` unidades en la variable dependiente. En otras palabras, manteniendo las demás variables constantes, un año adicional de experiencia laboral se asocia en promedio con un incremento de `r coef(modelo_ingreso)[[3]] %>% round() * 0.01` USD en el ingreso anual.
+- Género (*dummy*): *ceteris paribus*, ser hombre se asocia con un incremento de `r coef(modelo_ingreso)[[4]] %>% round()` unidades en la variable dependiente, comparado con la categoría de base (ser mujer). En otras palabras, manteniendo las demás variables constantes, el ingreso anual de un hombre es en promedio `r coef(modelo_ingreso)[[4]] %>% round()` USD que el de una mujer.
 
-Estos tres coeficientes son estadísticamente significativos ($p < 0.05$), lo cual indica que la probabilidad de observar estos valores si la hipótesis nula ($\beta = 0$) fuese cierta es menos del 5%.
+Estos tres coeficientes son estadísticamente significativos ($p < 0.05$), lo cual indica que la probabilidad de observar estos valores si la hipótesis nula ($\beta = 0$) fuese cierta es menos del 5%. O sea, es tan poco probable observar estos coeficientes, que ya que los observamos, debe ser que la hipótesis nula no representa el mundo real. En el mundo en que la hipótesis nula es cierta, $\beta = 0$ -- el *p-value* nos dice si el $\beta$ que observamos/estimamos encaja en un mundo en que $\beta = 0$.
 
-Por otro lado, la función `glance()` nos da una mirada al ajuste del modelo en general. Entre otras estadísticas de "bondad del ajuste", el $R^2$ indica la proporción de la variación de $Y$ explicada por el modelo:
+Por otro lado, la función `summary()` también nos da una mirada al ajuste del modelo en general. Entre otras estadísticas de "bondad del ajuste", el $R^2$ indica la proporción de la variación de $Y$ explicada por el modelo. A menos que estemos haciendo predicciones o comparando modelos similares que utilizan los mismos datos, no vale la pena dedicarle mucho tiempo al $R^2$:
 
 ```{r mod-glance}
-glance(modelo_ingreso)
+summary(modelo_ingreso)
 ```
 
-Finalmente, la función `augment()` toma los datos utilizados en el modelo y los *aumenta* con los resultados del modelo, agregando el valor esperado de $Y$, el error estándar y los residuos $u$ para cada observación utilizada para estimar el modelo:
+<!-- Finalmente, la función `augment()` toma los datos utilizados en el modelo y los *aumenta* con los resultados del modelo, agregando el valor esperado de $Y$, el error estándar y los residuos $u$ para cada observación utilizada para estimar el modelo: -->
 
-```{r mod-augment}
-modelo_aug <- augment(modelo_ingreso)
-modelo_aug
-```
+<!-- ```{r mod-augment} -->
+<!-- modelo_aug <- augment(modelo_ingreso) -->
+<!-- modelo_aug -->
+<!-- ``` -->
 
-Podemos utilizar este objeto para entender la diferencia entre el valor observado de la variable dependiente (`income`) y el valor esperado o la predicción del modelo (`.fitted`). Esas diferencias son los residuos. Por ejemplo, miremos la primera observación en la base de datos:
+<!-- Podemos utilizar este objeto para entender la diferencia entre el valor observado de la variable dependiente (`income`) y el valor esperado o la predicción del modelo (`.fitted`). Esas diferencias son los residuos. Por ejemplo, miremos la primera observación en la base de datos: -->
 
-```{r resid}
-modelo_ingreso %>%
-  augment() %>%
-  slice(1) %>% # seleccionar la primera fila
-  select(edu, senior, gender, income, .fitted, .resid) 
-```
+<!-- ```{r resid} -->
+<!-- modelo_ingreso %>% -->
+<!--   augment() %>% -->
+<!--   slice(1) %>% # seleccionar la primera fila -->
+<!--   select(edu, senior, gender, income, .fitted, .resid)  -->
+<!-- ``` -->
 
-Vemos que el modelo se equivoca (especificamente, predice menos ingreso del observado). Eso es normal. El modelo de regresión lineal estima la ecuación que mejor describe la asociación entre variables *en promedio*.
+<!-- Vemos que el modelo se equivoca (especificamente, predice menos ingreso del observado). Eso es normal. El modelo de regresión lineal estima la ecuación que mejor describe la asociación entre variables *en promedio*. -->
 
 ### Diagnósticos
 
-Usemos nuestros datos "aumentados" para hacer unos diagnósticos básicos del ajuste y los supuestos de nuestro modelo de regresión lineal.
+Hagamos unos diagnósticos básicos del ajuste y los supuestos de nuestro modelo de regresión lineal. Empecemos pro extraer algunos elementos del modelo estimado y organizándolos en un `tibble`:
+
+```{r augment-mod}
+# datos (observaciones y variables) usados en el modelo
+modelo_aug <- as_tibble(modelo_ingreso$model)
+modelo_aug <- modelo_aug %>%
+  mutate(fitted = modelo_ingreso$fitted.values,
+         residuals = modelo_ingreso$residuals,
+         std_residuals = rstandard(modelo_ingreso),
+         cooks_d = cooks.distance(modelo_ingreso))
+modelo_aug
+```
+
 
 Para entender un poco mejor si nuestro modelo captura los patrones subyacentes en los datos, podemos mirar una gráfica de dispersión de las variables independientes numéricas versus los residuos. En este caso, como no vemos ningún patrón evidente, creemos que el modelo captura señal y no solo ruido:
 
-```{r}
+```{r resid-x}
 modelo_aug %>%
-  ggplot(aes(.resid, edu)) + 
+  ggplot(aes(residuals, edu)) + 
   geom_point() +
   labs(x = "Educación (años)", y = "Residuos.")
 modelo_aug %>%
-  ggplot(aes(.resid, senior)) + 
+  ggplot(aes(residuals, senior)) + 
   geom_point() +
   labs(x = "Experiencia (años)", y = "Residuos")
 ```
@@ -313,61 +328,76 @@ Para evaluar este supuesto, podemos construir un gráfico de valores esperados d
 
 ```{r hetero-plot}
 modelo_aug %>%
-  ggplot(aes(.fitted, sqrt(abs(.std.resid)))) + 
+  ggplot(aes(fitted, sqrt(abs(std_residuals)))) +
   geom_point() +
   labs(x = "Valores esperados", y = expression(sqrt("|Resid. est.|")))
 ```
 
-El test de Breusch-Pagan nos permite ponerle más precisión a este diagnóstico. Podemos correr este test usando la función `bptest()` de la librería `lmtest`. El test evalúa si hay homoesquedasticidad. En este caso, el *p-value* por encima de 0.05 significa que no rechazamos la hipótesis nula de homoesquedasticidad:
+<!-- El test de Breusch-Pagan nos permite ponerle más precisión a este diagnóstico. Podemos correr este test usando la función `bptest()` de la librería `lmtest`. El test evalúa si hay homoesquedasticidad. En este caso, el *p-value* por encima de 0.05 significa que no rechazamos la hipótesis nula de homoesquedasticidad: -->
 
-```{r bp-test}
-bptest(modelo_ingreso)
-```
+<!-- ```{r bp-test} -->
+<!-- bptest(modelo_ingreso) -->
+<!-- ``` -->
 
-Si en cambio $p < 0.05$, rechazamos la hipótesis nula de homoesquedasticidad e inferimos que hay heteroesquedasticidad en nuestro modelo. Esto implica que los nuestros errores estándar del modelo pueden ser menores de lo que deberían ser. Existen ajustes para este problema, como usar "Weighted Least Squares" (WLS) o transformar las variables independientes.
+<!-- Si en cambio $p < 0.05$, rechazamos la hipótesis nula de homoesquedasticidad e inferimos que hay heteroesquedasticidad en nuestro modelo. Esto implica que los nuestros errores estándar del modelo pueden ser menores de lo que deberían ser. Existen ajustes para este problema, como usar "Weighted Least Squares" (WLS) o transformar las variables independientes. -->
 
 Finalmente, puede que en nuestros datos haya observaciones con un grado de influencia alto. La D de Cook es una estadística que nos permite medir la influencia de una observación en un modelo de regresión lineal. Usando los datos "aumentados", podemos filtrar las observaciones con una D de Cook alta - dos reglas informales sugieren que observaciones con valores por encima de 1 o con valores por encima de 3 veces la media pueden tener alta influencia: 
 
 ```{r influencia}
 modelo_aug %>%
-  filter(.cooksd > 3*mean(.cooksd)) 
+  filter(cooks_d > 3*mean(cooks_d)) 
 ```
 
 Estas observaciones podrían ser consideradas *outliers* y podríamos volver a hacer nuestro análisis sin ellas, notando si los resultados cambian.
 
-### Predicciones
+### Predicciones y efectos
 
-Una de las herramientas más potentes que nos da un modelo de regresión lineal es la capacidad de hacer predicciones. Una predicción no es más que el valor esperado de $Y$ para determinados valores de las variables dependientes, así no existan en los datos originales. Con ellos, podemos hacer inferencias sobre la relación entre las variables de interés.
+Una de las herramientas más potentes que nos da un modelo de regresión lineal es la capacidad de hacer predicciones. Una predicción no es más que el valor esperado de $Y$ para determinados valores de las variables dependientes, así no existan en los datos originales. Con ellos, podemos hacer inferencias sobre la relación entre las variables de interés. En otras palabras, podemos ver "efectos".
 
-Por ejemplo, podríamos estar interesados en el ingreso esperado de una mujer con educación y experiencia promedio. Una forma de hacer esto es usando las funciones de `modelr`. Ponemos esta información en una tabla con `expand_grid()` y la pasamos a la función `add_predictions()`, especificando el modelo que queremos usar para hayar las predicciones:
+Por ejemplo, podríamos estar interesados en el ingreso esperado de una mujer con educación y experiencia promedio. Vamos a usar la librería `ggeffects`, específicamente la función `ggpredict()`. Tomamos el modelo, lo pasamos a la función y especificamos las variables y los valores que nos interesan:
 
-```{r pred}
-riverside %>%
-  data_grid(
-    edu = mean(riverside$edu), 
-    senior = mean(riverside$senior),
-    gender = "Mujer"
-  ) %>%
-  add_predictions(modelo_ingreso) 
+```{r}
+modelo_ingreso %>%
+  ggpredict(terms = c("gender"))
 ```
 
-Otra forma de hacer esto de manera programática es si creamos una tabla que contenga combinaciones de las variables independientes y luego, con `add_predictions` agregamos los valores esperados de $Y$ (predicciones) para esas combinaciones. Aquí, por ejemplo, vamos de una unidad en una unidad por todo el rango de educación, mantenemos experiencia constante en la mediana e incluimos todos los valores de la variable binaria género:
+O de pronto nos interesa comparar el valor esperado de ingreso cuando se tiene poca y mucha experiencia:
 
-```{r pred2}
-riverside %>%
-  data_grid(
-    edu = seq_range(edu, by = 1), # secuencia en el rango de la variable
-    senior = median(senior), 
-    gender 
-  ) %>%
-  add_predictions(modelo_ingreso)
+```{r}
+modelo_ingreso %>%
+  ggpredict(terms = c("gender", "senior[minmax]"))
 ```
 
-Posteriormente, podemos filtrar el resultado para ver predicciones puntuales o usarlos para presentar resultados gráficamente (próxima sección).
+
+<!-- Por ejemplo, podríamos estar interesados en el ingreso esperado de una mujer con educación y experiencia promedio. Una forma de hacer esto es usando las funciones de `modelr`. Ponemos esta información en una tabla con `expand_grid()` y la pasamos a la función `add_predictions()`, especificando el modelo que queremos usar para hayar las predicciones: -->
+
+<!-- ```{r pred} -->
+<!-- riverside %>% -->
+<!--   data_grid( -->
+<!--     edu = mean(riverside$edu),  -->
+<!--     senior = mean(riverside$senior), -->
+<!--     gender = "Mujer" -->
+<!--   ) %>% -->
+<!--   add_predictions(modelo_ingreso)  -->
+<!-- ``` -->
+
+<!-- Otra forma de hacer esto de manera programática es si creamos una tabla que contenga combinaciones de las variables independientes y luego, con `add_predictions` agregamos los valores esperados de $Y$ (predicciones) para esas combinaciones. Aquí, por ejemplo, vamos de una unidad en una unidad por todo el rango de educación, mantenemos experiencia constante en la mediana e incluimos todos los valores de la variable binaria género: -->
+
+<!-- ```{r pred2} -->
+<!-- riverside %>% -->
+<!--   data_grid( -->
+<!--     edu = seq_range(edu, by = 1), # secuencia en el rango de la variable -->
+<!--     senior = median(senior),  -->
+<!--     gender  -->
+<!--   ) %>% -->
+<!--   add_predictions(modelo_ingreso) -->
+<!-- ``` -->
+
+<!-- Posteriormente, podemos filtrar el resultado para ver predicciones puntuales o usarlos para presentar resultados gráficamente (próxima sección). -->
 
 ## Presentar resultados
 
-Dos formas principales de presentar los resultados de una regresión: tablas y gráficas. Vamos a utilizar la librería `sjPlot` para ambos.
+Dos formas principales de presentar los resultados de una regresión: tablas y gráficas. Vamos a utilizar las librerías `ggeffects` y `sjPlot` para esto.
 
 ### Tablas de regresión
 
@@ -427,89 +457,95 @@ tab_model(
 
 ### Gráficas
 
-Visualizar los resultados de modelos, especialmente las predicciones e incertidumbre, puede ayudar mucho a entenderlos mejor y comunicar nuestros resultados. Vamos a usar la función `plot_model()` de `sjPlot`.
+Visualizar los resultados de modelos, especialmente las predicciones e incertidumbre, puede ayudar mucho a entenderlos mejor y comunicar nuestros resultados. Vamos a usar la función `ggpredict` de `ggeffects`. También podríamos usar `sjPlot`.
 
-Primero, veamos cómo visualizar los coeficientes y su significancia. Si aplicamos `plot_model()` al objeto que contiene el modelo, producimos una gráfica que nos muestra los coeficientes de cada variable y sus intervalos de confianza (al 95%). Como `plot_model()` usa `ggplot2`, podemos modificar y agergar elementos usando la misma gramática de las gráficas.^[También se pueden cambiar casi todos los elementos dentro de `plot_model()`.] Por ejemplo, agregamos una línea de referencia para mostrar si los intervalos cubren 0:
+<!-- Primero, veamos cómo visualizar los coeficientes y su significancia. Si aplicamos `plot_model()` al objeto que contiene el modelo, producimos una gráfica que nos muestra los coeficientes de cada variable y sus intervalos de confianza (al 95%). Como `plot_model()` usa `ggplot2`, podemos modificar y agergar elementos usando la misma gramática de las gráficas.^[También se pueden cambiar casi todos los elementos dentro de `plot_model()`.] Por ejemplo, agregamos una línea de referencia para mostrar si los intervalos cubren 0: -->
 
-```{r plot-coef}
+<!-- ```{r plot-coef} -->
+<!-- modelo_ingreso %>% -->
+<!--   plot_model() + -->
+<!--   scale_x_discrete(labels = c("Género: hombre", "Experiencia", "Educación")) +  # los ejes están trocados -->
+<!--   geom_hline(yintercept = 0, linetype = "dashed") + -->
+<!--   labs(title = "Resultados del modelo: coeficientes", -->
+<!--        x = "Coeficientes", -->
+<!--        y = "Estimados") -->
+<!-- ``` -->
+
+<!-- Así mismo, podemos comparar distintos modelos gráficamente con `plot_models()`: -->
+
+<!-- ```{r plot-coef2} -->
+<!-- plot_models( -->
+<!--   modelo_ingreso, modelo_log, modelo_inter, -->
+<!--   axis.labels = c("Educación", "Educación * hombre", "Hombre", "Experiencia",  -->
+<!--                   "Experiencia (log)"), -->
+<!--   legend.title = "Modelo", -->
+<!--   m.labels = c("Completo", "Log", "Interacción") -->
+<!-- ) -->
+<!-- ``` -->
+
+Podemos usar `ggpredict()` para ver los "efectos" de distintas variables, entendidos como el cambio en la variable dependiente para distintos valores de las independientes. Para esto, especificamos las variables independientes que nos interesan con `terms =`. Esta función mantiene constantes los factores (variables categóricas) en su categoría de referencia y las variables numéricas según su valor promedio. Le pasamos los resultados a `plot()`: aquí, vemos el valor esperado (predicción) de ingreso en todo el rango de la variable educación, controlando por género (mujer) y experiencia (media).
+
+```{r plot-eff}
 modelo_ingreso %>%
-  plot_model() +
-  scale_x_discrete(labels = c("Género: hombre", "Experiencia", "Educación")) +  # los ejes están trocados
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  labs(title = "Resultados del modelo: coeficientes",
-       x = "Coeficientes",
-       y = "Estimados")
-```
-
-Así mismo, podemos comparar distintos modelos gráficamente con `plot_models()`:
-
-```{r plot-coef2}
-plot_models(
-  modelo_ingreso, modelo_log, modelo_inter,
-  axis.labels = c("Educación", "Educación * hombre", "Hombre", "Experiencia", 
-                  "Experiencia (log)"),
-  legend.title = "Modelo",
-  m.labels = c("Completo", "Log", "Interacción")
-)
-```
-
-También podemos usar `plot_model()` para ver los "efectos" de distintas variables, entendidos como el cambio en la variable dependiente para distintos valores de las independientes. Para esto, especificamos `type = pred` y las variables independientes con `terms =`. Esta función mantiene constantes los factores (variables categóricas) en su categoría de referencia y las variables numéricas según su valor promedio. Aquí, vemos el valor esperado (predicción) de ingreso en todo el rango de la variable educación, controlando por género (mujer) y experiencia (media).
-
-```{r plot-ef}
-modelo_ingreso %>%
-  plot_model(type = "pred", terms = "edu") +
+  ggpredict(terms = "edu") %>%
+  plot() +
   scale_y_continuous(labels = scales::dollar) +
   labs(title = "Valores esperados de ingreso para distintos valores de educación",
        subtitle = "Mujeres, controlando por experiencia laboral",
        x = "Educación (años)", y = "Ingreso (USD)")
 ```
 
-Adicionalmente, podemos especificar dos variables independientes para visualizar aún más variación. Si las dos variables son numéricas, `plot_model()` automáticamente escoge tres valores del rango de la segunda variable que le pasamos (incluyendo la media) y grafica tres líneas.
+Adicionalmente, podemos especificar dos variables independientes para visualizar aún más variación. Vemos cómo la "línea base" de ingreso (el intercepto) es distinto para hombres y mujeres. Así, vemos más claramente la diferencia en ingreso para hombres y mujeres, por ejemplo. Además, evidencia que incluir una variable categórica esencialmente crea un intercepto distinto para cada grupo, sin cambiar la pendiente (el coeficiente): 
 
-```{r plot-ef2}
+```{r plot-eff2}
 modelo_ingreso %>%
-  plot_model(type = "pred", terms = c("edu", "senior")) +
+  ggpredict(terms = c("edu", "gender")) %>%
+  plot() +
   scale_y_continuous(labels = scales::dollar) +
   labs(title = "Valores esperados de ingreso para distintos valores de educación y experiencia",
-       x = "Educación (años)", y = "Ingreso (USD)", color = "Experiencia (años)")
+       x = "Educación (años)", y = "Ingreso (USD)")
+```
+
+Si las dos variables son numéricas, `ggpredict()` automáticamente escoge tres valores del rango de la segunda variable que le pasamos (incluyendo la media) y grafica tres líneas:
+
+```{r plot-eff3}
+modelo_ingreso %>%
+  ggpredict(terms = c("edu", "senior")) %>%
+  plot() +
+  scale_y_continuous(labels = scales::dollar) +
+  labs(title = "Valores esperados de ingreso para distintos valores de educación y experiencia",
+       x = "Educación (años)", y = "Ingreso (USD)")
 ```
 
 Podemos espeficiar cuántas líneas queremos ver y los valores que debe tomar la segunda variable independiente:
 
 ```{r plot-ef3}
 modelo_ingreso %>%
-  plot_model(type = "pred", terms = c("edu", "senior [5, 25]")) +
+  ggpredict(terms = c("edu", "senior [5, 25]")) %>%
+  plot() +
   scale_y_continuous(labels = scales::dollar) +
   labs(title = "Valores esperados de ingreso para distintos valores de educación y experiencia",
-       x = "Educación (años)", y = "Ingreso (USD)", color = "Experiencia (años)")
-```
-
-En cambio, si una de las variables es categórica (y definida como factor en R), `plot_model()` grafica una línea para cada categoría. Así, vemos más claramente la diferencia en ingreso para hombres y mujeres, por ejemplo. Además, evidencia que incluir una variable categórica esencialmente crea un intercepto distinto para cada grupo, sin cambiar la pendiente (el coeficiente).
-
-```{r plot-ef4}
-modelo_ingreso %>%
-  plot_model(type = "pred", terms = c("edu", "gender")) +
-  scale_y_continuous(labels = scales::dollar) +
-  labs(title = "Valores esperados de ingreso para distintos valores de educación y género",
-       x = "Educación (años)", y = "Ingreso (USD)", color = "Género")
+       x = "Educación (años)", y = "Ingreso (USD)")
 ```
 
 Finalmente, podemos cambiar el orden de las variables en `terms = ` si nos interesa resaltar el efecto de una variable más que la otra:
 
 ```{r plot-ef5}
 modelo_ingreso %>%
-  plot_model(type = "pred", terms = c("gender", "edu [5, 15, 25]")) +
+  ggpredict(terms = c("gender", "edu [5, 15, 25]")) %>%
+  plot() +
   scale_y_continuous(labels = scales::dollar) +
   labs(title = "Valores esperados de ingreso para distintos valores de género y educación",
-       x = "Género", y = "Ingreso (USD)", color = "Educación (años)")
+       x = "Género", y = "Ingreso (USD)")
 ```
 
 ```{r plot-ef6}
 modelo_ingreso %>%
-  plot_model(type = "eff", terms = c("senior", "edu [5, 25]")) +
+  ggpredict(terms = c("senior", "edu [5, 25]")) %>%
+  plot() +
   scale_y_continuous(labels = scales::dollar) +
   labs(title = "Valores esperados de ingreso para distintos valores de educación y experiencia",
-       x = "Experiencia (años, log)", y = "Ingreso (USD)", color = "Educación (años)")
+       x = "Experiencia (años, log)", y = "Ingreso (USD)")
 ```
 
 ## Conclusiones
@@ -521,7 +557,7 @@ Utilidad de los modelos de regresión lineal:
 
 Otras posibilidades:
 
-- Variables dependientes categóricas: regresión logística y modelos por máxima verosimilitud (MLE).
+- Variables dependientes categóricas: regresión logística y modelos por máxima verosimilitud (MLE o *maximum likelihood estimation*).
 - Experimentos: podemos usar OLS para encontrar la diferencia de medias.
 - Data Science: regresión como modelo predictivo que se puede "entrenar".
 
