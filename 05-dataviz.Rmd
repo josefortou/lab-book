@@ -1396,3 +1396,39 @@ Hay muchas más formas de personalizar las gráficas:
 - Utilizar `annotate()` y `geom_text()` para anotar gráficas.
 - Cambiar temas/fondos al agregar `theme_classic()` (u otras funciones `theme_()`) al final de una gráfica o cambiando el tema para todas las gráficas con `theme_set()`.
 - Usar otras paletas de colores: `scale_color_brewer()` y `scale_fill_brewer()` ofrecen varias alternativas para cmbiar los colores y rellenos.
+
+## Taller: visualización de datos
+
+Encontrar una base de datos relevante para el proyecto de investigación. Limpiar y ordenar los datos. El código de esta entrega **no** debe incluir todo el procedimiento para cargar la base de datos original y el proceso de limpieza y organización de la misma; solo el resultado final de este proceso.
+
+### Distribuciones
+
+Crear una gráfica de frecuencias (para variables categóricas) *o* un histograma (para variables continuas) que muestre la distribución de la variable dependiente del proyecto. 
+
+La gráfica debe tener ejes claramente titulados, contar con un título descriptivo y debe especificar la fuente de los datos (1.0 punto).
+
+- *Bono*: Si la variable dependiente es continua y no está distribuida aproximadamente normal, transformar de forma tal que lo sea y graficar también la distribución de esta nueva variable.
+
+### Comparar distribuciones
+
+Crear una gráfica de barras (para variables categóricas) *o* un histograma (para variables continuas) que compare la distribución de la variable dependiente del proyecto a través de dos o más grupos (o sea, otra variable categórica u ordinal). La variable graficada y los grupos deben ser de interés teórico y empírico en el marco de la pregunta de investigación. Solo deben comparar a través de países, municipios, regiones u otras unidades territoriales si hay una justificación teórica. No es tremendamente interesante comparar continentes o países si nuestra teoría es sobre diferencias políticas, institucionales o económicas. En cambio, es mucho más interesante comparar entre casos con o sin guerra; entre democracias, semidemocracias y autocracias; o entre casos con distintos modelos de desarrollo. 
+
+La gráfica debe tener ejes claramente titulados, contar con un título descriptivo y debe especificar la fuente de los datos (1.0 punto).
+
+### Relaciones entre variables
+
+Crear una gráfica de dispersión en el cual se presente la relación entre dos variables continuas/numéricas de interés teórico. Solamente deben incluir una tercera variable --colores, tamaños de los puntos, etc.-- si tiene sentido teóricamente, esto es, si su teoría sugiere que la tercera variable interactúa con otra o modera su efecto.
+
+Aplican los mismos criterios y recomendaciones de los puntos anteriores (1.0 punto).
+  
+### Medias de grupos
+
+Crear una gráfica en la cual se compare la media de una variable numérica a través de dos o más grupos (o sea, una variable categórica u ordinal) de interés teórico. Varios tipos de gráficas pueden cumplir con este objetivo.
+
+Aplican los mismos criterios y recomendaciones de los puntos anteriores (1.0 punto).
+
+### Interpretación
+
+Ofrecer una interpretación corta de las gráficas (máximo 2-3 oraciones por gráfica) en términos de la pregunta de investigación y cómo estas visualizaciones ayudan a evaluar hipótesis o explorar aspectos interesantes de los datos (1.0 punto).
+
+- *Bono*: en caso de tener datos en panel o serie de tiempo (o sea, múltiples observaciones de uno o más casos en periodos $t_1, t_2, t_3, ..., t_n$), visualizar dicha serie de tiempo para una variable numérica, con una línea por grupo (si hay distintos grupos relevantes). Aplican los mismos criterios y recomendaciones de los puntos anteriores.
