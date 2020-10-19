@@ -566,3 +566,223 @@ Utilizar R para el análisis estadístico:
 - Curva de aprendizaje, pero grandes posibilidades.
 - Practicar, practicar y practicar.
 - Google es nuestro amigo.
+
+## Taller
+
+Encontrar una base de datos relevante para el proyecto de investigación. Limpiar y ordenar los datos. El código de esta entrega **no** debe incluir todo el procedimiento para cargar la base de datos original y el proceso de limpieza y organización de la misma; solo el resultado final de este proceso.proceso.
+
+### Estimación
+
+Estimar dos modelos de regresión lineal **múltiple** usando la función `lm()` de R. Los modelos estimados deben cumplir con los siguientes requisitos (1.0 punto):
+
+- La variable dependiente en ambos debe ser la variable dependiente del proyecto de investigación. *Idealmente* esta debe ser una variable de tipo continuo, pero excepcionalmente puede ser de tipo ordinal (si tiene $\geq 7$ categorías ordenadas) o binaria/dummy (entendiendo que la regresión lineal no es el mejor modelo para este tipo de variables). En estos dos casos, deben asegurarse que las variables estén codificadas como tipo numérico o `dbl` en R. 
+- Las variables independientes deben ser a) factores potencialmente explicativos de la variable dependiente y b) variables de control. La selección de variables debe estar basada en su revisión de literatura, teoría e hipótesis.
+- Debe haber por lo menos una variable independiente numérica en uno de los dos modelos. Si no tienen una, deben buscar más datos.
+- Debe haber por lo menos una variable independiente categórica binaria en uno de los dos modelos. Si no tienen una, deben crearla a partir de otra.
+- Dado el punto 5 de este taller, es recomendable que por lo menos uno de los modelos tenga *ambos* tipos de variables.
+- *Sugerencia*: Si la literatura sugiere un debate entre dos enfoques teóricos, pueden estimar un modelo que represente cada enfoque (por ejemplo, un modelo solo con variables institucionales y otro solo con variables sociológicas), seguido de un modelo con todas las variables. 
+- O pueden construir el modelo completo de manera progresiva: un modelo con solo variables independientes de interés teórico, seguido de uno que añade variables de control.
+
+### Comunicación de resultados
+
+Presentar los resultados de los modelos estimados en una sola tabla de regresión, usando las funciones de las librerías `texreg`, `sjPlot`, `modelsummary` o `stargazer` para producirla, teniendo en cuenta las siguientes indicaciones (1.0 punto). 
+
+- La tabla debe tener título y los coeficientes deben estar nombrados apropiadamente (o sea, con algo distinto al nombre de la variable en la base de datos). Ambas funciones tienen estas opciones. 
+- Deben guardar la tabla como archivo HTML.
+- *Nota:* Pueden ejecutar `?nombre_de_fun` en la consola para explorar todas las opciones de estas funciones y cómo utilizarlas.
+
+### Diagnóstico
+
+Evaluar si los modelos estimados cumplen el supuesto de homoesquedasticidad ($\text{Var}(e_i) = \sigma^2$) y si hay observaciones con un grado alto de influencia. Esta evaluación puede hacerse de manera visual *o* gráfica o usando tests estadísticos. Deben incluir un breve párrafo en el que consignen sus apreciaciones al respecto (1.0 punto).
+  
+### Interpretación
+
+Interpretar sustantivamente *todos* los coeficientes de los modelos incluídos en la tabla y la incertidumbre en torno a estos estimadores (pueden usar *p-values* o intervalos de confianza). *No* es necesario interpretar el coeficiente del intercepto. Cuando decimos "sustantivamente" nos referimos a que las interpretaciones deben hacer especial énfasis en la forma en que los resultados de los modelos se conectan con la evaluación de las hipótesis propuestas en el proyecto (1.0 punto).
+
+### Interpretación gráfica
+
+Usando uno de los dos modelos de regresión estimados en el primer punto, construir una gráfica con `ggpredict` donde se presenten valores predecidos o esperados de la variable dependiente (pronósticos) para el rango de valores de una variable numérica y para todas las categorías de una variable categórica binaria (manteniendo constantes las demás variables). La gráfica debe mostrar los valores esperados de la variable dependiente (con intervalos de confianza) para dos o más grupos (definidos por la variable categórica) a lo largo del rango de una variable independiente numérica (1.0 punto).
+
+## Ejercicios adicionales
+
+### Votos por Trump
+
+Digamos que nos interesa estudiar los resultados de las elecciones presidenciales de 2016 en Estados Unidos. Para este proyecto, utilizamos una base de datos que incluye información sobre un conjunto de variables sociales y políticas a nivel de condado (municipio). Para esto, vamos a cargar una serie de librerías adicionales:
+
+```{r}
+library(socviz) # datos y herramientas para visualizar datos sociales
+library(gtsummary) # tablas resúmen
+library(texreg) # tablas de regresión
+```
+
+Veamos el resumen de algunas de estas variables - la tabla a continuación (construida con `tbl_summary()`) muestra la media y desviación estándar (variables numéricas) y el número de observaciones por grupo (variables categóricas):
+
+```{r}
+# seleccionamos y transformamos datos
+county_data_sub <- county_data %>% 
+  as_tibble() %>%
+  select(name, state, census_region, black, white, hh_income,
+         per_dem_2016, per_gop_2016, partywinner12) %>%
+  mutate(partywinner12 = fct_explicit_na(partywinner12),
+         black = black/100, 
+         white = white/100, 
+         hh_income = log(hh_income))
+
+# estadisticas resumen
+county_data_sub %>%
+  select(-name, -state) %>%
+  tbl_summary(
+    missing = "no",
+    label = list(black ~ "Prop. afro",
+                 white ~ "Prop. blanco",
+                 hh_income ~ "Ingreso promedio (log.)",
+                 per_dem_2016 ~ "Prop. voto Dem.",
+                 per_gop_2016 ~ "Prop. voto Rep.",
+                 census_region ~ "Región",
+                 partywinner12 ~ "Partido 2012"),
+    statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  bold_labels()
+```
+
+Queremos entender la variación en la proporción de votos obtenidos por el candidato Demócrata (Donald Trump) en la elección de 2016 en cada condado. A continuación, vemos la distribución de esta variable:
+
+```{r}
+county_data %>%
+  ggplot(aes(per_gop_2016)) +
+  geom_histogram() +
+  labs(x = "Prop. voto Rep.", y = "Número de condados")
+```
+
+Nuestra teoría sugiere que esperamos ver una mayor proporción de votos por Trump en condados con una mayor proporción de individuos que se identifican como blancos. La siguiente gráfica de dispersión explora esta relación:
+
+```{r}
+county_data %>%
+  ggplot(aes(white, per_gop_2016)) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Prop. blanco", y = "Prop. voto Rep.")
+```
+
+Para evaluar esta hipótesis, estimamos un modelo de regresión lineal múltiple. La variable dependiente es la proporción de votos por el candidato Republicano en cada condado. La variable independiente de interés es la proporción de habitantes blancos en cada condado. Además, incluimos varias variables de control: el logaritmo natural del ingreso promedio (en USD) de los hogares en cada condado, una *dummy* que indica el partido ganador en 2012 por condado y la región donde se ubica el condado. La ecuación que estimamos es:
+
+$$ \hat{\text{Prop. voto Rep.}} = \alpha + \hat{\beta}_1 \times \text{Prop. blanco}_i + \hat{\beta}_2 \times \text{log(Ingreso)}_i + \hat{\beta}_3 \times \text{Partido 2012}_i + \hat{\beta}_4 \times \text{Región}_i + \hat{u}_i $$
+
+La siguiente tabla muestra los resultados del modelo. Incluye el coeficiente ($\beta$) estimado para cada variable y el intercepto, así como intervalos de confianza del 95% entre paréntesis y la significancia estadística de cada coeficiente, además de unas estadísticas resumen del modelo (como el $\text{R}^2$).
+
+```{r, results = "asis"}
+modelo_rep <- lm(per_gop_2016 ~ white + hh_income + partywinner12 + census_region, data = county_data)
+
+htmlreg(
+  modelo_rep, star.symbol = "\\*", doctype = FALSE,
+  digits = 3, caption = "Resultados del modelo de regresión lineal.",
+  caption.above = TRUE, center = TRUE,
+  custom.model.names = "OLS",
+  custom.coef.names = c(
+    "Intercepto", "Prop. Blanco", "Ingreso prom. (log.)",
+    "Partido 2012: Rep.", "Región: Nordeste", "Región: Sur",
+    "Región: Oeste"
+  )
+)
+```
+
+#### Interpretación
+
+Para cada coeficiente, interpretar:
+
+- Dirección.
+- Magnitud.
+- Significancia estadística.
+
+#### Predicciones
+
+Con la ecuación y los resultados, podemos hacer predicciones sobre el valor esperado de $Y$ (proporción de votos por Trump) para distintos valores de las variables independientes. ¿Cuál es el valor esperado de $Y$ para los siguientes perfiles de condados?
+
+- 80% blanco, en la región Sur, en un condado en el que los Republicanos ganaron en 2012- las demás variables en sus medias (ver la tabla de estadísticas descriptivas).
+- 20% blanco, en el Nordeste, en un condado en el que los Demócratas ganaron en 2012- nuevamente, establecemos las demás variables en sus medias.
+
+### Duración de gobiernos democráticos
+
+Algunos politólogos argumentan que la variación en la duración de gobiernos democráticos en el periodo posguerra se explica por características de los gobiernos de turnos: el nivel de apoyo parlamentario de los partidos en el gobierno, el número de partidos en el mismo y la disciplina que las organizaciones partidistas pueden imponer a sus miembros. En otras palabras, tenemos el siguiente modelo teórico de la duración de un gobierno:
+
+$$ \text{Duración gob.} = f(\text{Apoyo parl. gob.} + \text{Núm. partidos gob.} + \text{Disciplina part.} + \text{Comp. estocástico}) $$
+
+#### Datos
+
+Como estudiantes de Ciencia Política, buscamos datos al respecto para evaluar este argumento y nos encontramos con una base de datos recopilada por Rob Franzese hace unos años a partir del *Political Data Handbook of OECD Countries* con datos para países de la OCDE. La base de datos se encuentra en el archivo `OECD_country_data.xls` [aquí](https://github.com/josefortou/lab-book/tree/master/data). 
+
+- Cargue los datos en R usando las funciones y librerías apropiadas para un archivo `.xls`.
+
+Afortunadamente, el archivo también incluye un diccionario de variables (en inglés) en la segunda pestaña del archivo. Pista: `read_excel()` tiene un argumento `sheet = `.
+
+- Identifique las variables relevantes para estimar el modelo especificado arriba y asegúrese que estén en el formato adecuado.
+
+#### Regresión
+
+La información contenida en esta base de datos nos permite decir algo sobre el argumento teórico sugerido al inicio.
+
+- Utilizando estos datos, estime un modelo de regresión lineal sencillo (sin utilizar variables transformadas) que evalúe el argumento, presente los resultados en una tabla de regresión e interpretelos de forma sustancial (en términos del argumento).
+
+#### Críticas
+
+Frente a estos resultados, una colega sugiere que lo que está sucediendo es un poco distinto. Ella dice: "la disciplina partidista no tiene un efecto independiente sobre la duración de los gobiernos. Más bien, condiciona el efecto del apoyo legislativo al gobierno y del número de partidos en la coalición sobre la duración".
+
+- Especifique un modelo que tome en cuenta esta crítica, estímelo via OLS e interprete los efectos de las variables independientes sobre la dependiente:
+
+#### Extra: comparar modelos
+
+¿Cómo adjudicamos entre estos modelos? Otra colega sugiere que una prueba *F*, realizada por medio de un análisis de varianza (ANOVA) de los dos modelos, podría decirnos algo sobre cuál es mejor.
+
+- Realice una prueba *F* y concluya cuál modelo prefiere en términos estadísticos y teóricos:
+
+#### Comunicar resultados
+
+Es útil visualizar los resultados de modelos estadísticos como estos. Para el siguiente punto, seleccione el modelo que crea que se ajusta mejor a los datos y representa mejor la teoría.
+
+- Construya una gráfica que muestre el efecto del número de partidos en la coalición de gobierno y del apoyo legislativo al gobierno sobre la duración de los mismos cuando la disciplina partidista es alta y cuando es baja. Incluya intervalos de confianza en la gráfica.
+
+### Opinión pública sobre el presidente
+
+Supongamos que queremos entender las percepciones y evaluaciones de individuos sobre los presidentes, particularmente los de USA. Por inspiración de las diosas politológicas, sabemos que el modelo "real" es:
+
+$$ \text{Eval. presid.} = \alpha + \beta_1\text{Afroamericano} + \beta_2\text{ID partidista} + \beta_3\text{Ideología} + \beta_4\text{Eval. idiosincrática} + \beta_5\text{Eval. sociotrópica} + \epsilon $$
+
+Esta es una versión de un modelo clásico en Ciencia Política, el cual considera que las evaluaciones individuales de los políticos son una función de posiciones ideológicos y percepciones de la economía. Queremos evaluar este modelo. 
+
+#### Datos 
+
+Nuevamente, buscamos datos y encontramos la encuesta del *American National Election Study* (ANES) para 2004, en la cual le preguntaron a los encuestados por su percepción del entonces presidente George W. Bush. Los datos se encuentran en el archivo `nes_2004_data.csv` [aquí](https://github.com/josefortou/lab-book/tree/master/data). Las principales variables son:
+
+| Nombre de variable | Definición |
+|--------------------|-----------------------------------------------------------------------------------------|
+| thermom | Sentimientos por Bush (1:100; 0=mal, 100=bien) |
+| race | Raza/etnicidad (10, 12, 13, 14 y 15=afroamericano) |
+| partyid | Identificación partidista (0=muy Demócrata, 3=independiente, 6=muy Republicano, 7=otro) |
+| libcon | ¿Liberal o conservador? (1=liberal, 3=moderado, 5=conservador, 7=no responde) |
+| betteroff | Situación económica familiar el último año (1-5; 1=peor, 3=igual, 5=mejor) |
+| economy | Situación económica del país el último año (1-5; 1=peor, 3=igual, 5=mejor) |
+| edulevel | Nivel educativo máximo (0-7; 0=sin bachillerato, 7=posgrado) |
+
+- Cargue el archivo de datos y realice los procedimientos necesarios para asegurarse que las variables estén debidamente codificadas.
+
+#### Modelos
+
+Aprovechemos que sabemos que el modelo de arriba es el "real".
+
+- Estime el modelo "real", interprete los coeficientes y diga algo sobre la interpretación *causal* de los mismos.
+
+- Estime el siguiente modelo -llamémoslo "modelo 2"-, que tiene una variable menos y donde los coeficientes son estimados ($\hat{\beta}$ en vez de $\beta$):
+
+$$ \text{Eval. presid.} = \alpha + \hat{\beta_1}\text{Afroamericano} + \hat{\beta_2}\text{ID partidista} + \hat{\beta_3}\text{Eval. idiosincrática} + \hat{\beta_4}\text{Eval. sociotrópica} + \epsilon $$
+
+- Estime este otro modelo -llamémoslo algo creativo, como "modelo 3"-, que tiene una variable más y donde los coeficientes son estimados ($\hat{\beta}$ en vez de $\beta$):
+
+$$ \text{Eval. presid.} = \alpha + \hat{\beta_1}\text{Afroamericano} + \hat{\beta_2}\text{ID partidista} + \hat{\beta_3}\text{Ideología} + \hat{\beta_4}\text{Eval. idiosincrática} + \hat{\beta_5}\text{Eval. sociotrópica} + \hat{\beta_6}{Educación} + \epsilon $$
+
+#### Extra: presentar resultados
+
+- Presente los resultados de los tres modelos en una tabla y saque conclusiones sobre el *sesgo* de los coeficientes en el modelo 2 y la *eficiencia* del modelo 3.
+
+- Presente gráficamente y discuta los efectos de todas las variables independientes en uno de los modelos.
+
+
+
