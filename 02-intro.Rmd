@@ -1,4 +1,4 @@
-# (PART) Introducción {-}
+# (PART) Introducción a R y RStudio {-}
 
 # Introducción {#intro}
 

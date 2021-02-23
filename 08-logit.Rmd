@@ -2,11 +2,7 @@
 
 ## Resumen
 
-En este instructivo, usamos la librería `ggplot2` para realizar gráficas en R, explorando desde lo básico, hasta cuestiones más avanzadas. Seguimos varios capítulos del libro de Kieran Healey, *Data Visualization: A Practical Introduction* (Princeton UP, 2018).
-
-- Principales conceptos: regresión lineal, tabla de regresión, predicciones (valores esperados), diagnósticos.
-- Principales funciones: `lm()`, `tab_model()`, `ggpredict()`.
-
+En este instructivo, estimamos e interpretamos modelos de regresión logística para variables dependientes categóricas.
 
 Vamos a utilizar las siguientes librerías:
 
@@ -25,25 +21,6 @@ theme_set(theme_classic(base_size = 12))
 
 ## Repaso
 
-Manejo básico de R: ejecutar código y aplicar/escribir funciones.
-
-Trabajar con bases de datos en el `tidyverse`: 
-
-  - Escribir código eficiente: `%>%`.
-  - Cargar datos: `read_*()`.
-  - Seleccionar observaciones: `filter()`.
-  - Seleccionar variables: `select()`.
-  - Lidiar con datos no disponibles: `drop_na()` y `na_if()`.
-  - Crear y modificar variables: `mutate()` con `if_else()`, `case_when()`, `factor()`, etc.
-  - Resumir datos: `count()` y `summarize()`.
-  - Hacer operaciones por grupos y agregar: `group_by()`.
-  - Transformar datos: `pivot_*()` y `*_join()`.
-  
-Visualizar y realizar análisis exploratorio de datos con `ggplot2`:
-
-  - Distribuciones.
-  - Relaciones entre variables.
-  
 Estimar modelos de regresión lineal:
 
   - Operacionalización de modelos teóricos para evaluar hipótesis sobre relaciones entre variables.
@@ -430,7 +407,7 @@ Con frecuencia queremos explicar, entender, describir o predecir variable depend
 
 ### Explicando el voto nominal
 
-¿Por qué algunos legisladores votan a favor de un proyecto de ley? ¿Cómo se relaciona la identificación partidista con la probabilidad de que un legislador vote "sí"? Utilicemos datos para intentar responder estas preguntas.
+¿Por qué algunos legisladores votan a favor de un proyecto de ley? ¿Cómo se relaciona la identificación partidista con la probabilidad de que un legislador vote "sí"? Utilicemos datos (el archivo `nafta.dta` disponibles en https://github.com/josefortou/lab-book/tree/master/data) para intentar responder estas preguntas.
 
 #### Los datos
 
@@ -438,34 +415,43 @@ Miremos cómo votaron los representates a la cámara de Estados Unidos frente al
 
 ```{r datos-nafta}
 nafta <- read_dta("data/nafta.dta") %>%
-  zap_label() %>%
+  zap_label()
+nafta
+```
+
+Además de la variable de voto a favor/en contra (`vote` que toma los valores "Yes" y "No"), tenemos tres variables más:
+
+- `democrat`: dummy de membrecía partidista (Republicano o Demócrata).
+- `pcthispc`: porcentaje de la población que es de origen latino en el distrito de donde viene el representante.
+- `cope93`: indicador COPE de posiciones pro-sindicato de cada legislador (0=anti-sindicatos, 100=pro-sindicatos).
+
+Recodifiquemos las variables categóricas:
+
+```{r recode-nafta}
+nafta <- nafta %>%
   mutate(
-    vote = factor(vote, levels = c(0, 1), labels = c("No", "Yes")),
-    democrat = factor(democrat, levels = c(0, 1), labels = c("Rep.", "Dem."))
+    vote = factor(vote, levels = c(0, 1), 
+                  labels = c("No", "Yes")),
+    democrat = factor(democrat, levels = c(0, 1), 
+                      labels = c("Rep./other", "Dem."))
   )
 ```
 
-Además de la variable de voto a favor/en contra (`vote` que toma los valores "Yes"/"No"), tenemos tres variables más:
+Ahora, veamos cuántos representantes votaron a favor o en contra en cada partido:
 
-- `democrat`: dummy de membrecía partidista (Republicano o Demócrata)
-- `pcthispc`: porcentaje de la población que es de origen latino en el distrito de donde viene el representante.
-- `cope93`: indicador COPE de posiciones pro-sindicato (0=anti-sindicatos, 100=pro-sindicatos).
-
-Veamos cuántos representantes votaron sí o no:
-
-```{r}
+```{r count-nafta}
 nafta %>% 
-  count(vote)
+  count(vote, democrat)
 ```
 
 #### Hipótesis
 
 Tenemos las siguientes hipótesis:
 
-- Mayores valores COPE se asocian con una menor probabilidad de votar por NAFTA.
-- El efecto de COPE sobre la probabilidad de votar por NAFTA depende de la afiliación partidista: el efecto será mayor para Demócratas.
+- Mayores valores COPE (más pro-sindicalismo) se asocian con una menor probabilidad de votar por NAFTA.
+- El efecto de COPE sobre la probabilidad de votar por NAFTA depende de la afiliación partidista: el efecto será mayor para Demócratas que para Republicanos.
 
-Además, controlamos por una explicación alternativa: es posible que una mayor población latina en el distrito de origen se asocie con una mayor probabilidad de votar por NAFTA por razones de lobby, presión política y deseos de reelección.
+Además, controlamos por una explicación alternativa: es posible que una mayor población latina en el distrito de origen se asocie con una mayor probabilidad de votar por NAFTA por razones de *lobby*, presión política y deseos de reelección.
 
 Así que estimamos el siguiente modelo:
 
@@ -478,8 +464,8 @@ Donde $\lambda$ es la función de distribución acumulada (CDF) logística.
 Estime el modelo usando la función `glm()`.
 
 ```{r, echo = FALSE, eval = FALSE}
-modelo_int <- glm(
-  vote ~ cope93*democrat + pcthispc, 
+mod_nafta <- glm(
+  vote ~ democrat + cope93 + pcthispc,
   data = nafta,
   family = "binomial"
 )
@@ -490,16 +476,15 @@ modelo_int <- glm(
 Presente los resultados en una tabla de regresión:
 
 ```{r, echo = FALSE, eval = FALSE}
-tab_model(modelo_int)
+summary(mod_nafta)
 ```
 
 Presente los resultados utilizando gráficas:
 
 ```{r, echo = FALSE, eval = FALSE}
-plot_model(
-  modelo_int,
-  type = "int",
-  title = "Probabilidad esperada de votar por NAFTA",
-  legend.title = "Partido"
-)
+library(ggeffects)
+
+mod_nafta %>%
+  ggpredict(terms = c("cope93", "democrat")) %>%
+  plot()
 ```

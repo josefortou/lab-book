@@ -7,8 +7,8 @@ output:
   bookdown::gitbook:
     highlight: tango
 documentclass: book
-bibliography: [book.bib, packages.bib]
-biblio-style: apalike
+# bibliography: [book.bib, packages.bib]
+# biblio-style: apalike
 link-citations: yes
 github-repo: josefortou/lab-book
 description: "Este libro contiene instructivos y materiales de clase para el curso GP0070 Laboratorio del área de métodos del pregrado en Ciencias Políticas de la Universidad EAFIT. El documento está en fase de desarrollo y los contenidos pueden cambiar. Por favor, no citar."
@@ -16,5 +16,7 @@ always_allow_html: true
 ---
 
 # Prefacio
+
+![GP0070 Laboratorio.](images/gp0070_img_nobanner.png)
 
 Este libro contiene instructivos y materiales de clase para el curso GP0070 Laboratorio del área de métodos del pregrado en Ciencias Políticas de la Universidad EAFIT. El documento está en fase de desarrollo y los contenidos pueden cambiar. Por favor, no citar.

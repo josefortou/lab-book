@@ -1218,6 +1218,29 @@ mde_zonas %>%
   ggsave("output/homicidios_mde.png") # guardar
 ```
 
+## Repaso
+
+Trabajar con bases de datos:
+
+- Subir datos a la nube usando la opción `Upload` de las pestaña `Files`.
+- Cargar datos: usamos las funciones incluidas en `readr`, `readxl` o `haven`.
+- Limpiar: `na_if()` para convertir a `NA`.
+- Seleccionar y realizar subconjuntos de datos:
+    - Columnas/variables/propiedades con `select()`.
+    - Filas/observaciones/casos con `filter()`.
+- Crear/modificar variables: 
+    - `%>%` ("pipes") para pasar objetos a las funciones.
+    - `mutate()` para crear nuevas variables usando variables existentes, por ejemplo, para crear proporciones y porcentajes.
+    - `mutate_if()` para crear/cambiar si cumple condiciones.
+    - `as.numeric()`, `as.factor()`, `as.integer()`, `as.character()` para cambiar la clase de una variable.
+    - `if_else()` crea una variable dummy/binaria.
+    - `case_when()` crea una variable nominal u ordinal.
+    - `factor()`  y funciones `fct_()` para crear un factor o cambiar su orden y categorías.
+- Resumir y agregar datos con `group_by()` y `summarize()`.
+- Modificar la estructura de bases de datos:
+    - Cambiar de formato largo a ancho con `pivot_longer()` y `pivot_wider()`.
+    - Combinar dos bases de datos relacionadas con `left_join()`. 
+
 ## Taller: funciones y datos
 
 ### Crear una base de datos
