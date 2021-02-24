@@ -9,13 +9,18 @@ En este instructivo, aprendemos a estimar modelos de regresión lineal en R usan
 - Principales conceptos: regresión lineal, tabla de regresión, predicciones (valores esperados), diagnósticos.
 - Principales funciones: `lm()`, `modelsummary()`, `ggpredict()`.
 
-
 Vamos a utilizar las siguientes librerías:
 
-```{r}
+```{r libraries, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(lmtest) # diagnosticos modelos
+library(sandwich) # corregir errores estandar
 library(ggeffects) # efectos en modelos de regresion
 library(modelsummary) # tablas de regresion
+```
+
+
+```{r plot-theme, message=FALSE, warning=FALSE}
 theme_set(theme_classic(base_size = 12))
 ```
 
@@ -48,13 +53,31 @@ Vemos que tenemos información sobre ingreso, nivel educativo, experiencia labor
 
 Empezamos haciendo un poco de análisis exploratorio de datos. Primero, veamos un resumen de las variables usando la función `summary()`:
 
-```{r}
+```{r summary-data}
 summary(riverside)
 ```
 
-Una implementación moderna de este tipo de resúmenes son las librería `gtsummary`, `vtable` y `skimr`.
+Usemos la función `datasummary_skim()` de la librería `modelsummary` para ver un resumen similar, pero con información adicional:
 
-Como nuestras variables de interés (ingreso y educación) ambas son numéricas, un gráfico de dispersión es apropiado:
+```{r skim}
+datasummary_skim(riverside)
+```
+
+Si tenemos variables categóricas:
+
+```{r skim-cat}
+datasummary_skim(
+  riverside, type = "categorical",
+)
+```
+
+Y una tabla de correlaciones entre las variables numéricas:
+
+```{r cor-table}
+datasummary_correlation(riverside)
+```
+
+Como nuestras principales variables de interés (ingreso y educación) ambas son numéricas, un gráfico de dispersión de ambas es apropiado:
 
 ```{r scatter1}
 riverside %>%
@@ -234,7 +257,135 @@ Noten que el modelo incluye tanto el término multiplicativo (`edu:genderHombre`
 - Cuando $X_2 = 0 = \text{"Mujer"}$, el intercepto es $\alpha$ y la asociación entre $X_1$ y $Y$ es $\beta_1$.
 - Cuando $X_2 = 1 = \text{"Hombre"}$, el intercepto es $\alpha + \beta_2$ y la asociación entre $X_1$ y $Y$ es $\beta_1 + \beta_3$.
 
-### Interpretación
+### Diagnósticos
+
+<!-- Hagamos unos diagnósticos básicos del ajuste y los supuestos de nuestro modelo de regresión lineal. Empecemos por extraer algunos elementos del modelo estimado y organizándolos en un `tibble`: -->
+
+<!-- ```{r augment-mod} -->
+<!-- # datos (observaciones y variables) usados en el modelo -->
+<!-- modelo_aug <- as_tibble(modelo_ingreso$model) -->
+<!-- modelo_aug <- modelo_aug %>% -->
+<!--   mutate(fitted = modelo_ingreso$fitted.values, -->
+<!--          residuals = modelo_ingreso$residuals, -->
+<!--          std_residuals = rstandard(modelo_ingreso), -->
+<!--          cooks_d = cooks.distance(modelo_ingreso)) -->
+<!-- modelo_aug -->
+<!-- ``` -->
+
+
+<!-- Para entender un poco mejor si nuestro modelo captura los patrones subyacentes en los datos, podemos mirar una gráfica de dispersión de las variables independientes numéricas versus los residuos. En este caso, como no vemos ningún patrón evidente, creemos que el modelo captura señal y no solo ruido: -->
+
+<!-- ```{r resid-x} -->
+<!-- modelo_aug %>% -->
+<!--   ggplot(aes(residuals, edu)) +  -->
+<!--   geom_point() + -->
+<!--   labs(x = "Educación (años)", y = "Residuos.") -->
+<!-- modelo_aug %>% -->
+<!--   ggplot(aes(residuals, senior)) +  -->
+<!--   geom_point() + -->
+<!--   labs(x = "Experiencia (años)", y = "Residuos") -->
+<!-- ``` -->
+
+El modelo de regresión lineal por mínimos cuadrados ordinarios (MCO u OLS) es el estimador lineal insesgado de mínima varianza ("OLS is BLUE") cuando se cumplen una serie de supuestos, entre ellos, supuestos sobre los errores $u$ y su distribución. R nos permite realizar unos diagnósticos para evaluar si estos supuestos se cumplen. 
+
+#### Linealidadad
+
+En OLS, asumimos que $Y$ es una función lineal de las variables independientes. Evaluamos este supuesto visualmente con una gráfica de los valores esperados del modelo (las predicciones) vs. los residuos del mismo, buscando si hay una relación entre ambos:
+
+```{r linear-plot}
+plot(modelo_ingreso, which = 1)
+```
+
+Si vemos una relación clara (¡miren la línea roja!), hay un problema de linealidad. Violar este supuesto es un problema de específicación del modelo, o sea qué variables incluimos y de qué forma entran. En este caso, podríamos transformar nuestras variables independientes  con logaritmos o funciones exponenciales.
+
+#### Normalidad
+
+OLS asume que los residuos (errores) del modelo están distribuidos normalmente. Nuevamente, realizamos una evaluación visual del supuesto (una gráfica Q-Q), buscando que los puntos no se desvíen mucho de la línea diagonal, especialmente en los extremos:
+
+```{r}
+plot(modelo_ingreso, which = 2)
+```
+
+Otra opción es usar un prueba estadística, como el test de Shapiro o el Kolmogorov-Smirnoff, vía las funciones `shapiro.test()`. Si obtenemos un *p-value* menor a 0.05, rechazamos la hipótesis nula de normalidad en la distribución de los residuos:
+
+```{r}
+shapiro.test(resid(modelo_ingreso))
+```
+
+Cuando vemos violaciones muy severas de este supuesto, puede que haya un problema con nuestra variable dependiente. Quizás en realidad sea una medida binaria, categórica u ordinal con pocos niveles. En estos casos, podemos buscar medidas alternativas u técnicas distintas a la regresión lineal por OLS.
+
+#### Independencia
+
+Un supuesto muy importante es que las observaciones son sacadas de una muestra de manera independiente; en otras palabras, que no hay patrones de dependencia espacial, temporal o multinivel entre observaciones. Este es un supuesto que podemos evaluar simplemente conociendo nuestros datos y teoría. ¿Mis casos son países que observo año tras año? ¿O quizás espero que lo que sucede en un municipio afecte a los vecinos? Esas son situaciones de autocorrelación temporal y/o espacial. Otra forma de evaluar este supuesto es viendo mapas o series de tiempo de nuestra variable dependiente en búsqueda de tendencias.
+
+Sin embargo, también existen pruebas estadísticas para evaluar el supuesto de independencia. El test de Durbin-Watson, implementado con la función `dwtest()` de la librería `lmtest`, es una de estas pruebas:
+
+```{r}
+dwtest(modelo_ingreso)
+```
+
+Un *p-value* por encima de 0.05 es consistente con la hipótesis nula de no autocorrelación. 
+
+Violaciones al supuesto de independencia se solucionan estimando un modelo distinto; en algunas ocasiones, *muy* distinto. Estos son temas avanzados que no cubrimos aquí, pero más adelante discutimos los estimadores de efectos fijos para analizar datos en panel.
+
+#### Homoesquedasticidad
+
+El supuesto de homoesquedasticidad significa que la varianza de los residuos es constante. Violar este supuesto -los errores están correlacionados entre sí, por ejemplo, y la varianza de los mismos no es constante- implica que los errores estándar estarían mal estimados (más pequeños de lo que deberían ser), dándonos una falsa sensación de confianza.
+
+Para evaluar este supuesto, podemos construir un gráfico de valores esperados de $Y$ versus los residuos estandarizados (en realidad, la raíz cuadrada de los valores absolutos de estos errores). Cuando se cumple el supuesto, no debemos observar ninguna relación clara entre ambos valores:
+
+```{r hetero-plot}
+plot(modelo_ingreso, which = 3)
+```
+
+Buscamos que a) la línea roja sea aproximadamente horizontal y b) la dispersión de los puntos no cambie mucho en función de los valores esperados. Aquí parece que tenemos un problema de heteroesquedasticidad.
+
+Un test de Breusch-Pagan nos permitiría ponerle más precisión a este diagnóstico. Usamos la función `bptest()`, nuevamente de la librería `lmtest`. Veamos:
+
+```{r}
+bptest(modelo_ingreso)
+```
+
+La hipótesis nula en esta prueba es homoesquedasticidad. Si la rechazamos con un *p-value* bajo (menor a 0.05), tenemos heteroesquedasticidad. 
+
+<!-- El test evalúa si hay homoesquedasticidad. En este caso, el *p-value* por encima de 0.05 significa que no rechazamos la hipótesis nula de homoesquedasticidad: -->
+
+<!-- ```{r bp-test} -->
+<!-- bptest(modelo_ingreso) -->
+<!-- ``` -->
+
+<!-- Si en cambio $p < 0.05$, rechazamos la hipótesis nula de homoesquedasticidad e inferimos que hay heteroesquedasticidad en nuestro modelo. Esto implica que los nuestros errores estándar del modelo pueden ser menores de lo que deberían ser. Existen ajustes para este problema, como usar "Weighted Least Squares" (WLS) o transformar las variables independientes. -->
+
+Una de las razones por las que podemos encontrar heteroesquedasticidad en un modelo es que tenemos observaciones con mucha influencia sobre los resultados; podríamos decir que son atípicas. La $D$ de Cook es una estadística que nos permite medir la influencia de una observación en un modelo de regresión lineal. Vamos a calcular esta estadística para cada una de las observaciones que utilizamos en nuestro modelo y vamos a colocarlas junto a dichas observaciones en un `tibble`:
+
+```{r cook-d}
+datos_modelo <- bind_cols(
+  modelo_ingreso$model,
+  d_cook = cooks.distance(modelo_ingreso)
+)
+head(datos_modelo)
+```
+
+Ahora, podemos buscar y eliminar las observaciones con una $D$ de Cook alta. Dos reglas informales sugieren que observaciones con valores por encima de 1 o con valores por encima de 3 veces la media pueden tener alta influencia. Vamos a eliminar estas observaciones, reestimar el modelo y volver a evaluar el supuesto de homoesquedasticidad:
+
+```{r remove-outliers}
+datos_modelo %>%
+  filter(d_cook < 3*mean(d_cook, na.rm = TRUE)) %>%
+  lm(income ~ edu + senior + gender, data = .) %>%
+  plot(., which = 3)
+```
+
+Parece que no mejoró mucho la situación. Otra opción para lidiar con los problemas asociados con la heteroesquedasticidad es corregir los errores estándar después de estimar el modelo y diagnosticarlo. Después de todo, sabemos que ese es el efecto de violar el supuesto. Vamos a utilizar la función `coeftest()` de la librería `sandwich` para recalcular los errores estándar. El resultado son lo que llamamos "erorres estándar robustos":
+
+```{r}
+coeftest(modelo_ingreso, vcov = vcovHC)
+```
+
+Noten que los errores estándar de las variables `edu` y `senior` ahora son más grandes. La práctica de estimar errores estándar robustos de distintos tipos es bastante común en en Ciencia Política y Economía.
+
+Hay otras soluciones al problema de heteroesquedasticidad, como aplicar "weighted least squares" (WLS) o usar técnicas como el *bootstrap*. Por el momento, procedemos con nuestro análisis y reportamos nuestros resultados, pero entendiendo que nuestros errores estándar pueden estar mal estimados. 
+
+## Más Interpretación
 
 Hasta ahora, hemos discutido brevemente cómo interpretar los coeficientes de un modelo de regresión múltiple con distintas especificaciones, utilizando la función `summary()` para ver estos resultados. Pero podemos refinar un poco más la interpretación. 
 
@@ -280,104 +431,6 @@ Estos tres coeficientes son estadísticamente significativos ($p < 0.05$), lo cu
 
 <!-- Vemos que el modelo se equivoca (especificamente, predice menos ingreso del observado). Eso es normal. El modelo de regresión lineal estima la ecuación que mejor describe la asociación entre variables *en promedio*. -->
 
-### Diagnósticos
-
-<!-- Hagamos unos diagnósticos básicos del ajuste y los supuestos de nuestro modelo de regresión lineal. Empecemos por extraer algunos elementos del modelo estimado y organizándolos en un `tibble`: -->
-
-<!-- ```{r augment-mod} -->
-<!-- # datos (observaciones y variables) usados en el modelo -->
-<!-- modelo_aug <- as_tibble(modelo_ingreso$model) -->
-<!-- modelo_aug <- modelo_aug %>% -->
-<!--   mutate(fitted = modelo_ingreso$fitted.values, -->
-<!--          residuals = modelo_ingreso$residuals, -->
-<!--          std_residuals = rstandard(modelo_ingreso), -->
-<!--          cooks_d = cooks.distance(modelo_ingreso)) -->
-<!-- modelo_aug -->
-<!-- ``` -->
-
-
-<!-- Para entender un poco mejor si nuestro modelo captura los patrones subyacentes en los datos, podemos mirar una gráfica de dispersión de las variables independientes numéricas versus los residuos. En este caso, como no vemos ningún patrón evidente, creemos que el modelo captura señal y no solo ruido: -->
-
-<!-- ```{r resid-x} -->
-<!-- modelo_aug %>% -->
-<!--   ggplot(aes(residuals, edu)) +  -->
-<!--   geom_point() + -->
-<!--   labs(x = "Educación (años)", y = "Residuos.") -->
-<!-- modelo_aug %>% -->
-<!--   ggplot(aes(residuals, senior)) +  -->
-<!--   geom_point() + -->
-<!--   labs(x = "Experiencia (años)", y = "Residuos") -->
-<!-- ``` -->
-
-El modelo de regresión lineal por mínimos cuadrados ordinarios (MCO u OLS) es el estimador lineal insesgado de mínima varianza ("OLS is BLUE") cuando se cumplen una serie de supuestos, entre ellos, supuestos sobre los errores $u$ y su distribución. R nos permite realizar unos diagnósticos para evaluar si estos supuestos se cumplen. 
-
-#### Linealidadad
-
-En OLS, asumimos que $Y$ es una función lineal de las variables independientes. Evaluamos este supuesto visualmente con una gráfica de los valores esperados del modelo (las predicciones) vs. los residuos del mismo, buscando si hay una relación entre ambos:
-
-```{r linear-plot}
-plot(modelo_ingreso, which = 1)
-```
-
-Si vemos una relación clara (¡miren la línea roja!), hay un problema de linealidad. Violar este supuesto es un problema de específicación del modelo (qué variables y de qué forma entran). En este caso, podemos transformar nuestras variables independientes (logaritmos o funciones exponenciales).
-
-#### Normalidad
-
-OLS asume que los residuos (errores) del modelo están distribuidos normalmente. Nuevamente, realizamos una evaluación visual del supuesto, buscando que los puntos no se desvíen mucho de la línea diagonal, especialmente en los extremos:
-
-```{r}
-plot(modelo_ingreso, which = 2)
-```
-
-Si vemos violaciones muy severas, posiblemente hay un problema con nuestra variable dependiente: quizás en realidad sea una medida binaria, categórica u ordinal con pocos niveles. En estos casos, podemos buscar alternativas al modelo de regresión lineal por OLS.
-
-#### Independencia
-
-Un supuesto muy importante es que las observaciones son sacadas de una muestra de manera independiente; en otras palabras, que no hay patrones de dependencia espacial, temporal o multinivel entre observaciones. Este es un supuesto que podemos evaluar simplemente conociendo nuestros datos y teoría. ¿Mis casos son países que observo año tras año? ¿O quizás espero que lo que sucede en un municipio afecte a los vecinos? Esas son situaciones de autocorrelación temporal y/o espacial. También hay pruebas estadísticas, como el test de Durbin-Watson, implementado con la función `dwtest()` de la librería `lmtest`.
-
-Violaciones al supuesto de independencia se solucionan estimando un modelo distinto; en algunas ocasiones, *muy* distinto. Estos son temas avanzados.
-
-#### Homoesquedasticidad
-
-El supuesto de homoesquedasticidad significa que la varianza de los residuos es constante. Violar este supuesto -los errores están correlacionados entre sí, por ejemplo, y la varianza de los mismos no es constante- implica que los errores estándar estarían mal estimados (más pequeños de lo que deberían ser), dándonos una falsa sensación de confianza.
-
-Para evaluar este supuesto, podemos construir un gráfico de valores esperados de $Y$ versus los residuos estandarizados (en realidad, la raíz cuadrada de los valores absolutos de estos errores). Cuando se cumple el supuesto, no debemos observar ninguna relación clara entre ambos valores:
-
-```{r hetero-plot}
-plot(modelo_ingreso, which = 3)
-```
-
-Buscamos que a) la línea roja sea aproximadamente horizontal y b) la dispersión de los puntos no cambie mucho en función de los valores esperados. Un test de Breusch-Pagan nos permitiría ponerle más precisión a este diagnóstico (función `bptest()` de la librería `lmtest`). En todo caso, parece que tenemos un problema de heteroesquedasticidad. 
-
-<!-- El test evalúa si hay homoesquedasticidad. En este caso, el *p-value* por encima de 0.05 significa que no rechazamos la hipótesis nula de homoesquedasticidad: -->
-
-<!-- ```{r bp-test} -->
-<!-- bptest(modelo_ingreso) -->
-<!-- ``` -->
-
-<!-- Si en cambio $p < 0.05$, rechazamos la hipótesis nula de homoesquedasticidad e inferimos que hay heteroesquedasticidad en nuestro modelo. Esto implica que los nuestros errores estándar del modelo pueden ser menores de lo que deberían ser. Existen ajustes para este problema, como usar "Weighted Least Squares" (WLS) o transformar las variables independientes. -->
-
-Una de las razones por las que podemos encontrar heteroesquedasticidad en un modelo es que tenemos observaciones con mucha influencia sobre los resultados; podríamos decir que son atípicas. La $D$ de Cook es una estadística que nos permite medir la influencia de una observación en un modelo de regresión lineal. Vamos a calcular esta estadística para cada una de las observaciones que utilizamos en nuestro modelo y vamos a colocarlas junto a dichas observaciones en un `tibble`:
-
-```{r cook-d}
-datos_modelo <- bind_cols(
-  modelo_ingreso$model,
-  d_cook = cooks.distance(modelo_ingreso)
-)
-head(datos_modelo)
-```
-
-Ahora, podemos buscar y eliminar las observaciones con una $D$ de Cook alta. Dos reglas informales sugieren que observaciones con valores por encima de 1 o con valores por encima de 3 veces la media pueden tener alta influencia. Vamos a eliminar estas observaciones, reestimar el modelo y volver a evaluar el supuesto de homoesquedasticidad:
-
-```{r remove-outliers}
-datos_modelo %>%
-  filter(d_cook < 3*mean(d_cook, na.rm = TRUE)) %>%
-  lm(income ~ edu + senior + gender, data = .) %>%
-  plot(., which = 3)
-```
-
-Parece que no mejoró mucho la situación. Hay otras soluciones, como aplicar "weighted least squares" (WLS) o usar técnicas como el *bootstrap*. Por el momento, procedemos con nuestro análisis y reportamos nuestros resultados, pero entendiendo que nuestros errores estándar pueden estar mal estimados. 
-
 ### Predicciones y efectos
 
 Una de las herramientas más potentes que nos da un modelo de regresión lineal es la capacidad de hacer predicciones. Una predicción no es más que el valor esperado de $Y$ para determinados valores de las variables independientes. Hallamos estos valores esperados o predicciones utilizando los coeficientes estimados y reemplazando los valores de las variables independientes en la ecuación del modelo de regresión lineal. 
@@ -400,7 +453,7 @@ exp <- max(riverside$senior, na.rm = TRUE) # ejecutiva
 gen <- 0 # mujer
 ```
 
-Finalmente, reemplazamos para hayar el valor esperado de $Y$:
+Finalmente, reemplazamos para hallar el valor esperado de $Y$:
 
 ```{r}
 intercepto + beta_edu*edu + beta_exp+exp + beta_gen*gen
@@ -439,7 +492,7 @@ modelo_ingreso %>%
 ```
 
 
-<!-- Por ejemplo, podríamos estar interesados en el ingreso esperado de una mujer con educación y experiencia promedio. Una forma de hacer esto es usando las funciones de `modelr`. Ponemos esta información en una tabla con `expand_grid()` y la pasamos a la función `add_predictions()`, especificando el modelo que queremos usar para hayar las predicciones: -->
+<!-- Por ejemplo, podríamos estar interesados en el ingreso esperado de una mujer con educación y experiencia promedio. Una forma de hacer esto es usando las funciones de `modelr`. Ponemos esta información en una tabla con `expand_grid()` y la pasamos a la función `add_predictions()`, especificando el modelo que queremos usar para hallar las predicciones: -->
 
 <!-- ```{r pred} -->
 <!-- riverside %>% -->
@@ -476,9 +529,7 @@ Casi todos los artículos que utilizan modelos de regresión presentan los resul
 Para hacer tablas, podemos usar las librerías `stargazer`, `texreg`, `sjPlot` o `gtsummary`, entre otras, dependiendo de nuestras necesidades. Aquí, usamos `modelsummary()` de `modelsummary`. Le pasamos nuestro modelo y la función arroja una tabla formateada. 
 
 ```{r tab-simple}
-modelsummary(
-  modelo_ingreso
-)
+modelsummary(modelo_ingreso)
 ```
 
 Los argumentos de la función nos permiten cambiar muchos de los elementos de la tabla, en particular traducir algunos de inglés a español o usar intervalos de confianza en vez de errores estándar:
