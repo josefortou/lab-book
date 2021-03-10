@@ -1,6 +1,6 @@
 # (PART) Análisis de Regresión {-}
 
-# Regresión lineal {#lm-applied}
+# Regresión lineal {#cap-lm-applied}
 
 ## Resumen
 
@@ -693,7 +693,7 @@ Utilizar R para el análisis estadístico:
 - Practicar, practicar y practicar.
 - Google es nuestro amigo.
 
-## Taller
+## Taller: regresión lineal
 
 Encontrar una base de datos relevante para el proyecto de investigación. Limpiar y ordenar los datos. El código de esta entrega **no** debe incluir todo el procedimiento para cargar la base de datos original y el proceso de limpieza y organización de la misma; solo el resultado final de este proceso.proceso.
 

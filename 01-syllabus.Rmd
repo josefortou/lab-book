@@ -2,7 +2,7 @@
 
 <!-- ![GP0070 Laboratorio.](images/gp0070_img_nobanner.png) -->
 
-# Syllabus {#syllabus}
+# Syllabus {#cap-syllabus}
 
 En esta sección, encontramos el syllabus del curso GP0070 Laboratorio, el cual incluye la descripción de contenidos, las evaluaciones y sus rúbricas y el cronograma de actividades.
 
@@ -12,28 +12,33 @@ El objetivo del curso GP0070 Laboratorio es fortalecer la capacidad analítica p
 
 Así, a través de actividades de clase y evaluaciones, el curso promueve principalmente el desarrollo de las siguientes competencias:
 
-* Maneras de pensar:
-    + Pensamiento sistemático: habilidad para el análisis, la síntesis, la abstracción y la interpretación, para reunir, organizar, relacionar, y emplear la información y el conocimiento en la construcción de conocimiento.
-    + Pensamiento crítico.
-    + Resolución de problemas.
-* Herramientas para trabajar:
-    + Uso de la tecnología.
-    + Alfabetización informacional.
-* Específicas del politólogo: 
-    + Dominar los métodos y las técnicas de investigación política.
-    + Capacidad para plantear el estudio de los fenómenos políticos, diseñar técnicas para la recolección de datos y verificar hipótesis empíricamente.
-  
+-   Maneras de pensar:
+
+    -   Pensamiento sistemático: habilidad para el análisis, la síntesis, la abstracción y la interpretación, para reunir, organizar, relacionar, y emplear la información y el conocimiento en la construcción de conocimiento.
+    -   Pensamiento crítico.
+    -   Resolución de problemas.
+
+-   Herramientas para trabajar:
+
+    -   Uso de la tecnología.
+    -   Alfabetización informacional.
+
+-   Específicas del politólogo:
+
+    -   Dominar los métodos y las técnicas de investigación política.
+    -   Capacidad para plantear el estudio de los fenómenos políticos, diseñar técnicas para la recolección de datos y verificar hipótesis empíricamente.
+
 ## Estrategias metodológicas y didácticas
 
-El curso combina clases magistrales, discusiones tipo seminario y talleres aplicados, tanto independientes, como en clase. 
+El curso combina clases magistrales, discusiones tipo seminario y talleres aplicados, tanto independientes, como en clase.
 
-- Las clases magistrales guiarán la introducción al diseño de investigación y a las diferentes técnicas para el análisis político. 
-- En otros momentos, la clase se desarrollará a partir de la exposición de los temas asignados y los avances en los proyectos de los estudiantes. 
-- Finalmente, se contemplan múltiples sesiones a modo aula inversa o aula taller, en la cual los estudiantes preparan los contenidos previamente y, durante la sesión, el docente lidera una actividad práctica que aplica los contenidos. Estos talleres ayudarán a los estudiantes a mejorar sus habilidades computacionales y son clave para desarrollar el trabajo final. 
+-   Las clases magistrales guiarán la introducción al diseño de investigación y a las diferentes técnicas para el análisis político.
+-   En otros momentos, la clase se desarrollará a partir de la exposición de los temas asignados y los avances en los proyectos de los estudiantes.
+-   Finalmente, se contemplan múltiples sesiones a modo aula inversa o aula taller, en la cual los estudiantes preparan los contenidos previamente y, durante la sesión, el docente lidera una actividad práctica que aplica los contenidos. Estos talleres ayudarán a los estudiantes a mejorar sus habilidades computacionales y son clave para desarrollar el trabajo final.
 
 Por tanto, la participación y liderazgo activo de los estudiantes en la discusión de los contenidos de los materiales asignados es fundamental para el logro de los objetivos propuestos.
 
-Los estudiantes deben estar preparados para leer semanalmente, discutir y aplicar las lecturas asignadas a sus proyectos. La lectura de los textos indicados para cada sesión es imprescindible. Los seminarios y talleres permitirán que los estudiantes desarrollen sus proyectos de investigación, así como su capacidad analítica y argumentativa. 
+Los estudiantes deben estar preparados para leer semanalmente, discutir y aplicar las lecturas asignadas a sus proyectos. La lectura de los textos indicados para cada sesión es imprescindible. Los seminarios y talleres permitirán que los estudiantes desarrollen sus proyectos de investigación, así como su capacidad analítica y argumentativa.
 
 Los estudiantes deberán elaborar un proyecto --en parejas-- durante todo el semestre con entregas parciales (ver Cronograma). En este debe proyecto, deben dar cuenta de la aplicación incremental de los contenidos del curso. Así en cada sesión los grupos de estudiantes deberán presentar sus avances teóricos, metodológicos, de recolección y tratamiento de datos, el análisis y presentación de informe. La temática del proyecto podrá responder a una de otra asignatura del pregrado (acción colectiva, relaciones internacionales, partidos políticos, conflicto, etc.), pero siempre deberá corresponder a temas disciplinares politológicos.
 
@@ -41,32 +46,45 @@ Los estudiantes deberán elaborar un proyecto --en parejas-- durante todo el sem
 
 El curso está estructurado alrededor de dos unidades temáticas:
 
-1. Diseño de investigación:
-    + El estudio científico de la política: qué es hacer *ciencia* política.
-    + Preguntas y problemas: cómo formularlos.
-    + Teoría y otras herramientas: conceptos, variables, mecanismos e hipótesis.
-    + Causalidad y el modelo experimental.
-    + Diseño de investigación:
-      * Estrategias de selección de casos.
-      * Medición y operacionalización de variables.
-2. Herramientas computacionales para el análisis político:
-    + Introducción a R, RStudio y RStudio Cloud: vectores, bases de datos, funciones y librerías.
-    + Trabajo con bases de datos en el `tidyverse`:
-      * Cargar, limpiar, ordenar, transformar y combinar bases de datos.
-      * Trabajar con variables.
-    + Visualización de datos con `ggplot2`.
-    + Análisis de regresión lineal.
-      * Estimación.
-      * Interpretación e inferencia.
-      * Predicciones y visualizaciones.
-    
+1.  Diseño de investigación:
+
+    -   El estudio científico de la política: qué es hacer *ciencia* política.
+
+    -   Preguntas y problemas: cómo formularlos.
+
+    -   Teoría y otras herramientas: conceptos, variables, mecanismos e hipótesis.
+
+    -   Causalidad y el modelo experimental.
+
+    -   Diseño de investigación:
+
+        -   Estrategias de selección de casos.
+        -   Medición y operacionalización de variables.
+
+2.  Herramientas computacionales para el análisis político:
+
+    -   Introducción a R, RStudio y RStudio Cloud: vectores, bases de datos, funciones y librerías.
+
+    -   Trabajo con bases de datos en el `tidyverse`:
+
+        -   Cargar, limpiar, ordenar, transformar y combinar bases de datos.
+        -   Trabajar con variables.
+
+    -   Visualización de datos con `ggplot2`.
+
+    -   Análisis de regresión lineal.
+
+        -   Estimación.
+        -   Interpretación e inferencia.
+        -   Predicciones y visualizaciones.
+
 ## Materiales para el curso
 
 ### Lecturas
 
 A lo largo del semestre, seguiremos este manual de metodología para ciencia política:
 
-- Kellstedt, P. M., & Whitten, G. D. (2018). *The Fundamentals of Political Science Research*. Cambridge University Press.
+-   Kellstedt, P. M., & Whitten, G. D. (2018). *The Fundamentals of Political Science Research*. Cambridge University Press.
 
 Además, nos apoyaremos en varios capítulos de este libro para el trabajo en R.
 
@@ -78,42 +96,53 @@ En la segunda unidad, el instructor compartirá instructivos que acompañan las 
 
 Existen innumerables recursos en línea para estudiar estadísticas y métodos. A continuación, se destacan algunos:
 
-- Cursos y programas:
-  + [Cursos introductorios de RStudio](https://rstudio.cloud/learn/primers). 
-  + Coursera (con Duke University): [especialización en estadística usando R](https://www.coursera.org/specializations/statistics). 
-  + Coursera (con Johns Hopkins University): [especialización en ciencia de los datos usando R](https://www.coursera.org/specializations/jhu-data-science). 
-  + EdX (con Microsoft): [curso de introducción a la ciencia de los datos usando R](https://www.edx.org/es/course/introduction-to-r-for-data-science-2). 
-  + Crash Course Statistics: [videos introductorios sobre temas en estadística](https://www.youtube.com/playlist?list=PL8dPuuaLjXtNM_Y-bUAhblSAdWRnmBUcr).
-- Libros:
-  + M. Andina, [Introducción a estadística con R](https://bookdown.org/matiasandina/R-intro). 
-  + S. Grolemund & H. Wickham, [R for Data Science](https://r4ds.had.co.nz/).
-    * Traducido al español como [R para Ciencia de Datos](https://es.r4ds.hadley.nz/).
-  + E. G. Larsen & Z. Fazekas, [Quantitative Politics with R](http://qpolr.com/).
-- Software gratuito:
-  + [R](https://cran.r-project.org/): lenguaje de programación estadística.
-  + [RStudio](https://www.rstudio.com/products/rstudio/download/): interfaz de usuario para trabajar con R en un ambiente más amigable.
-  + [RStudio Cloud](https://rstudio.cloud/): RStudio, pero en la web. En el sitio, encuentran la [guía de usuario](https://rstudio.cloud/learn/guide).
-- Otros:
-  + Lista de recursos web: [learnR4free](https://www.learnr4free.com/index.html).
-  + Hojas de referencia para varias librerías y funciones en R: [R cheat sheets](https://rstudio.cloud/learn/cheat-sheets).
+-   Cursos y programas:
+
+    -   [Cursos introductorios de RStudio](https://rstudio.cloud/learn/primers).
+    -   Coursera (con Duke University): [especialización en estadística usando R](https://www.coursera.org/specializations/statistics).
+    -   Coursera (con Johns Hopkins University): [especialización en ciencia de los datos usando R](https://www.coursera.org/specializations/jhu-data-science).
+    -   EdX (con Microsoft): [curso de introducción a la ciencia de los datos usando R](https://www.edx.org/es/course/introduction-to-r-for-data-science-2).
+    -   Crash Course Statistics: [videos introductorios sobre temas en estadística](https://www.youtube.com/playlist?list=PL8dPuuaLjXtNM_Y-bUAhblSAdWRnmBUcr).
+
+-   Libros:
+
+    -   M. Andina, [Introducción a estadística con R](https://bookdown.org/matiasandina/R-intro).
+
+    -   S. Grolemund & H. Wickham, [R for Data Science](https://r4ds.had.co.nz/).
+
+        -   Traducido al español como [R para Ciencia de Datos](https://es.r4ds.hadley.nz/).
+
+    -   E. G. Larsen & Z. Fazekas, [Quantitative Politics with R](http://qpolr.com/).
+
+-   Software gratuito:
+
+    -   [R](https://cran.r-project.org/): lenguaje de programación estadística.
+    -   [RStudio](https://www.rstudio.com/products/rstudio/download/): interfaz de usuario para trabajar con R en un ambiente más amigable.
+    -   [RStudio Cloud](https://rstudio.cloud/): RStudio, pero en la web. En el sitio, encuentran la [guía de usuario](https://rstudio.cloud/learn/guide).
+
+-   Otros:
+
+    -   Lista de recursos web: [learnR4free](https://www.learnr4free.com/index.html).
+    -   Hojas de referencia para varias librerías y funciones en R: [R cheat sheets](https://rstudio.cloud/learn/cheat-sheets).
 
 ### Bases de datos bibliográficas
 
 El curso requiere buscar, leer y sintetizar literatura académica en ciencia política. Para facilitar la fase de búsqueda, pueden hacer uso de estos dos recursos:
 
-- Sistema integrado de búsqueda [Descubridor](http://search.ebscohost.com/login.aspx?authtype=guest&custid=s1088130&groupid=main&profile=eds).
-- [Google Scholar](http://scholar.google.com).
-- [Women Also Know Stuff](https://womenalsoknowstuff.com/).
+-   Sistema integrado de búsqueda [Descubridor](http://search.ebscohost.com/login.aspx?authtype=guest&custid=s1088130&groupid=main&profile=eds).
+-   [Google Scholar](http://scholar.google.com).
+-   [Women Also Know Stuff](https://womenalsoknowstuff.com/).
 
 Se recomienda especialmente poner atención a la calidad y pertinencia disciplinar de la bibliografía. Hoy, muchos de los principales aportes en la disciplina se encuentra en artículos de revista. El portal [Scimago](https://www.scimagojr.com/journalrank.php) incluye un ranquin actualizado de revistas académicas en ciencia política; las revistas en los cuartiles 1 y 2 (Q1 y Q2) son las de mejor calidad. Para libros, [Wikipedia](https://en.wikipedia.org/wiki/Rankings_of_academic_publishers) provee una lista de las principales editoriales académicas internacionales. En el ámbito latinoamericano, hay excelentes editoriales como Ariel, Siglo XXI, Trotta, Alianza, Paidós, Gedisa y el Fondo de Cultura Económica, además de editoriales universitarias.
 
 <!-- \newpage -->
+
 ## Políticas de clase
 
 ### Durante la clase
 
-- Clases presenciales: el uso de computadores está permitido únicamente para realizar actividades de clase, tales como tomar notas, desarrollar talleres o buscar información pertinente. El uso de celulares no está permitido durante la clase. Por favor, seguir las políticas de la Universidad en cuanto a la ingesta de alimentos y bebidas en los salones de clase. Si hay alguna situación o problema, no duden en hablar conmigo.
-- Clases virtuales: las actividades de clase sincrónicas se realizan por la plataforma *Teams*. Es importante que respeten el espacio y lo traten como si fuera una clase presencial.
+-   Clases presenciales: el uso de computadores está permitido únicamente para realizar actividades de clase, tales como tomar notas, desarrollar talleres o buscar información pertinente. El uso de celulares no está permitido durante la clase. Por favor, seguir las políticas de la Universidad en cuanto a la ingesta de alimentos y bebidas en los salones de clase. Si hay alguna situación o problema, no duden en hablar conmigo.
+-   Clases virtuales: las actividades de clase sincrónicas se realizan por la plataforma *Teams*. Es importante que respeten el espacio y lo traten como si fuera una clase presencial.
 
 ### Asistencia
 
@@ -133,152 +162,170 @@ Los estudiantes deben seguir las políticas de integridad de la Universidad EAFI
 
 ### Equidad de género y sexualidad diversa
 
-La Universidad busca promover la equidad de género y el respeto a la diversidad
-sexual. Pueden consultar el [Protocolo para la equidad de género y la sexualidad diversa](https://www.eafit.edu.co/centro-integridad/Documents/protocolo-genero-eafit.pdf).
+La Universidad busca promover la equidad de género y el respeto a la diversidad sexual. Pueden consultar el [Protocolo para la equidad de género y la sexualidad diversa](https://www.eafit.edu.co/centro-integridad/Documents/protocolo-genero-eafit.pdf).
 
 <!-- \newpage -->
+
 ## Evaluaciones
 
-Siguiendo la propuesta metodológica y didáctica, el curso se evalúa con dos metodologías: 
-- Informes escritos: incluyen adelantos parciales del trabajo final de investigación y el artículo final.
-- Talleres aplicados: aplicación de competencias computacionales (R/RStudio) adquiridas en el curso. 
+Siguiendo la propuesta metodológica y didáctica, el curso se evalúa con dos metodologías: - Informes escritos: incluyen adelantos parciales del trabajo final de investigación y el artículo final. - Talleres aplicados: aplicación de competencias computacionales (R/RStudio) adquiridas en el curso.
 
 En esta sección, se detallan las evaluaciones, incluyendo objetivos, rúbricas, formato y otras indicaciones. En la sección "Cronograma de trabajo" se detallan las fechas y porcentajes de dichas evaluaciones.
 
 ### Trabajo final (30%)
 
-El trabajo final para el curso será un artículo de investigación completo que dé cuenta de una investigación empírica en ciencia política. El trabajo se realiza en grupos de dos estudiantes. A lo largo del semestre, los estudiantes deberán construir incrementalmente un proyecto de investigación en el que se hacen una pregunta de investigación, ofrecen una respuesta teórica y evalúan hipótesis utilizando metodologías de investigación cuantitativa y herramientas computacionales aplicadas aprendidas a lo largo de los cursos del área académica de laboratorio y métodos del pregrado en Ciencias Políticas (Matemáticas, Estadística I y II, Métodos cualitativos, Política comparada y Laboratorio). 
+El trabajo final para el curso será un artículo de investigación completo que dé cuenta de una investigación empírica en ciencia política. El trabajo se realiza en grupos de dos estudiantes. A lo largo del semestre, los estudiantes deberán construir incrementalmente un proyecto de investigación en el que se hacen una pregunta de investigación, ofrecen una respuesta teórica y evalúan hipótesis utilizando metodologías de investigación cuantitativa y herramientas computacionales aplicadas aprendidas a lo largo de los cursos del área académica de laboratorio y métodos del pregrado en Ciencias Políticas (Matemáticas, Estadística I y II, Métodos cualitativos, Política comparada y Laboratorio).
 
 El trabajo es una investigación empírica "triple C": *comparada* de *N* grande (más de 50 observaciones, aproximadamente), *causal* (guiada por una pregunta sobre causas y efectos de variables) y *cuantitativa* (utilizando métodos estadísticos). Por lo tanto, para realizar este trabajo, los estudiantes deben seleccionar *una* de las siguientes bases de datos, las cuales incluyen variables que permiten cubrir muchos temas propios de la disciplina desde distintos niveles de análisis, de lo macro a lo micro:
 
-- Comparación de países: **Varieties of Democracy (V-Dem)** Country-Year Full+Others, versión 10:
-  + [Datos](https://www.v-dem.net/en/data/data-version-10/).
-  + [Libro de códigos](https://www.v-dem.net/media/filer_public/28/14/28140582-43d6-4940-948f-a2df84a31893/v-dem_codebook_v10.pdf).
-  + [Librería de R](https://github.com/xmarquez/vdem).
-- Comparación de municipios: **Panel Municipal del CEDE**, versión 2020.
-  + [Datos y libro de códigos](https://datoscede.uniandes.edu.co/es/catalogo-de-microdata).
-- Comparación de individuos: **Barómetro de las Américas (LAPOP)**, Muestra Nacional Colombia, 2018:
-  + [Datos](https://obsdemocracia.org/uploads/data_file/Colombia2018PUBv2_IsFad1S.csv).
-  + [Cuestionario](https://obsdemocracia.org/uploads/data_file/Bar%C3%B3metro_de_las_Am%C3%A9ricas_2018PUB_5UCtdqH.pdf).
-  + [Ficha técnica](https://obsdemocracia.org/uploads/data_file/Descripci%C3%B3n_de_la_muestra2018.pdf).
-  
+-   Comparación de países: **Varieties of Democracy (V-Dem)** Country-Year Full+Others, versión 10:
+
+    -   [Datos](https://www.v-dem.net/en/data/data-version-10/).
+    -   [Libro de códigos](https://www.v-dem.net/media/filer_public/28/14/28140582-43d6-4940-948f-a2df84a31893/v-dem_codebook_v10.pdf).
+    -   [Librería de R](https://github.com/xmarquez/vdem).
+
+-   Comparación de municipios: **Panel Municipal del CEDE**, versión 2020.
+
+    -   [Datos y libro de códigos](https://datoscede.uniandes.edu.co/es/catalogo-de-microdata).
+
+-   Comparación de individuos: **Barómetro de las Américas (LAPOP)**, Muestra Nacional Colombia, 2018:
+
+    -   [Datos](https://obsdemocracia.org/uploads/data_file/Colombia2018PUBv2_IsFad1S.csv).
+    -   [Cuestionario](https://obsdemocracia.org/uploads/data_file/Bar%C3%B3metro_de_las_Am%C3%A9ricas_2018PUB_5UCtdqH.pdf).
+    -   [Ficha técnica](https://obsdemocracia.org/uploads/data_file/Descripci%C3%B3n_de_la_muestra2018.pdf).
+
 Los archivos de datos y libros de códigos estarán disponibles para descarga en el grupo de *Teams* del curso.
 
 El tema específico del proyecto es libre, sujeto a dos limitaciones: debe ser una pregunta de interés para politólogos --esto es, relacionada con el uso o distribución del poder político, entendido de forma muy amplia-- y que derive en una pregunta que se pueda responder utilizando las bases de datos indicadas arriba.
 
-La entrega final, en formato de artículo de investigación empírica, pretende dar cuenta de este proceso. En el proceso, deben entregar dos avances (entregas parciales), además de realizar frecuentes presentaciones y participar en discusiones en clase. Es importante notar que la entrega final se construye sobre todas las entregas anteriores, incluyendo los talleres aplicados en R. 
+La entrega final, en formato de artículo de investigación empírica, pretende dar cuenta de este proceso. En el proceso, deben entregar dos avances (entregas parciales), además de realizar frecuentes presentaciones y participar en discusiones en clase. Es importante notar que la entrega final se construye sobre todas las entregas anteriores, incluyendo los talleres aplicados en R.
 
 El artículo final debe incluir los siguientes elementos:
 
-- Pregunta y problema: Revisión de la primera entrega parcial, integrada en una sección introductoria.
+-   Pregunta y problema: Revisión de la primera entrega parcial, integrada en una sección introductoria.
 
-- Teoría: Revisión de la primera entrega parcial. Debe especificar los siguientes elementos (no necesariamente en este orden y no en formato de viñetas) y cumplir con los criterios discutidos en clase y en las lecturas (cfr. Kellstedt y Whitten, 2018):
-  + Síntesis del argumento teórico: porqué A causa B.
-  + Variable dependiente y variable independiente (mínimo una) bien definidas conceptualmente, incluyendo categorías de análisis relevantes. Por ejemplo, si piensan explorar los efectos de distintos tipos de sistemas electorales, deben definir sistema electoral y diferenciar teóricamente los distintos tipos (categorías).
-  + Explicación y descripción de los mecanismos causales que ligan la variable independiente (las causas identificadas) con la dependiente (efectos o resultado, el fenómeno que buscan explicar). Hacer explícitos los supuestos clave. Para cada categoría de análisis, debe haber un mecanismo claro que lo vincule con la variable dependiente.
-  + Alcance de la teoría, esto, es a qué tipos de casos aplica la teoría. Por ejemplo, una teoría sobre la democratización en escenarios de posconflicto no aplica a países que nunca han tenido conflicto armado, mientras que la pregunta por el impacto de los sistemas electorales sobre los partidos solo tiene sentido allí donde hay elecciones.
-  + Unidad de análisis de la teoría. Típicamente son individuos, grupos, organizaciones, eventos, estados u otras unidades políticas.
-  + Al final de la sección, incluir por lo menos una hipótesis derivada de la teoría. Esta debe cumplir con los criterios discutidos en clase y en las lecturas.
-  + Deben referenciar e incorporar por lo menos 10 artículos académicos en ciencia política publicados en revistas reconocidas en la disciplina, esto es, aquellas ranqueadas en los cuartiles 1 y 2 (Q1 y Q2) de Scimago. 
-  + Además, deben ubicar el argumento propio (el que proponen en su artículo) en el contexto de la literatura revisada: ¿en qué se diferencia y cómo avanza los debates de la literatura académica sobre el tema?
-  
--	Diseño y metodología de investigación: diseño metodológico del proyecto, discutiendo los siguientes puntos:
-  + Medidas: Discutir la operacionalización de los conceptos, esto es, cómo traducen variables conceptuales en variables operativas.
-  + Selección de casos: discutir el criterio utilizado, el cual debe estar ligado a la teoría y a las discusiones sobre inferencia causal, metodología comparada y sesgos de selección (cómo la muestra nos ayude a evaluar la teoría causal).
-  + Recopilación de datos: Establecer claramente qué datos/información van a utilizar, cuáles son las fuentes y cómo les ayudará a responder la pregunta.
-  
-- Análisis: 
-  + Descripción general de los datos y casos.
-  + Retomar aquello del análisis de datos exploratorio que sea relevante para establecer los siguientes puntos usando las gráficas apropiadas (histogramas, de barras, de dispersión, series de tiempo, etc.):
-    * La distribución de la variable dependiente; y
-    *	La relación entre la(s) variable(s) independiente(s) y la dependiente.
-  + Presentar e interpretar los resultados de una regresión (lineal o logística) en términos de las hipótesis del trabajo y siguiendo los lineamientos de los talleres realizados.
-  + Análisis e inferencia: qué nos dicen los datos sobre la hipótesis, teoría y pregunta y por qué debemos confiar en ellos (o cuáles son las limitaciones del trabajo).
-  
-- Conclusión: sintetiza el trabajo y discute sus implicaciones, volviendo a las preocupaciones --pregunta y problema-- de la introducción.
+-   Teoría: Revisión de la primera entrega parcial. Debe especificar los siguientes elementos (no necesariamente en este orden y no en formato de viñetas) y cumplir con los criterios discutidos en clase y en las lecturas (cfr. Kellstedt y Whitten, 2018):
+
+    -   Síntesis del argumento teórico: porqué A causa B.
+    -   Variable dependiente y variable independiente (mínimo una) bien definidas conceptualmente, incluyendo categorías de análisis relevantes. Por ejemplo, si piensan explorar los efectos de distintos tipos de sistemas electorales, deben definir sistema electoral y diferenciar teóricamente los distintos tipos (categorías).
+    -   Explicación y descripción de los mecanismos causales que ligan la variable independiente (las causas identificadas) con la dependiente (efectos o resultado, el fenómeno que buscan explicar). Hacer explícitos los supuestos clave. Para cada categoría de análisis, debe haber un mecanismo claro que lo vincule con la variable dependiente.
+    -   Alcance de la teoría, esto, es a qué tipos de casos aplica la teoría. Por ejemplo, una teoría sobre la democratización en escenarios de posconflicto no aplica a países que nunca han tenido conflicto armado, mientras que la pregunta por el impacto de los sistemas electorales sobre los partidos solo tiene sentido allí donde hay elecciones.
+    -   Unidad de análisis de la teoría. Típicamente son individuos, grupos, organizaciones, eventos, estados u otras unidades políticas.
+    -   Al final de la sección, incluir por lo menos una hipótesis derivada de la teoría. Esta debe cumplir con los criterios discutidos en clase y en las lecturas.
+    -   Deben referenciar e incorporar por lo menos 10 artículos académicos en ciencia política publicados en revistas reconocidas en la disciplina, esto es, aquellas ranqueadas en los cuartiles 1 y 2 (Q1 y Q2) de Scimago.
+    -   Además, deben ubicar el argumento propio (el que proponen en su artículo) en el contexto de la literatura revisada: ¿en qué se diferencia y cómo avanza los debates de la literatura académica sobre el tema?
+
+-   Diseño y metodología de investigación: diseño metodológico del proyecto, discutiendo los siguientes puntos:
+
+-   Medidas: Discutir la operacionalización de los conceptos, esto es, cómo traducen variables conceptuales en variables operativas.
+
+-   Selección de casos: discutir el criterio utilizado, el cual debe estar ligado a la teoría y a las discusiones sobre inferencia causal, metodología comparada y sesgos de selección (cómo la muestra nos ayude a evaluar la teoría causal).
+
+-   Recopilación de datos: Establecer claramente qué datos/información van a utilizar, cuáles son las fuentes y cómo les ayudará a responder la pregunta.
+
+-   Análisis:
+
+    -   Descripción general de los datos y casos.
+
+    -   Retomar aquello del análisis de datos exploratorio que sea relevante para establecer los siguientes puntos usando las gráficas apropiadas (histogramas, de barras, de dispersión, series de tiempo, etc.):
+
+        -   La distribución de la variable dependiente; y
+        -   La relación entre la(s) variable(s) independiente(s) y la dependiente.
+
+    -   Presentar e interpretar los resultados de una regresión (lineal o logística) en términos de las hipótesis del trabajo y siguiendo los lineamientos de los talleres realizados.
+
+    -   Análisis e inferencia: qué nos dicen los datos sobre la hipótesis, teoría y pregunta y por qué debemos confiar en ellos (o cuáles son las limitaciones del trabajo).
+
+-   Conclusión: sintetiza el trabajo y discute sus implicaciones, volviendo a las preocupaciones --pregunta y problema-- de la introducción.
 
 #### Formato
 
 Como se mencionó, la entrega final debe seguir el formato de un artículo académico en ciencia política. Para esto, deben referenciar estas pautas, así como los documentos *La estructura de un artículo académico en ciencia política* y *Escribir bien en ciencia política* disponibles en la carpeta de contenidos de clase en *Teams*. Algunos lineamientos puntuales son:
 
-- Extensión: 6000 palabras (máximo), sin incluir título, resumen y referencias.
-- Archivo Word o PDF, sin portada.
-- Referencias: formato APA.
-- Fuente convencional (Times, Arial, Calibri, etc.), tamaño 12, márgenes de 2-3 cm. y espaciado sencillo o 1,5.
+-   Extensión: 6000 palabras (máximo), sin incluir título, resumen y referencias.
+-   Archivo Word o PDF, sin portada.
+-   Referencias: formato APA.
+-   Fuente convencional (Times, Arial, Calibri, etc.), tamaño 12, márgenes de 2-3 cm. y espaciado sencillo o 1,5.
 
 #### Rúbrica
 
 Sobre una nota máxima de 50, la rúbrica de la entrega final es la siguiente:
 
-- Introducción y conclusiones (5): en la introducción, presenta la pregunta, el problema y la hoja de ruta; en las conclusiones, discute implicaciones del trabajo.
-- Revisión de literatura (5): referenciar mínimo 10 referencias publicadas en revistas en el cuartil 1 o 2 de las áreas de [ciencia política y relaciones internacionales](https://www.scimagojr.com/journalrank.php?category=3320) o de [sociología y ciencia política](https://www.scimagojr.com/journalrank.php?category=3312) en Scimago y especificar el aporte del proyecto a la literatura. 
-- Teoría (10): define claramente los conceptos principales, propone un mecanismo causal claro (por qué cambios en *X* causan cambios en *Y*) y deriva una hipótesis.
-- Métodos (10): explica la lógica de la selección de casos, cómo mide las variables, de dónde se toman los datos y cómo se transformaron (si aplica).
-- Análisis (15): estima e interpreta un modelo de regresión lineal múltiple que evalúa las hipótesis. Además, interpreta los coeficientes, presenta los resultados en formato de tabla de regresión y una gráfica de predicciones del modelo. FInalmente, conecta los hallazgos empíricos con la teoría.
-- Formato (5): sigue el formato indicado, con pocos errores gramaticales, ortográficos o sintácticos, cita apropiadamente e incluye una bibliografía en formato uniforme (última edición de APA).
+-   Introducción y conclusiones (5): en la introducción, presenta la pregunta, el problema y la hoja de ruta; en las conclusiones, discute implicaciones del trabajo.
+-   Revisión de literatura (5): referenciar mínimo 10 referencias publicadas en revistas en el cuartil 1 o 2 de las áreas de [ciencia política y relaciones internacionales](https://www.scimagojr.com/journalrank.php?category=3320) o de [sociología y ciencia política](https://www.scimagojr.com/journalrank.php?category=3312) en Scimago y especificar el aporte del proyecto a la literatura.
+-   Teoría (10): define claramente los conceptos principales, propone un mecanismo causal claro (por qué cambios en *X* causan cambios en *Y*) y deriva una hipótesis.
+-   Métodos (10): explica la lógica de la selección de casos, cómo mide las variables, de dónde se toman los datos y cómo se transformaron (si aplica).
+-   Análisis (15): estima e interpreta un modelo de regresión lineal múltiple que evalúa las hipótesis. Además, interpreta los coeficientes, presenta los resultados en formato de tabla de regresión y una gráfica de predicciones del modelo. FInalmente, conecta los hallazgos empíricos con la teoría.
+-   Formato (5): sigue el formato indicado, con pocos errores gramaticales, ortográficos o sintácticos, cita apropiadamente e incluye una bibliografía en formato uniforme (última edición de APA).
 
 ### Entrega grupal 1: pregunta y teoría (15%)
 
 La primera entrega parcial es un avance en la escritura del proyecto de investigación que desarrollarán a lo largo del semestre. A estas alturas, ya han trabajado en su pregunta de investigación, así como en la teoría (la respuesta a la pregunta). Así, esta entrega debe incluir los siguientes elementos:
 
-- Pregunta y problema: establecer el tema específico del proyecto, proponer una pregunta de investigación en ese tema específico y justificar la pregunta con base en cómo responderla soluciona un problema aplicado o práctico. 
-  + Las preguntas deben establecer un proyecto de investigación en ciencia política que sea *causal*, o sea que pregunte por las causas y efectos de una variable política y la relación causal de esta con otra variable. 
-  + Pueden incluir (brevemente) el contexto que sea necesario para entender la relevancia de la pregunta.
-  + Si respondemos a la pregunta, ¿qué sabemos *hacer* ahora que no sabíamos antes? Ese es el problema práctico.
+-   Pregunta y problema: establecer el tema específico del proyecto, proponer una pregunta de investigación en ese tema específico y justificar la pregunta con base en cómo responderla soluciona un problema aplicado o práctico.
 
-- Teoría: desarrollar una teoría que responda de forma general a la pregunta de investigación, siguiendo los lineamientos de clase. 
-  + Esencialmente, la teoría responde a la pregunta sobre cómo y por qué están relacionadas la variable dependiente y la independiente (en otras palabras, cómo un cambio en la independiente causa un cambio en la dependiente). 
-  + Deben apoyarse en una revisión de literatura de teorías existentes, lecturas previas (de otros cursos) y experiencias propias; no es necesario inventar algo nuevo.
-  + Es preciso definir los conceptos centrales y sus categorías, pero la teoría es más que una lista de definiciones. Basta con una definición sólida si sirve para construir una explicación o mecanismo.
-  + Una teoría es abstracta: no se construye para describir casos específicos que se conocen de antemano, sino como una explicación más general a la relación causal entre dos variables. Dejar de lado los nombres propios.
-  + Deben referenciar e incorporar por lo menos 3 artículos académicos en ciencia política publicados en revistas reconocidas en la disciplina, esto es, aquellas ranqueadas en los cuartiles 1 y 2 (Q1 y Q2) de Scimago. 
-  
-- Hipótesis: incluir por lo menos una hipótesis que se derive directamente de la teoría, en otras palabras, una implicación empíricamente evaluable de la teoría. 
-  + Este enunciado debe seguir los lineamientos discutidos en clase, o sea que debe ser del tipo "Un incremento en la variable *X* causa un incremento en la variable *Y*" o similar.
+    -   Las preguntas deben establecer un proyecto de investigación en ciencia política que sea *causal*, o sea que pregunte por las causas y efectos de una variable política y la relación causal de esta con otra variable.
+    -   Pueden incluir (brevemente) el contexto que sea necesario para entender la relevancia de la pregunta.
+    -   Si respondemos a la pregunta, ¿qué sabemos *hacer* ahora que no sabíamos antes? Ese es el problema práctico.
+
+-   Teoría: desarrollar una teoría que responda de forma general a la pregunta de investigación, siguiendo los lineamientos de clase.
+
+    -   Esencialmente, la teoría responde a la pregunta sobre cómo y por qué están relacionadas la variable dependiente y la independiente (en otras palabras, cómo un cambio en la independiente causa un cambio en la dependiente).
+    -   Deben apoyarse en una revisión de literatura de teorías existentes, lecturas previas (de otros cursos) y experiencias propias; no es necesario inventar algo nuevo.
+    -   Es preciso definir los conceptos centrales y sus categorías, pero la teoría es más que una lista de definiciones. Basta con una definición sólida si sirve para construir una explicación o mecanismo.
+    -   Una teoría es abstracta: no se construye para describir casos específicos que se conocen de antemano, sino como una explicación más general a la relación causal entre dos variables. Dejar de lado los nombres propios.
+    -   Deben referenciar e incorporar por lo menos 3 artículos académicos en ciencia política publicados en revistas reconocidas en la disciplina, esto es, aquellas ranqueadas en los cuartiles 1 y 2 (Q1 y Q2) de Scimago.
+
+-   Hipótesis: incluir por lo menos una hipótesis que se derive directamente de la teoría, en otras palabras, una implicación empíricamente evaluable de la teoría.
+
+    -   Este enunciado debe seguir los lineamientos discutidos en clase, o sea que debe ser del tipo "Un incremento en la variable *X* causa un incremento en la variable *Y*" o similar.
 
 #### Formato
 
-- Extensión: 1500 palabras (máximo), sin incluir título y referencias.
-- Archivo Word o PDF, sin portada.
-- Referencias: formato APA.
-- Fuente convencional (Times, Arial, Calibri, etc.), tamaño 12, márgenes de 2-3 cm. y espaciado sencillo o 1,5.
+-   Extensión: 1500 palabras (máximo), sin incluir título y referencias.
+-   Archivo Word o PDF, sin portada.
+-   Referencias: formato APA.
+-   Fuente convencional (Times, Arial, Calibri, etc.), tamaño 12, márgenes de 2-3 cm. y espaciado sencillo o 1,5.
 
 #### Rúbrica
 
 Sobre una nota máxima de 50, la rúbrica de esta entrega es la siguiente:
 
-- Pregunta clara y causal (5).
-- Justificación basada en un problema aplicado o práctico (5).
-- Referenciar mínimo 3 artículos publicadas en revistas en el cuartil 1 o 2 de las áreas de [ciencia política y relaciones internacionales](https://www.scimagojr.com/journalrank.php?category=3320) o de [sociología y ciencia política](https://www.scimagojr.com/journalrank.php?category=3312) del portal Scimago (5).
-- Conceptos y categorías de las variables dependiente e independiente claros (10).
-- Mecanismo causal claro que responde a la pregunta: "¿*por qué* cambios en la variable independiente causan cambios en la variable dependiente?" (10).
-- Esquema gráfico, a manera de diagrama de flujo, que ilustre la teoría, con sus principales variables y mecanismos (5).
-- Hipótesis que cumple con lo especificado en los textos y la clase, como son que sea empírica, evaluable, en términos de variables, etc. (10).
+-   Pregunta clara y causal (5).
+-   Justificación basada en un problema aplicado o práctico (5).
+-   Referenciar mínimo 3 artículos publicadas en revistas en el cuartil 1 o 2 de las áreas de [ciencia política y relaciones internacionales](https://www.scimagojr.com/journalrank.php?category=3320) o de [sociología y ciencia política](https://www.scimagojr.com/journalrank.php?category=3312) del portal Scimago (5).
+-   Conceptos y categorías de las variables dependiente e independiente claros (10).
+-   Mecanismo causal claro que responde a la pregunta: "¿*por qué* cambios en la variable independiente causan cambios en la variable dependiente?" (10).
+-   Esquema gráfico, a manera de diagrama de flujo, que ilustre la teoría, con sus principales variables y mecanismos (5).
+-   Hipótesis que cumple con lo especificado en los textos y la clase, como son que sea empírica, evaluable, en términos de variables, etc. (10).
 
 ### Entrega grupal 2: métodos (15%)
 
 Esta entrega parcial incluye el diseño metodológico del proyecto, discutiendo los siguientes puntos:
 
-- Selección de casos: discutir el criterio utilizado, el cual debe estar ligado a la teoría y a las discusiones sobre inferencia causal, metodología comparada y sesgos de selección.
-  + Responde a la pregunta por cómo la muestra nos ayuda a evaluar la teoría y las hipótesis.
-  + Responde a la pregunta por cómo la muestra ayuda a evitar sesgos discutidos en clase y en las lecturas.
-- Medidas: discutir la operacionalización de los conceptos, esto es, cómo traducen variables conceptuales (conceptos) a variables operativas (medidas).
-- Recopilación de datos: establecer claramente qué datos/información van a utilizar, cuáles son las fuentes (base de datos $\neq$ fuentes) y cómo les ayudarán a responder la pregunta.
+-   Selección de casos: discutir el criterio utilizado, el cual debe estar ligado a la teoría y a las discusiones sobre inferencia causal, metodología comparada y sesgos de selección.
+
+    -   Responde a la pregunta por cómo la muestra nos ayuda a evaluar la teoría y las hipótesis.
+    -   Responde a la pregunta por cómo la muestra ayuda a evitar sesgos discutidos en clase y en las lecturas.
+
+-   Medidas: discutir la operacionalización de los conceptos, esto es, cómo traducen variables conceptuales (conceptos) a variables operativas (medidas).
+
+-   Recopilación de datos: establecer claramente qué datos/información van a utilizar, cuáles son las fuentes (base de datos $\neq$ fuentes) y cómo les ayudarán a responder la pregunta.
 
 #### Formato
 
-- Extensión: 1000 palabras (máximo), sin incluir título y referencias.
-- Archivo Word o PDF, sin portada.
-- Referencias: formato APA.
-- Fuente convencional (Times, Arial, Calibri, etc.), tamaño 12, márgenes de 2-3 cm. y espaciado sencillo o 1,5.
+-   Extensión: 1000 palabras (máximo), sin incluir título y referencias.
+-   Archivo Word o PDF, sin portada.
+-   Referencias: formato APA.
+-   Fuente convencional (Times, Arial, Calibri, etc.), tamaño 12, márgenes de 2-3 cm. y espaciado sencillo o 1,5.
 
 #### Rúbrica
 
 Sobre una nota máxima de 50, la rúbrica de esta entrega es la siguiente:
 
-- Selección de casos que busca explícitamente evaluar la teoría, evitando sesgos de selección en la variable dependiente e independiente (20).
-- Operacionalización de los conceptos: describir cómo se piensa medir la variable dependiente y la independiente o distinguir entre las categorías de estas variables (20). 
-- Definición clara de la base de datos a utilizar (y las variables que utilizarán) (10).
+-   Selección de casos que busca explícitamente evaluar la teoría, evitando sesgos de selección en la variable dependiente e independiente (20).
+-   Operacionalización de los conceptos: describir cómo se piensa medir la variable dependiente y la independiente o distinguir entre las categorías de estas variables (20).
+-   Definición clara de la base de datos a utilizar (y las variables que utilizarán) (10).
 
 ### Talleres aplicados en R (total: 40%)
 
@@ -288,13 +335,19 @@ Los talleres --sobre manejo de datos, visualización y regresión lineal-- se de
 
 #### Formato
 
-Todas las entregas de talleres aplicados en R deben entregarse en un documento HTML o PDF (archivo `.html` o `.pdf`) basado en un archivo tipo RMarkdown (`.Rmd`) que contiene el código replicable. No hace falta enviar el archivo RMarkdown, sino solo el documento final con el código y las respuestas o resultados claramente visibles. 
+Todas las entregas de talleres aplicados en R deben entregarse en un documento HTML o PDF (archivo `.html` o `.pdf`) basado en un archivo tipo RMarkdown (`.Rmd`) que contiene el código replicable. No hace falta enviar el archivo RMarkdown, sino solo el documento final con el código y las respuestas o resultados claramente visibles.
 
 #### Rúbrica
 
 Cada taller tiene hay 5 preguntas, con igual peso sobre la nota. Se evalúa de manera equitativa que a) se produzca el resultado esperado o respuesta correcta y b) se realice una interpretación adecuada. Cada taller contiene su propio cuestionario detallado.
 
-Los cuestionarios de los talleres evaluables se encuentran en este instructivo, en los capítulos respectivos.
+Los cuestionarios de los talleres evaluables se encuentran marcados como "Taller" al final de los capítulos correspondientes de este instructivo:
+
+-   [Capítulo "Trabajar con datos"](#cap-datos) (10%).
+
+-   [Capítulo "Visualización con datos"](#cap-dataviz) (15%).
+
+-   [Capítulo "Regresión lineal"](#cap-lm-applied) (15%).
 
 ## Cronograma de actividades
 

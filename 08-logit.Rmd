@@ -1,4 +1,4 @@
-# Regresión logística {#logit}
+# Regresión logística {#cap-logit}
 
 ## Resumen
 

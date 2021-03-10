@@ -1,6 +1,6 @@
 # (PART) Trabajar con datos {-}
 
-# Trabajar con datos {#datos}
+# Trabajar con datos {#cap-datos}
 
 ## Resumen
 
@@ -1241,7 +1241,7 @@ Trabajar con bases de datos:
     - Cambiar de formato largo a ancho con `pivot_longer()` y `pivot_wider()`.
     - Combinar dos bases de datos relacionadas con `left_join()`. 
 
-## Taller: funciones y datos
+## Taller: manejo de datos
 
 ### Crear una base de datos
 

@@ -1,6 +1,6 @@
 # (PART) Análisis Descriptivo {-}
 
-# Visualización de datos {#dataviz}
+# Visualización de datos {#cap-dataviz}
 
 ## Resumen
 

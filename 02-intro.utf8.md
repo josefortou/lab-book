@@ -14,47 +14,84 @@ En este capítulo:
 
 ## Hello, world!
 
-```{r}
+
+```r
 print("Hello, world!")
+```
+
+```
+## [1] "Hello, world!"
 ```
 
 ¡Bienvenidos a R y RStudio! [R](https://www.r-project.org/) es un lenguaje y un programa estadístico. Es de uso libre y cuenta con grandes capacidades para hacer análisis político. Junto con Excel, Stata, SPSS, es uno de las herramientas más populares en las ciencias sociales empíricas.
 
 En el nivel más básico, R es una calculadora. Puede realizar operaciones y aplicar funciones, como por ejemplo, una multiplicación. Simplemente ingresamos una operación con operadores matemáticos (por ejemplo, para multiplicar usamos `*`) en la consola del programa, ejecutamos el código con la tecla `Enter` y R nos arroja el resultado. Por ejemplo, si quiséramos conocer la respuesta al sentido de la vida, el universo y todo lo demás:
 
-```{r}
+
+```r
 6*7
+```
+
+```
+## [1] 42
 ```
 
 Usando R, también podemos crear una secuencia de números del 1 al 100, utilizando funciones que el lenguaje reconoce y "lee" correctamente. Por ejemplo, veamos cómo funciona la función `seq()` para crear una secuencia de números:
 
-```{r}
+
+```r
 seq(from = 1, to = 100, by = 1)
+```
+
+```
+##   [1]   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18
+##  [19]  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36
+##  [37]  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54
+##  [55]  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72
+##  [73]  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90
+##  [91]  91  92  93  94  95  96  97  98  99 100
 ```
 
 En ocasiones, si queremos que el resultado de una operación o una línea de código permanezca "en memoria" para poder hacer algo más con este, convertimos los resultados de estas operaciones en objetos de R al asignarles un nombre con el operador de asignación `<-`. Los objetos creados así quedan disponibles hasta que los eliminemos o cerremos la sesión de R. Por ejemplo, podemos guardar la secuencia anterior creando un objeto llamado `secuencia_nums`:
 
-```{r}
+
+```r
 secuencia_nums <- seq(from = 1, to = 50, by = 1)
 ```
 
 Si queremos ver los contenidos de este objeto, escribimos su nombre en la consola de R:
 
-```{r}
+
+```r
 secuencia_nums
+```
+
+```
+##  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+## [26] 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50
 ```
 
 A su vez, estos objetos son sujetos de ser transformados con funciones que les aplican operaciones. Aquí, encontramos la media del objeto `secuencia_nums` usando la función `mean()`:
 
-```{r}
+
+```r
 mean(secuencia_nums)
+```
+
+```
+## [1] 25.5
 ```
 
 Podemos guardarlo como un objeto para ver y usar su contenido después:
 
-```{r}
+
+```r
 media_secnums <- mean(secuencia_nums)
 media_secnums
+```
+
+```
+## [1] 25.5
 ```
 
 Con elementos tan sencillos como estos y otros que veremos más adelante, exploraremos bases de datos y construiremos modelos estadísticos para evaluar teorías y responder preguntas. En el resto de esta introducción, discutimos cómo trabajar con R usando RStudio y su versión web, RStudio Cloud. Nuestro principal objetivo es tener la bases para, más adelante, hacer análisis de datos exploratorio (con gráficas y tablas) y análisis estadístico utilizando regresiones.
@@ -74,9 +111,10 @@ Primero, hay que entender cómo vamos a usar R a través de RStudio. [RStudio](h
 
 Los elementos centrales del programa RStudio -además de la barra de menús en la parte superior, que comparte con muchos otros programas de computador- son cuatro paneles que vemos en la ventana principal. La siguiente captura de pantalla muestra cómo están organizados los cuatro paneles principales de RStudio:
 
-```{r, echo = FALSE, fig.cap="Organización de los paneles en una sesión de RStudio."}
-knitr::include_graphics("images/instructivo/rstudio_paneles.png")
-```
+<div class="figure">
+<img src="images/instructivo/rstudio_paneles.png" alt="Organización de los paneles en una sesión de RStudio." width="960" />
+<p class="caption">(\#fig:unnamed-chunk-8)Organización de los paneles en una sesión de RStudio.</p>
+</div>
 
 El flujo de trabajo en RStudio sigue lo que hacemos en estos paneles:
 
@@ -94,9 +132,10 @@ El flujo de trabajo en RStudio sigue lo que hacemos en estos paneles:
 
 Personalmente, ubico el script y el `Environment` (los *inputs*) a la izquierda y la consola y las gráficas (los *outputs*) a la derecha. Además, cambio el color o tema de la interfaz por un fondo oscuro. Mi ventana de RStudio se ve así:
 
-```{r, echo = FALSE, fig.cap="Organización alternativa de los paneles en una sesión de RStudio."}
-knitr::include_graphics("images/instructivo/rstudio_paneles_alt.png")
-```
+<div class="figure">
+<img src="images/instructivo/rstudio_paneles_alt.png" alt="Organización alternativa de los paneles en una sesión de RStudio." width="960" />
+<p class="caption">(\#fig:unnamed-chunk-9)Organización alternativa de los paneles en una sesión de RStudio.</p>
+</div>
 
 Si quieren realizar cambios como estos, exploren el menú `Tools`, `Global Options`. Si no están seguros la organización que trae RStudio por defecto funciona bien.
 
@@ -120,21 +159,24 @@ Para mantener todos nuestros archivos organizados, incluyendo bases de datos que
 
 Para crear un nuevo proyecto en RStudio, deben ir a `File`, `New Project...`; ahí deben seleccionar la opción `New Directory`:
 
-```{r, echo = FALSE, fig.cap="Cómo crear un nuevo proyecto."}
-knitr::include_graphics("images/instructivo/newproject1.png")
-```
+<div class="figure">
+<img src="images/instructivo/newproject1.png" alt="Cómo crear un nuevo proyecto." width="293" />
+<p class="caption">(\#fig:unnamed-chunk-10)Cómo crear un nuevo proyecto.</p>
+</div>
 
 Después, `New Project`:
 
-```{r, echo = FALSE, fig.cap="Cómo crear un nuevo proyecto."}
-knitr::include_graphics("images/instructivo/newproject2.png")
-```
+<div class="figure">
+<img src="images/instructivo/newproject2.png" alt="Cómo crear un nuevo proyecto." width="293" />
+<p class="caption">(\#fig:unnamed-chunk-11)Cómo crear un nuevo proyecto.</p>
+</div>
 
 Y, finalmente, le dan un nombre a su proyecto y le dan `Create Project`:
 
-```{r, echo = FALSE, fig.cap="Cómo crear un nuevo proyecto."}
-knitr::include_graphics("images/instructivo/newproject2.png")
-```
+<div class="figure">
+<img src="images/instructivo/newproject2.png" alt="Cómo crear un nuevo proyecto." width="293" />
+<p class="caption">(\#fig:unnamed-chunk-12)Cómo crear un nuevo proyecto.</p>
+</div>
 
 Esto crea automática un archivo tipo `.RProj` ![clear](images/icons_rstudio/project_icon.png) en la carpeta del proyecto. En adelante, podrán abrir este proyecto desde el menú `File`, opción `Open Project...` o navegando a la carpeta del proyecto en sus computadores y abriendo el archivo `.RProj` en cuestión.
 
@@ -142,16 +184,18 @@ Es aconsejable crear subdirectorios (carpetas) para guardar archivos de datos, d
 
 Para trabajar los inscrutivos de este libro, vamos a crear dos carpetas, llamadas `\data` y `\output` usando el botón `New Folder` ![newfolder](images/icons_rstudio/newfolder_icon.png). Otra opción es crearlas desde la consola con la función `dir.create()`:
 
-```{r, eval=FALSE}
+
+```r
 dir.create("data")
 dir.create("output")
 ```
 
 Al final, nuestro proyecto debe verse así:
 
-```{r, echo = FALSE, fig.cap="Crear carpetas para guardar datos y resultados."}
-knitr::include_graphics("images/instructivo/folders.png")
-```
+<div class="figure">
+<img src="images/instructivo/folders.png" alt="Crear carpetas para guardar datos y resultados." width="960" />
+<p class="caption">(\#fig:unnamed-chunk-14)Crear carpetas para guardar datos y resultados.</p>
+</div>
 
 ### Cargar archivos a RStudio Cloud
 
@@ -173,16 +217,29 @@ Un script de R (un archivo que termina con la extensión `.R` ![rmd](images/icon
 
 Como señalamos anteriormente, podemos ejecutar líneas o pedazos individuales de código en un script seleccionando lo que queremos ejecutar y presionando `Ctrl + Enter` o el botón `Run` ![run](images/icons_rstudio/run_icon.png). Copiemos y ejecutemos el siguiente pedazo de código que utiliza la constante $\pi$ para calcular -en tres pasos- el área de un círculo con radio $r = 5$:
 
-```{r}
+
+```r
 radio <- 5
 area <- pi*radio^2
 area
 ```
 
+```
+## [1] 78.53982
+```
+
 Si queremos que alguna parte de un script no sea ejecutada como código, insertamos el símbolo `#` por delante (por ejemplo, `# esto es un comentario`) y todo lo que sigue en esa misma línea queda como marcado comentario, así:
 
-```{r}
+
+```r
 5 + 5 # esto nos da el resultado de la suma
+```
+
+```
+## [1] 10
+```
+
+```r
 # 5 + 5 pero esto no
 ```
 
@@ -194,8 +251,13 @@ Un documento RMarkdown (un archivo que termina con la extensión `.Rmd` ![rmd](i
 
 El código en un archivo RMarkdown, escrito en R, está organizado en "chunks", o bloques. Estos bloques deben estar delimitados claramente con los caracteres ```` ```{r} ```` y ```` ``` ````. Agregamos bloques a un archivo RMarkdown con el botón ![clear](images/icons_rstudio/newchunk_icon.png) o el atajo `Ctrl + Alt + I`. A continuación, veamos un bloque de código con el código ejecutado, seguido del resultado de la operación:
 
-```{r}
+
+```r
 9^2
+```
+
+```
+## [1] 81
 ```
 
 El texto en un RMarkdown usa trucos de un lenguaje llamado Markdown para darle formato a un documento de salida final). Este formato es ideal para realizar informes y talleres o artículos y hasta libros. Puede producir documentos en formato `.html`, `.pdf` y `.docx`. Para crear archivos PDF, RMarkdown requiere tener LaTeX (un programa de composición de textos académicos y técnicos) instalado en el computador (o si usamos la librería `tinytex`). En RStudio Cloud; solo tenemos que instalar librerías de R como `knitr` y `rmarkdown`. Pronto hablaremos sobre librerías.
@@ -233,7 +295,8 @@ Un RMarkdown solo compila exitosamente si no hay errores en el código y en el t
 - En los bloques de código solo debe haber código. Si hay texto, debe ir precedido de un `#` para marcarlo como comentario. Mientras, en el cuerpo del documento solo debe haber texto (si hay código, no se ejecutará como tal).
 - Es clave y altamente recomendable cargar todas las librerías que vamos a utilizar al inicio del archivo, en un código dedicado a esto como el siguiente:
 
-```{r, eval = FALSE}
+
+```r
 library(tidyverse) # no ejecutar, a menos que ya este instalada
 # ya vamos a hablar sobre librerias...
 ```
@@ -244,14 +307,16 @@ El documento creado por RMarkdown aparece en la misma carpeta donde está guarda
 
 Finalmente, cada bloque de código tiene opciones sobre qué queremos ejecutar y mostrar. Podemos ver las opciones en el botón ![chunkcog](images/icons_rstudio/chunkcog_icon.png) en cada bloque de código. Por ejemplo, `eval = FALSE` si queremos que el código allí no sea evaluado o ejecutado el tejer el archivo, pero queremos mostrar el código:
 
-```{r, eval = FALSE}
+
+```r
 10*10
 ```
 
 O, al revés, con `echo = FALSE`, vemos el resultado pero no el código, ideal para tablar, gráficos, limpieza de datos, etc. y la elaboración de artículos académicos o informes:
 
-```{r echo = FALSE}
-10*10
+
+```
+## [1] 100
 ```
 
 #### Visual Markdown Editor
@@ -266,7 +331,8 @@ Con frecuencia, utilizamos ambos tipos de archivos: R scripts usualmente para an
 
 En R hacemos cosas usando funciones, objetos que le aplican operaciones a otros objetos. En otras palabras, una función toma un *input*, le aplica una operación y produce un *output*. Por ejemplo, si `x` es un objeto en R, `f(x)` aplica la función `f()` al objeto `x`. Si la función `f()` está definida como `f <- function(x){x^2}` (recordemos que en R, definimos algo al asignarle un nombre con `<-`, lo cual crea un objeto), entonces `f(x)` toma `x` y lo eleva al cuadrado (`^2`). En R, este proceso se ve así:
 
-```{r}
+
+```r
 # Definimos la funcion
 f <- function(x){x^2}
 # Definimos x
@@ -275,23 +341,44 @@ x <- 9
 f(x)
 ```
 
+```
+## [1] 81
+```
+
 No tenemos que escribir y definir nosotros mismos todas las funciones que queremos utilizar. Por ejemplo, la función `mean()` ya existe en R; sirve para encontrar la media aritmética de un conjunto de datos numéricos. El código del siguiente bloque calcula la media del conjunto de números del 1 al 100:
 
-```{r}
+
+```r
 mean(1:100)
+```
+
+```
+## [1] 50.5
 ```
 
 Las funciones toman *argumentos*. Por ejemplo, como acabamos de ver, la función `mean()` toma como primer argumento (*input*) unos datos numéricos, calcula la media (le aplica una operación) y la imprime en la consola (*output*).
 
 Las funciones pueden tomar argumentos adicionales. Podemos pensar en estos argumentos como opciones. Por ejemplo, si queremos hallar la media de un conjunto de datos que contiene un valor no disponible --designado en R como `NA`, debemos especificarlo en la función `mean()` utilizando el argumento `na.rm = TRUE`. Comparemos qué sucede cuando hacemos esto y cuando no lo hacemos:
 
-```{r}
+
+```r
 # un vector de notas de clase
 y <- c(30, 35, 35, 50, NA, 25, 35, 45, 40, 25)
 # sin na.rm = TRUE
 mean(y)
+```
+
+```
+## [1] NA
+```
+
+```r
 # con na.rm = TRUE
 mean(y, na.rm = TRUE)
+```
+
+```
+## [1] 35.55556
 ```
 
 Si no incluimos `na.rm = TRUE` y los datos tienen un valor `NA`, la función `mean()` nos devuelve `NA`; por defecto, la función asume que `na.rm = FALSE`. Pero si especificamos el argumento, recibimos el producto esperado.
@@ -320,29 +407,59 @@ La "metalibrería" [`tidyverse`](https://www.tidyverse.org/) incluye varias libr
 
 Vamos a instalar `tidyverse`, pues usaremos estas librerías a lo largo de los instructivos de este libro. Para esto, escribimos y ejecutamos la siguiente línea de código (se demora un par de minutos, pues contiene muchas librerías):
 
-```{r, eval = FALSE}
+
+```r
 install.packages("tidyverse")
 ```
 
 Si quieren, pueden revisar si está instalada:
 
-```{r, eval = FALSE}
+
+```r
 "tidyverse" %in% rownames(installed.packages())
 ```
 
 Una vez instalada, podemos cargarla a la sesión actual de R:
 
-```{r, message=FALSE, warning=FALSE}
+
+```r
 library(tidyverse)
+```
+
+```
+## Warning: package 'tidyverse' was built under R version 4.0.3
+```
+
+```
+## Warning: package 'tibble' was built under R version 4.0.3
+```
+
+```
+## Warning: package 'dplyr' was built under R version 4.0.3
 ```
 
 Ahora, podemos usar funciones de estas librerías, como `filter()`, que sirve para filtrar bases de datos. En este caso, vamos a revisar unos datos que vienen con `tidyverse` para ver la lista de personajes de *Star Wars* que son androides:
 
-```{r}
+
+```r
 # filter() realiza un subconjunto de datos
 # veamos los personajes de Star Wars que son de la especie "Droid"
 starwars %>%
   filter(species == "Droid")
+```
+
+```
+## # A tibble: 6 x 14
+##   name   height  mass hair_color skin_color  eye_color birth_year sex   gender  
+##   <chr>   <int> <dbl> <chr>      <chr>       <chr>          <dbl> <chr> <chr>   
+## 1 C-3PO     167    75 <NA>       gold        yellow           112 none  masculi~
+## 2 R2-D2      96    32 <NA>       white, blue red               33 none  masculi~
+## 3 R5-D4      97    32 <NA>       white, red  red               NA none  masculi~
+## 4 IG-88     200   140 none       metal       red               15 none  masculi~
+## 5 R4-P17     96    NA none       silver, red red, blue         NA none  feminine
+## 6 BB8        NA    NA none       none        black             NA none  masculi~
+## # ... with 5 more variables: homeworld <chr>, species <chr>, films <list>,
+## #   vehicles <list>, starships <list>
 ```
 
 Al principio de cada capítulo de este instructivo, encuentran la lista de librerías que se utilizan en el capítulo. Recuerden revisar primero que estén instaladas en el proyecto y luego cargarlas a la sesión con `library()`.
@@ -355,7 +472,8 @@ Si R les dice que hay un error, hay un error. La descripción del error aparece 
 
 Finalmente, en la consola, pueden ejecutar `?` seguido del nombre de la función que provocó el error para abrir el manual de usuario de la función. Por ejemplo, si queremos saber cómo utilizar la función `mean()` para hayar una media:
 
-```{r, eval = FALSE}
+
+```r
 ?mean
 ```
 

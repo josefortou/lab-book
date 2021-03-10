@@ -1,5 +1,9 @@
 book_filename: "lab-book"
 language:
+  label:
+    fig: 'Fig. '
+    tab: 'Tab. '
+    eq: 'Ecuación '
   ui:
     chapter_name: "Capítulo "
 delete_merged_file: true
