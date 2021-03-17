@@ -1,10 +1,5 @@
 # Funciones {#cap-funciones}
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
-library(tidyverse)
-```
-
 ## Resumen
 
 En este capítulo:
@@ -23,6 +18,10 @@ Vamos a utilizar las siguientes librerías:
 
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
+```
+
+```{r, include=FALSE}
+theme_set(theme_light())
 ```
 
 ### Datos

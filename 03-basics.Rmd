@@ -415,13 +415,15 @@ ciudades <- tibble(
 )
 ```
 
-2. Utilizando `ggplot()` y `geom_col()` y los datos del punto anterior, construir una gráfica de barras que compare el número de divisiones administrativas entre municipios:
+2. Utilizando `ggplot()` y `geom_col()` y los datos del punto anterior, construir una gráfica de barras que compare el número de divisiones administrativas entre los distintos municipios. Pueden encontrar toda la información sobre la librería `ggplot2` en [este sitio web](https://ggplot2.tidyverse.org/). Alternativamente, pueden usar `barplot()`. Pista: la información necesaria ya está en la base de datos que crearon, así que no hace falta calcularla usando `table()`.
 
 ```{r, eval=FALSE, include=FALSE}
 ciudades %>%
   ggplot(aes(reorder(mpio, num_div), num_div)) +
   geom_col() +
   labs(x = "Municipio", y = "Número de divisiones administrativas")
+
+barplot(formula = num_div ~ mpio, data = ciudades)
 ```
 
 3. Calcular el promedio del número de divisiones administrativas de las cinco ciudades principales del país.
