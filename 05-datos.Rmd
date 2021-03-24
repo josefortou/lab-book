@@ -977,7 +977,7 @@ Ya que revisamos las principales formas de trabajar con datos, quizás nos parez
 
 El operador `%>%` (*pipe*, tubo o tubería) sirve para simplificar nuestro código. Viene de la librería `magrittr` y de pronto el logo de esta librería nos ayuda a entender la referencia en el nombre:
 
-![GP0070 Laboratorio.](images/magrittr-logo.png)
+![Logo de la librería magrittr.](images/magrittr-logo.png)
 
 El *pipe* es usado extensamente en el `tidyverse` -- si cargamos esta librería, automáticamente podemos usar `%>%` sin necesidad de cargar `magrittr`. Para entender la utilidad de los *pipes*, comparemos tres formas de usar varias funciones al mismo tiempo:
 
