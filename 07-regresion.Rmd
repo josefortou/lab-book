@@ -4,10 +4,16 @@
 
 ## Resumen
 
-En este instructivo, aprendemos a estimar modelos de regresión lineal en R usando la función básica `lm()`, interpretar y presentar los resultados y realizar diagnósticos y modificaciones a los modelos que estimamos. El objetivo final es utilizar técnicas estadísticas para evaluar nuestros modelos teóricos.
+En este capítulo:
 
-- Principales conceptos: regresión lineal, tabla de regresión, predicciones (valores esperados), diagnósticos.
-- Principales funciones: `lm()`, `modelsummary()`, `ggpredict()`.
+- Aprendemos a estimar modelos de regresión lineal en R usando la función básica `lm()`.
+- Interpretamos y presentamos los resultados usando tablas y figuras. 
+- Realizamos diagnósticos a los modelos que estimamos para afinar nuestros análisis. El objetivo final es utilizar técnicas estadísticas para evaluar nuestros modelos teóricos.
+
+**Principales conceptos**: regresión lineal, tabla de regresión, predicciones (valores esperados), diagnósticos.
+**Funciones clave**: `lm()`, `modelsummary()`, `ggpredict()`.
+
+### Librerías
 
 Vamos a utilizar las siguientes librerías:
 
@@ -19,9 +25,8 @@ library(ggeffects) # efectos en modelos de regresion
 library(modelsummary) # tablas de regresion
 ```
 
-
 ```{r plot-theme, message=FALSE, warning=FALSE}
-theme_set(theme_classic(base_size = 12))
+theme_set(theme_light())
 ```
 
 ## Modelos de regresión lineal en R
@@ -309,7 +314,9 @@ plot(modelo_ingreso, which = 2)
 Otra opción es usar un prueba estadística, como el test de Shapiro o el Kolmogorov-Smirnoff, vía las funciones `shapiro.test()`. Si obtenemos un *p-value* menor a 0.05, rechazamos la hipótesis nula de normalidad en la distribución de los residuos:
 
 ```{r}
-shapiro.test(resid(modelo_ingreso))
+modelo_ingreso %>%
+  resid() %>%
+  shapiro.test()
 ```
 
 Cuando vemos violaciones muy severas de este supuesto, puede que haya un problema con nuestra variable dependiente. Quizás en realidad sea una medida binaria, categórica u ordinal con pocos niveles. En estos casos, podemos buscar medidas alternativas u técnicas distintas a la regresión lineal por OLS.
@@ -381,7 +388,7 @@ Parece que no mejoró mucho la situación. Otra opción para lidiar con los prob
 coeftest(modelo_ingreso, vcov = vcovHC)
 ```
 
-Noten que los errores estándar de las variables `edu` y `senior` ahora son más grandes. La práctica de estimar errores estándar robustos de distintos tipos es bastante común en en Ciencia Política y Economía.
+Noten que los errores estándar de las variables `edu` y `senior` ahora son más grandes. La práctica de estimar errores estándar robustos de distintos tipos es bastante común en en Ciencia Política y Economía. Más adelante, los incorporamos a nuestra presentación de resultados.
 
 Hay otras soluciones al problema de heteroesquedasticidad, como aplicar "weighted least squares" (WLS) o usar técnicas como el *bootstrap*. Por el momento, procedemos con nuestro análisis y reportamos nuestros resultados, pero entendiendo que nuestros errores estándar pueden estar mal estimados. 
 
@@ -433,7 +440,7 @@ Estos tres coeficientes son estadísticamente significativos ($p < 0.05$), lo cu
 
 ### Predicciones y efectos
 
-Una de las herramientas más potentes que nos da un modelo de regresión lineal es la capacidad de hacer predicciones. Una predicción no es más que el valor esperado de $Y$ para determinados valores de las variables independientes. Hallamos estos valores esperados o predicciones utilizando los coeficientes estimados y reemplazando los valores de las variables independientes en la ecuación del modelo de regresión lineal. 
+Una de las herramientas más potentes que nos da un modelo de regresión lineal es la capacidad de hacer predicciones. Una predicción no es más que el valor esperado de $Y$ para determinados valores de las variables independientes. Hallamos estos valores esperados o predicciones utilizando los coeficientes estimados y reemplazando los valores de las variables independientes en la ecuación del modelo de regresión lineal.
 
 Calculemos un valor esperado "a mano" usando nuestro modelo. Primero, vamos a extraer los coeficientes del modelo usando `coef()` y `pluck()` - están en el orden en que aparecen en el resumen del modelo:
 
@@ -569,8 +576,41 @@ modelsummary(
   )
 )
 ```
+Hay varias opciones adicionales. Por ejemplo, podemos indicar niveles de significancia estadística con la opción `stars = TRUE`. Finalmente, si queremos reportar errores estándar robustos, está la opción `vcov = ...` que trabaja en conjunto con las funciones de la librería `sandwich`. Así, para errores estándar robustos:
 
-Estas tablas las podemos exportar como archivos de tipo HTML, que después podemos incorporar a un documento Word o similar:
+```{r tab-multi2}
+lista_modelos <- list(
+  "Completo" = modelo_ingreso, 
+  "Logaritmo" = modelo_log, 
+  "Interacción" = modelo_inter
+)
+modelsummary(
+  lista_modelos, # varios modelos
+  coef_map = c(
+    "(Intercept)" = "(Intercepto)",
+    "edu" = "Educación",
+    "senior" = "Experiencia",
+    "senior_log" = "Experiencia (log.)",
+    "genderHombre" = "Género: hombre",
+    "edu:genderHombre" = "Educación × Género: hombre"
+  ),
+  stars = TRUE,
+  vcov = "robust"
+)
+```
+
+Si, en cambio, tenemos datos en panel (muchas unidades and varios periodos de tiempo), podemos usar errores estándar robustos por cluster o grupo. Miremos rápidamente con unos datos simulados en los cuales observamos 500 empresas (`firm`) a lo largo de diez años `year`, midiendo unas variables `x` y `y`. Como creemos que los residuos pueden estar correlacionados entre empresas y años, incluimos una corrección con base en las variables relevantes:
+
+```{r tab-cluster}
+data("PetersenCL")
+mod_firmas <- lm(x ~ y, data = PetersenCL)
+modelsummary(
+  mod_firmas,
+  vcov = ~ firm + year
+)
+```
+
+Estas tablas las podemos exportar como archivos de tipo HTML, que después podemos incorporar a un documento Word o similar posteriormente:
 
 ```{r tab-guardar, eval = FALSE}
 modelsummary(
@@ -733,15 +773,13 @@ Usando uno de los dos modelos de regresión estimados en el primer punto, constr
 
 ### Votos por Trump
 
-Digamos que nos interesa estudiar los resultados de las elecciones presidenciales de 2016 en Estados Unidos. Para este proyecto, utilizamos una base de datos que incluye información sobre un conjunto de variables sociales y políticas a nivel de condado (municipio). Para esto, vamos a cargar una serie de librerías adicionales:
+Digamos que nos interesa estudiar los resultados de las elecciones presidenciales de 2016 en Estados Unidos. Para este proyecto, utilizamos una base de datos que incluye información sobre un conjunto de variables sociales y políticas a nivel de condado (municipio). Para esto, vamos a cargar la librería `socviz` que cuenta con datos sociopolíticos de Estados Unidos:
 
 ```{r}
 library(socviz) # datos y herramientas para visualizar datos sociales
-library(gtsummary) # tablas resúmen
-library(texreg) # tablas de regresión
 ```
 
-Veamos el resumen de algunas de estas variables - la tabla a continuación (construida con `tbl_summary()`) muestra la media y desviación estándar (variables numéricas) y el número de observaciones por grupo (variables categóricas):
+Específicamente, nos interesa la base de datos `county_data`, la cual limpiamos y reducimos:
 
 ```{r}
 # seleccionamos y transformamos datos
@@ -754,21 +792,67 @@ county_data_sub <- county_data %>%
          white = white/100, 
          hh_income = log(hh_income))
 
+sample_n(county_data_sub, 10)
+```
+
+Veamos el resumen de algunas de estas variables. La tabla a continuación (construida con `datasummary()` de `modelsummary`) muestra la media y desviación estándar (variables numéricas) y el número de observaciones por grupo (variables categóricas):
+
+```{r}
 # estadisticas resumen
-county_data_sub %>%
-  select(-name, -state) %>%
-  tbl_summary(
-    missing = "no",
-    label = list(black ~ "Prop. afro",
-                 white ~ "Prop. blanco",
-                 hh_income ~ "Ingreso promedio (log.)",
-                 per_dem_2016 ~ "Prop. voto Dem.",
-                 per_gop_2016 ~ "Prop. voto Rep.",
-                 census_region ~ "Región",
-                 partywinner12 ~ "Partido 2012"),
-    statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  bold_labels()
+datasummary(
+  # variables numericas
+  (`Prop. afro` = black) +
+    (`Prop. blanco` = white) +
+    (`Ingreso promedio (log.)` = hh_income) +
+    (`Prop. voto Dem.` = per_dem_2016) +
+    (`Prop. voto Rep.` = per_gop_2016) ~ census_region *
+    # funciones
+    ((`Media` = Mean) + (`Desv. est.` = SD)),
+  data = county_data_sub
+)
+```
+
+Podemos mirar las frecuencias de las variables categóricas:
+
+```{r}
+datasummary(
+  # variable categorica
+  (`Partido 2012` = partywinner12) ~ 
+    # funcion
+    N,
+  data = county_data_sub
+)
+```
+
+También una tabla cruzada con dos variables categóricas y porcentajes además de frecuencias usando el operador `*`:
+
+```{r}
+datasummary(
+  # variables categoricas
+  (`Región` = census_region) * 
+    (`Partido 2012` = partywinner12) + 1 ~ 
+    # funciones
+    N + Percent(),
+  data = county_data_sub
+)
+```
+
+O combinar variables numéricas y categóricas en una tabla de estadísticas descriptivas por grupos, usando nuevamente `*`:
+
+```{r}
+datasummary(
+  # variables numericas
+  (`Prop. afro` = black) +
+    (`Prop. blanco` = white) +
+    (`Ingreso promedio (log.)` = hh_income) +
+    (`Prop. voto Dem.` = per_dem_2016) +
+    (`Prop. voto Rep.` = per_gop_2016) ~ 
+    # variables categoricas
+    census_region *
+    # funciones
+    ((`Media` = Mean) + (`Desv. est.` = SD)),
+  data = county_data_sub
+)
 ```
 
 Queremos entender la variación en la proporción de votos obtenidos por el candidato Demócrata (Donald Trump) en la elección de 2016 en cada condado. A continuación, vemos la distribución de esta variable:
@@ -795,19 +879,26 @@ $$ \hat{\text{Prop. voto Rep.}} = \alpha + \hat{\beta}_1 \times \text{Prop. blan
 
 La siguiente tabla muestra los resultados del modelo. Incluye el coeficiente ($\beta$) estimado para cada variable y el intercepto, así como intervalos de confianza del 95% entre paréntesis y la significancia estadística de cada coeficiente, además de unas estadísticas resumen del modelo (como el $\text{R}^2$).
 
-```{r, results = "asis", eval = FALSE}
-modelo_rep <- lm(per_gop_2016 ~ white + hh_income + partywinner12 + census_region, data = county_data)
+```{r}
+modelo_rep <- lm(
+  per_gop_2016 ~ white + hh_income + partywinner12 + census_region,
+  data = county_data
+)
 
-htmlreg(
-  modelo_rep, star.symbol = "\\*", doctype = FALSE,
-  digits = 3, caption = "Resultados del modelo de regresión lineal.",
-  caption.above = TRUE, center = TRUE,
-  custom.model.names = "OLS",
-  custom.coef.names = c(
-    "Intercepto", "Prop. Blanco", "Ingreso prom. (log.)",
-    "Partido 2012: Rep.", "Región: Nordeste", "Región: Sur",
-    "Región: Oeste"
-  )
+coefs <- c(
+    "(Intercept)" = "Intercepto", 
+    "white" = "Prop. Blanco", 
+    "hh_income" = "Ingreso prom. (log.)",
+    "partywinner12Republican" = "Partido 2012: Rep.", 
+    "census_regionNortheast" = "Región: Nordeste", 
+    "census_regionSouth" = "Región: Sur",
+    "census_regionWest" = "Región: Oeste"
+)
+
+modelsummary(
+  list(`Modelo 1` = modelo_rep), 
+  stars = TRUE,
+  coef_map = coefs
 )
 ```
 

@@ -1562,19 +1562,19 @@ La base de datos incluye las siguientes variables tomadas de [Varieties of Democ
 
 Usando estos datos y las funciones apropiadas en R (1.0 punto):
 
-- Construir una tabla cruzada que cuente cuántos países con sistemas mayoritarios tienen sistemas multipartidistas.
+- Construir una tabla cruzada que cuente cuántos casos con sistemas mayoritarios tienen sistemas multipartidistas.
 - Construir e interpretar una gráfica sencilla que muestre la relación entre el grado de autonomía de la oposición y el nivel de democracia electoral.
 
 ### Seleccionar observaciones
 
-Cargar a la sesión de R la base de datos que piensan utilizar en el proyecto de investigación del curso. Utilizar las funciones y operadores apropiados para seleccionar las filas (casos) potencialmente interesantes o relevantes para la investigación. Guardar este subconjunto de datos (un "*subset*") como un objeto nuevo tipo `tibble` nuevo (1.0 punto).
+Cargar a la sesión de R la base de datos que piensan utilizar en el proyecto de investigación del curso. Utilizar las funciones y operadores apropiados para seleccionar las filas (casos) potencialmente interesantes o relevantes para la investigación. Guardar este subconjunto de datos (un "*subset*") como un objeto nuevo (1.0 punto).
 
-- Bono: Convertir todos los nombres de columna a `snake_case` (usando funciones, no a mano). Esto les ahorrará dolores de cabeza a largo plazo.
+- Bono: Convertir todos los nombres de columna a `snake_case` (usando funciones, no a mano). Esto les ahorrará dolores de cabeza a largo plazo si tienen columnas con nombres como `2010 Ingreso` o similares.
 - Bono: mostrar que los valores `NA` de las variables de interés -si los hay- están codificados apropiadamente (no como `-999`, `"N/A"` o similares). Esto les ahorrará dolores de cabeza a largo plazo.
 
 ### Seleccionar variables
 
-Usando el objeto creado en el punto anterior (el subconjunto de datos), utilizar las funciones y operadores apropiados para seleccionar las variables que tengan más sentido para su investigación. Guardar este subconjunto de datos como un objeto tipo `tibble`. Después, exportar este objeto como un archivo de datos en `"data/"`; este archivo puede ser `.rds` o `.csv` (1.0 punto).
+Usando el objeto creado en el punto anterior (el subconjunto de datos), utilizar las funciones y operadores apropiados para seleccionar las variables que tengan más sentido para su investigación. Guardar este subconjunto de datos como un objeto tipo `tibble`. Después, exportar este objeto como un archivo de datos `.rds` en la carpeta `output/` (1.0 punto). Esto les ahorrará tener que ejecutar el código para recodificar y seleccionar los datos cada vez que quieran analizarlos. Sin embargo, probable que tengan que volver a este código y modificarlo a medida que cambian las necesidades del proyecto.
 
 ### Medias de grupos
 

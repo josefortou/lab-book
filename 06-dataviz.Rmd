@@ -5,7 +5,7 @@
 ## Resumen
 
 En este capítulo: 
-- Discutimos los tipos de gráficas apropiadas para 
+- Discutimos los tipos de gráficas apropiadas para distintos tipos de variables.
 - Creamos varios tipos de gráficas usando la librería `ggplot2`. 
 
 <!-- En la primera parte de este capítulo, usamos la librería `ggplot2` para realizar gráficas en R, explorando desde lo básico, hasta cuestiones más avanzadas. Seguimos varios capítulos del libro de Kieran Healey, *Data Visualization: A Practical Introduction* (Princeton UP, 2018). -->
