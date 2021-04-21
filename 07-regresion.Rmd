@@ -10,7 +10,7 @@ En este capítulo:
 - Interpretamos y presentamos los resultados usando tablas y figuras. 
 - Realizamos diagnósticos a los modelos que estimamos para afinar nuestros análisis. El objetivo final es utilizar técnicas estadísticas para evaluar nuestros modelos teóricos.
 
-**Principales conceptos**: regresión lineal, tabla de regresión, predicciones (valores esperados), diagnósticos.
+**Principales conceptos**: regresión lineal, coeficiente, significancia estadística, tabla de regresión, predicciones (valores esperados), diagnósticos.
 **Funciones clave**: `lm()`, `modelsummary()`, `ggpredict()`.
 
 ### Librerías
@@ -19,9 +19,9 @@ Vamos a utilizar las siguientes librerías:
 
 ```{r libraries, message=FALSE, warning=FALSE}
 library(tidyverse)
-library(lmtest) # diagnosticos modelos
-library(sandwich) # corregir errores estandar
-library(ggeffects) # efectos en modelos de regresion
+library(lmtest) # diagnosticos de modelos lineales
+library(sandwich) # errores estandar robustos
+library(ggeffects) # efectos y predicciones en modelos de regresion
 library(modelsummary) # tablas de regresion
 ```
 
@@ -29,9 +29,15 @@ library(modelsummary) # tablas de regresion
 theme_set(theme_light())
 ```
 
+### Datos
+
+Debemos descargar los siguientes archivos de datos y guardarlos en la carpeta `/data` de nuestro proyecto:
+
+- Datos de ingreso: [link](https://raw.githubusercontent.com/josefortou/lab-book/master/data/riverside_final.csv). Para descargar, hacer click derecho, "Guardar como...".
+
 ## Modelos de regresión lineal en R
 
-Supongamos que tenemos una pregunta sobre la relación (causal) entre el ingreso de un individuo y su nivel educativo. Nuestra hipótesis es que a mayor número de años de educación, mayor ingreso anual en promedio. Buscamos y encontramos datos al respecto (y los guardamos en el archivo `riverside_final.csv`, disponible [aquí](https://github.com/josefortou/lab-book/blob/master/data/p4v2017.xls)) y los cargamos en R: 
+Supongamos que tenemos una pregunta sobre la relación (causal) entre el ingreso de un individuo y su nivel educativo. Nuestra hipótesis es que a mayor número de años de educación, mayor ingreso anual en promedio. Buscamos y encontramos datos al respecto (y los guardamos en el archivo `riverside_final.csv`, disponible [aquí](https://raw.githubusercontent.com/josefortou/lab-book/master/data/riverside_final.csv) y los cargamos en R: 
 
 ```{r cargar-datos}
 # cargar datos
@@ -64,25 +70,23 @@ summary(riverside)
 
 Usemos la función `datasummary_skim()` de la librería `modelsummary` para ver un resumen similar, pero con información adicional:
 
-```{r skim}
+```{r datasummary}
 datasummary_skim(riverside)
 ```
 
-Si tenemos variables categóricas:
+Esto solo nos muestra un resumen de las variables numéricas. Si tenemos variables categóricas (definidas como tipo `factor` o `character` en R), lo especificamos en la función:
 
 ```{r skim-cat}
-datasummary_skim(
-  riverside, type = "categorical",
-)
+datasummary_skim(riverside, type = "categorical")
 ```
 
-Y una tabla de correlaciones entre las variables numéricas:
+`modelsummary` también sirve para ver correlaciones entre variables numéricas:
 
 ```{r cor-table}
 datasummary_correlation(riverside)
 ```
 
-Como nuestras principales variables de interés (ingreso y educación) ambas son numéricas, un gráfico de dispersión de ambas es apropiado:
+Como nuestras principales variables de interés (ingreso y educación) son numéricas, un gráfico de dispersión de ambas es apropiado para evaluar la relación entre ellas:
 
 ```{r scatter1}
 riverside %>%
@@ -92,7 +96,7 @@ riverside %>%
   labs(x = "Educación (años)", y = "Ingreso anual (USD)")
 ```
 
-Parece que hay una relación lineal positiva entre ambas variables. Sin embargo, después de revisar la literatura, creemos que la experiencia laboral y el género de un individuo también impactan su ingreso. Así que exploramos la relación entre la experiencia profesional (en años) de cada individuo y su ingreso:
+Parece que hay una relación lineal positiva entre los años de educación y el ingreso anual de un individuo. Sin embargo, después de revisar la literatura, creemos que la experiencia laboral y el género de un individuo también impactan su ingreso. Así que exploramos la relación entre la experiencia profesional (en años) de cada individuo y su ingreso:
 
 ```{r scatter2}
 riverside %>%
@@ -112,9 +116,11 @@ riverside %>%
   labs(x = "Género", y = "Ingreso anual (USD)")
 ```
 
+Para que un análisis juicioso de las causas del ingreso a nivel individual debe considerar más de un aspecto.
+
 ## Análisis de regresión
 
-Basados en nuestra teoría y la literatura, creemos que el ingreso de un individuo $i$ es una función lineal del nivel de educación, la experiencia laboral y el género de dicho individuo. Entonces, el modelo que vamos a estimar es el siguiente:
+Basados en nuestra teoría y la literatura, creemos que el ingreso de un individuo $i$ es una función lineal del nivel de educación, la experiencia laboral y el género de dicho individuo. Entonces, la ecuación del modelo de regresión que vamos a estimar es el siguiente:
 
 $$ \hat{\text{Ingreso}}_i = \hat{\alpha} + \hat{\beta}_1 \text{Educación}_i + \hat{\beta}_2 \text{Experiencia}_i + \hat{\beta}_3 \text{Hombre}_i + \hat{u}_i $$
 
@@ -122,30 +128,32 @@ $$ \hat{\text{Ingreso}}_i = \hat{\alpha} + \hat{\beta}_1 \text{Educación}_i + \
 
 En R, estimamos modelos de regresión lineal usando la función `lm()`. Esta función toma como principal argumento una fórmula de la forma `y ~ x + z`, donde `y` es la variable dependiente y `x` y `z` son variables independientes.
 
-Estimemos un modelo simple ($\text{Ingreso}_i = \alpha + \hat{\beta} \text{Educación}_i$) y guardémoslo como un nuevo objeto:
+Estimemos un modelo simple ($\text{Ingreso}_i = \alpha + \hat{\beta} \text{Educación}_i$) y guardémoslo como un objeto:
 
 ```{r mod-simple}
 modelo_simple <- lm(income ~ edu, data = riverside)
 ```
 
-Así de sencillo. Si queremos explorar los resultados del modelo, podemos usar la función `summary()`:
+Así de fácil estimamos nuestra primera regresión lineal. Si queremos explorar los resultados del modelo (los coeficientes estimados, por ejemplo), podemos usar la función `summary()`:
 
 ```{r}
 summary(modelo_simple)
 ```
 
-Vemos varios elementos, incluyendo coeficientes (`Estimate`), errores estándar (`Std. Error`) y *p-values* (`Pr(>|t|)`) de cada variable, más unas estadísticas del ajuste del modelo en general (como el $R^2$). Estos elementos se pueden extraer individualmente, por ejemplo:
+Vemos varios elementos, incluyendo coeficientes (`Estimate`), errores estándar (`Std. Error`) y *p-values* (`Pr(>|t|)`) de cada variable, más unas estadísticas del ajuste del modelo en general (como el $R^2$). Estos elementos se pueden extraer individualmente. Por ejemplo, si quiero ver solo los coeficientes:
 
 ```{r}
 coef(modelo_simple)
 ```
 
-Por ahora, nos vamos a enfocar en los coeficientes. Recordemos brevemente la interpretación básica de los coeficientes de un modelo de regresión lineal: 
+Por ahora, nos vamos a enfocar en estos coeficientes. Recordemos brevemente la interpretación básica de los coeficientes de un modelo de regresión lineal: 
 
 - El intercepto ($\alpha$) es el valor esperado de $Y$ (ingreso, en este caso) cuando todas las variables independientes $= 0$.
 - El coeficiente de regresión de una variable independiente ($\beta$) es el incremento en el valor esperado de $Y$ (ingreso) asociado a un incremento de *una unidad* en $X$ (educación).
 
-Podemos tener modelos de regresión con variables independientes categóricas, por ejemplo binarias (también llamadas variables *dummy* o variables indicador). Usemos la variable `gender` que toma dos valores en los datos: "Hombre" y "Mujer". Estimemos el modelo con la misma función, pero cambiando la variable independiente:
+Así, basados en este modelo, concluimos que un aumento de 1 año en el nivel educativo de un individuo se asocia con un incremento de aproximadamente 2651 USD anuales en su ingreso. 
+
+Podemos estimar modelos de regresión con variables independientes categóricas, por ejemplo binarias (también llamadas variables *dummy* o variables indicador). Usemos la variable `gender` que toma dos valores en los datos: "Hombre" y "Mujer". Estimemos el modelo con la misma función, pero cambiando la variable independiente, y veamos los resultados:
 
 ```{r mod-dummy}
 modelo_genero <- lm(income ~ gender, data = riverside)
@@ -155,112 +163,159 @@ summary(modelo_genero)
 Recordemos que cuando se trata de variables independientes binarias, la interpretación de los coeficientes cambia levemente:
 
 - $\alpha$ es el valor esperado de $Y$ cuando el valor de $X$ es la categoría de referencia - en este caso, $\hat{Y}$ cuando $X = \text{Mujer}$. 
-- $\beta$ es la diferencia en el valor esperado de $Y$ para la(s) otra(s) categoría(s) de la variable categórica.^[Una variable categórica con más de 2 categorías pueden conceptualizarse como una serie de variables *dummy*.] En este caso, cuando $X = 1$ (hombre), $\hat{Y} = \hat{\alpha} + \hat{\beta}$. Cuando $X = 0$ (mujer), entonces $\hat{Y} = \hat{\alpha}$.
+- $\beta$ es la diferencia en el valor esperado de $Y$ para la(s) otra(s) categoría(s) de la variable categórica. En este caso, cuando $X = 1$ (hombre), $\hat{Y} = \hat{\alpha} + \hat{\beta}$. Cuando $X = 0$ (mujer), entonces $\hat{Y} = \hat{\alpha}$.
+
+Así, basados en este modelo, concluimos que un aumento de 1 año en el nivel educativo de un individuo se asocia con un incremento de aproximadamente 2651 USD anuales en su ingreso. 
+
+El uso de variables independientes categóricas binarias es fácilmente extendible a variables categóricas multinominales u ordinales, pues podemos conceptualizarlas como una serie de variables *dummy*. La e
+
+Veamos qué pasa cuando utilizamos la variable "identificación partidista" (`party`) como variable independiente. Esta variable toma tres valores: "Rep.", "Dem.", o "Ind.". La ecuación sería:
+
+$$ \hat{\text{Ingreso}}_i = \hat{\alpha} + \hat{\beta}_1 \text{Dem.}_i + \hat{\beta}_2 \text{Ind.}_i + \hat{u}_i $$
+
+Donde "Dem." e "Ind." son variables dummy que pueden tomar los valores 0 o 1, para quienes pertecen a ese grupo (1) o no (0). Como antes, la categoría omitida es la de referencia y el intercepto la "absorbe": $\hat\alpha$ es el ingreso esperado para los "Rep.". 
+
+En la práctiva, no tenemos que crear estas variable "dummy" manualmente; nuestro software las crea automáticamente. Entonces, estimamos el modelo en R de la siguiente manera y obtenemos estos resultados:
+
+```{r mod-cat}
+modelo_party <- lm(income ~ party, data = riverside)
+summary(modelo_party)
+```
+
+Vemos dos coeficientes para `party`: uno para individuos que se identifican como "Dem." y otro para "Ind.". No hay coeficiente para "Rep.", lo cual indicica que es la categoría de referencia o base. La interpretación es análoga:
+
+- $\alpha$ es el valor esperado de $Y$ cuando el valor de $X$ es la categoría de referencia - en este caso, $\hat{Y}$ cuando $X = \text{Rep.}$. 
+- $\beta_1$ y $\beta_2$ son la diferencia en el valor esperado de $Y$ cuando comparamos las categorías correspondientes con la de referencia. En este caso, cuando $X = \text{Dem.}$, $\hat{Y} = \hat{\alpha} + \hat{\beta}_1$. Cuando $X = \text{Ind.}$ (Rep.), entonces $\hat{Y} = \hat{\alpha} + \hat{\beta}_2$.
+
+¿Pero podemos decir que estas asociaciones es una buena aproximación al *efecto* de la educación o del género sobre el ingreso? Sabemos que hay variables omitidas, lo cual introduce sesgo. Podemos mejorar la situación usando modelos de regresión múltiples.
 
 #### Regresión múltiple
 
-Sin embargo, dado nuestro modelo teórico, nos interesa estimar un modelo de regresión **múltiple** con más de una variable independiente. Para esto,  agregamos más variables independientes a la fórmula con el operador `+`. Estimamos el modelo, lo guardamos como un objeto e imprimimos a la consola un resumen:
+Sin embargo, dado nuestro modelo teórico, nos interesa estimar un modelo de regresión **múltiple** con más de una variable independiente. Para esto,  agregamos más variables independientes a la fórmula con el operador `+`. Estimamos el modelo, lo guardamos como un objeto e imprimimos a la consola un resumen de los resultados:
 
 ```{r mod-completo}
-modelo_ingreso <- lm(income ~ edu + senior + gender, data = riverside)
+modelo_ingreso <- lm(income ~ edu + senior + gender + party, data = riverside)
 summary(modelo_ingreso)
 ```
 
-Esta información es suficiente para interpretar la magnitud, dirección y significancia de los coeficientes. Luego volveremos a este modelo para discutir cómo interpretarlo.
+### Interpretación
 
-#### Especificación del modelo
+Esta información es suficiente para interpretar tres elementos básicos: la **magnitud**, **dirección** y **significancia estadística** de los coeficientes. La única diferencia es que ahora interpretamos los coeficientes "manteniendo todo lo demás constante" (*ceteris paribus*) o "controlando por" las demás variables. Así, basados en la tabla anterior:
 
-Además de añadir términos (variables independientes) a un modelo, podemos también cambiar la forma en que las variables entran al modelo. Dos transformaciones comunes son los logaritmos y los términos multiplicativos.
+- El coeficiente `edu` es el cambio en `income` asociado a un incremento de 1 unidad en `edu`, *ceteris paribus*.
+- El coeficiente `senior` es el cambio en `income` asociado a un incremento de 1 unidad en `senior`, *ceteris paribus*.
+- El coeficiente `genderHombre` es la diferencia en `income` entre hombres y mujeres (la categoría de referencia), *ceteris paribus*.
+- El coeficiente `partyDem.` es la diferencia en `income` entre demócratas y republicanos (la categoría de referencia), *ceteris paribus*.
+- El coeficiente `partyInd.` es la diferencia en `income` entre independientes y republicanos (la categoría de referencia), *ceteris paribus*.
 
-##### Logaritmos
+El signo (positivo o negativo) en cada coeficiente indica si la relación es positiva o negativa. Así, mientras que un aumento en el nivel educativo tiene una asociación positiva con ingreso (si la educación aumenta, el ingreso aumenta), los demócratas tienen menos ingreso, comparados con los republicanos.
 
-La regresión lineal está diseñada para funcionar mejor con variables dependientes con distribuciones normales (o cercanas a la normal). Cuando encontramos una variable con una distribución sesgada hacia la derecha (muchos casos con valores bajos), aplicarle la función logarítmica permite mover la distribución de forma tal que se acerque más a la normal. Como la función logarítmica aplica una transformación afín, no cambia la estructura subyacente de los datos. Por otro lado, 
+El valor *p* (o *p-value*) para cada coeficiente nos indica la probabilidad de observar ese coeficiente ($\hat\beta$, que estimamos) si el coeficiente "real" ($\beta$, en la población) es igual a 0. Convencionalmente, si es probabilidad es baja -típicamente $p < 0.05$- decimos que el coeficiente asociado es estadísticamente significativo.
 
-<!-- Por estas razones metodológicas y teóricas, las variables en escala logarítmica son comunes en modelos de regresión. La siguiente gráfica muestra lo que sucede cuando aplicamos la función logarítmica a una variable con una distribución sesgada hacia la derecha (en este caso, una variable con distribución Gamma): -->
+Volviendo a nuestros resultados, podemos hacer la siguiente interpretación en términos sustanciales que:
 
-<!-- ```{r distrib-log} -->
+- Manteniendo las demás variables constantes, un año adicional de educación se asocia en promedio con un incremento de `r coef(modelo_ingreso)[[2]] %>% round()` USD en el ingreso anual.
+- Manteniendo las demás variables constantes, un año adicional de experiencia laboral se asocia en promedio con un incremento de `r coef(modelo_ingreso)[[3]] %>% round() * 0.01` USD en el ingreso anual.
+- Manteniendo las demás variables constantes, el ingreso anual de un hombre es en promedio `r coef(modelo_ingreso)[[4]] %>% round()` USD mayor que el de una mujer.
+- Manteniendo las demás variables constantes, el ingreso anual de un demócrata es en promedio `r coef(modelo_ingreso)[[5]] %>% round()` USD menor que el de un republicano.
+- Manteniendo las demás variables constantes, el ingreso anual de un independiente es en promedio `r coef(modelo_ingreso)[[4]] %>% round()` USD mayor que el de un republicano.
+
+Los tres primeros coeficientes son estadísticamente significativos ($p < 0.05$), lo cual indica que la probabilidad de observar estos valores si la hipótesis nula ($\beta = 0$) fuese cierta es menos del 5%. O sea, es tan poco probable observar estos coeficientes, que ya que los observamos, debe ser que la hipótesis nula no representa el mundo real. En el mundo en que la hipótesis nula es cierta, $\beta = 0$ -- el *p-value* nos dice si el $\beta$ que observamos/estimamos encaja en un mundo en que $\beta = 0$. No podemos decir lo mismo de los coeficientes asociados a la indentidad partidista; por tanto, no hay una relación clara entre esta variable y el ingreso.
+
+<!-- Luego, volveremos a este modelo para discutir cómo interpretarlo. -->
+
+<!-- #### Especificación del modelo -->
+
+<!-- Además de añadir términos (variables independientes) a un modelo, podemos también cambiar la forma en que las variables entran al modelo. Dos transformaciones comunes son los logaritmos y los términos multiplicativos. -->
+
+<!-- ##### Logaritmos -->
+
+<!-- La regresión lineal está diseñada para funcionar mejor con variables dependientes con distribuciones normales (o cercanas a la normal). Cuando encontramos una variable con una distribución sesgada hacia la derecha (muchos casos con valores bajos, pocos con valores altos), aplicarle la función logarítmica a la variable dependiente permite mover la distribución de forma tal que se acerque más a la normal. Como la función logarítmica aplica una transformación afín, no cambia la estructura subyacente de los datos.  -->
+
+<!-- <!-- Por estas razones metodológicas y teóricas, las variables en escala logarítmica son comunes en modelos de regresión. La siguiente gráfica muestra lo que sucede cuando aplicamos la función logarítmica a una variable con una distribución sesgada hacia la derecha (en este caso, una variable con distribución Gamma): --> -->
+
+<!-- <!-- ```{r distrib-log} --> -->
+<!-- <!-- tibble( --> -->
+<!-- <!--   variable_gamma = rgamma(10000, 3), --> -->
+<!-- <!--   variable_log_normal = log(variable_gamma) --> -->
+<!-- <!-- )  %>% --> -->
+<!-- <!--   pivot_longer(variable_gamma:variable_log_normal,  --> -->
+<!-- <!--                names_to = "distrib", names_prefix = "variable_", --> -->
+<!-- <!--                values_to = "valores") %>% --> -->
+<!-- <!--   ggplot(aes(valores)) + --> -->
+<!-- <!--   geom_histogram()+ --> -->
+<!-- <!--   facet_wrap(~ distrib, scales = "free", ncol = 1) + --> -->
+<!-- <!--   labs(x = "Valores", y = "Número de observaciones") --> -->
+<!-- <!-- ``` --> -->
+
+<!-- Podríamos pensar que la asociación entre experiencia laboral e ingreso no es lineal, sino que exhibe rendimientos decrecientes: pasar de 0 a 5 años de experiencia se asociaría con un aumento en el ingreso mayor que pasar de 10 a 15 años de experiencia. Es posible que una transformación logarítmica de la variable `senior` nos permita capturar intuiciones teóricas como los rendimientos decrecientes. Recordemos la forma de una función logarítmica para hacer la conexión con esta idea teórica: -->
+
+<!-- ```{r} -->
 <!-- tibble( -->
-<!--   variable_gamma = rgamma(10000, 3), -->
-<!--   variable_log_normal = log(variable_gamma) -->
-<!-- )  %>% -->
-<!--   pivot_longer(variable_gamma:variable_log_normal,  -->
-<!--                names_to = "distrib", names_prefix = "variable_", -->
-<!--                values_to = "valores") %>% -->
-<!--   ggplot(aes(valores)) + -->
-<!--   geom_histogram()+ -->
-<!--   facet_wrap(~ distrib, scales = "free", ncol = 1) + -->
-<!--   labs(x = "Valores", y = "Número de observaciones") -->
+<!--   x = 1:100, -->
+<!--   log_x = log(x) -->
+<!-- ) %>% -->
+<!--   ggplot(aes(x, log_x)) + -->
+<!--   geom_line(color = "red") -->
 <!-- ``` -->
 
-Podríamos pensar que la asociación entre experiencia laboral e ingreso no es lineal, sino que exhibe rendimientos decrecientes: pasar de 0 a 5 años de experiencia se asociaría con un aumento en el ingreso mayor que pasar de 10 a 15 años de experiencia. Es posible que una transformación logarítmica de la variable `senior` nos permita capturar intuiciones teóricas como los rendimientos decrecientes. Recordemos la forma de una función logarítmica para hacer la conexión con esta idea teórica:
+<!-- Para valores bajos de $x$, el aumento correspondiente de $\log(x)$ es mayor que el aumento cuando los valores de $x$ son mayores. -->
 
-```{r}
+<!-- Ahora, exploremos la relación entre el logaritmo natural de la experiencia en años y el ingreso: -->
 
-tibble(
-  x = 1:100,
-  log_x = log(x)
-) %>%
-  ggplot(aes(x, log_x)) +
-  geom_line(color = "red")
-```
+<!-- ```{r scatter-log} -->
+<!-- riverside %>% -->
+<!--   ggplot(aes(log(senior), income)) + -->
+<!--   geom_point() + -->
+<!--   scale_y_continuous(labels = scales::dollar) + -->
+<!--   scale_x_continuous(trans = "log") + -->
+<!--   labs(x = "Experiencia laboral (años), log.", y = "Ingreso anual (USD)") -->
+<!-- ``` -->
 
-Para valores bajos de $x$, el aumento correspondiente de $\log(x)$ es mayor que el aumento cuando los valores de $x$ son mayores.
+<!-- Podemos estimar el logaritmo (natural) y usarlo directamente en un modelo en la fórmula de `lm()` con la función `log()`: -->
 
-Ahora, exploremos la relación entre el logaritmo natural de la experiencia en años y el ingreso:
+<!-- ```{r mod-log} -->
+<!-- lm(income ~ edu + log(senior) + gender, data = riverside) %>% -->
+<!--   summary() -->
+<!-- ``` -->
 
-```{r scatter-log}
-riverside %>%
-  ggplot(aes(log(senior), income)) +
-  geom_point() +
-  scale_y_continuous(labels = scales::dollar) +
-  scale_x_continuous(trans = "log") +
-  labs(x = "Experiencia laboral (años), log.", y = "Ingreso anual (USD)")
-```
+<!-- Sin embargo, es preferible realizar la transformación antes, para poder tener información (como por ejemplo, estadísticas resumen) de la variable transformada, como lo hicimos arriba - aquí repetimos la operación como demostración: -->
 
-Podemos estimar el logaritmo (natural) y usarlo directamente en un modelo en la fórmula de `lm()` con la función `log()`:
+<!-- ```{r mutate-log} -->
+<!-- riverside <- riverside %>% -->
+<!--   mutate(senior_log = log(senior)) -->
+<!-- ``` -->
 
-```{r mod-log}
-lm(income ~ edu + log(senior) + gender, data = riverside) %>%
-  summary()
-```
+<!-- Para estimar el modelo con la variable de experiencia en versión logaritmo, simplemente la agregamos a la fórmula en `lm()`: -->
 
-Sin embargo, es preferible realizar la transformación antes, para poder tener información (como por ejemplo, estadísticas resumen) de la variable transformada, como lo hicimos arriba - aquí repetimos la operación como demostración:
+<!-- ```{r mod-log2} -->
+<!-- modelo_log <- lm(income ~ edu + senior_log + gender, data = riverside) -->
+<!-- summary(modelo_log) -->
+<!-- ``` -->
 
-```{r mutate-log}
-riverside <- riverside %>%
-  mutate(senior_log = log(senior))
-```
+<!-- Recordemos que en este caso, los demás coeficientes y el intercepto se interpretan igual, pero el coeficiente para la variable transformada se interpreta de manera diferente: un aumento de $1\%$ en $X$ (ojo, no en $\log(X)$) se asocia con un incremento de $\hat{\beta} \times 0.01$ en $\hat{Y}$.  -->
 
-Para estimar el modelo con la variable de experiencia en versión logaritmo, simplemente la agregamos a la fórmula en `lm()`:
+<!-- Es posible también transformar la variable dependiente de manera logarítmica (un modelo log-normal) o tanto la dependiente como una independiente (un modelo log-log). La interpretación en esos casos también cambia, pero no la discutimos aquí. -->
 
-```{r mod-log2}
-modelo_log <- lm(income ~ edu + senior_log + gender, data = riverside)
-summary(modelo_log)
-```
+<!-- ##### Términos multiplicativos o interacciones -->
 
-Recordemos que en este caso, los demás coeficientes y el intercepto se interpretan igual, pero el coeficiente para la variable transformada se interpreta de manera diferente: un aumento de $1\%$ en $X$ (ojo, no en $\log(X)$) se asocia con un incremento de $\hat{\beta} \times 0.01$ en $\hat{Y}$. 
+<!-- Supongamos que creemos que la asociación entre $X_1$ y $Y$ (el coeficiente $\beta_1$) depende del valor de $X_2$.^[O, a la inversa, que la asociación entre $X_2$ y $Y$ (el coeficiente $\beta_2$) depende del valor de $X_1$.] En otras palabras, creemos que hay una variable que modera la asociación entre $X_1$ y $Y$. En este caso, podemos estimar un modelo lineal con términos multiplicativos o interacciones entre las variables independientes. Las interacciones nos permiten capturar una noción teórica interesante que nos permiten capturar esta idea.  -->
 
-Es posible también transformar la variable dependiente de manera logarítmica (un modelo log-normal) o tanto la dependiente como una independiente (un modelo log-log). La interpretación en esos casos también cambia, pero no la discutimos aquí.
+<!-- En términos prácticos, una interacción es una multiplicación entre dos variables. Pueden ser dos variables numéricas, dos categóricas (recordemos que para efectos de estimar modelos, las categorías se convierten en enteros) o una numérica y una categórica. La interacción más común es la interacción entre una variable numérica y una categórica. En este caso, podríamos pensar que la relación entre educación (una variable numérica) e ingreso es distinta para hombres y para mujeres (categorías). Incorporamos esta noción teórica al modelo que vamos a estimar: -->
 
-##### Términos multiplicativos o interacciones
+<!-- $$ \hat{\text{Ingreso}}_i = \hat{\alpha} + \hat{\beta}_1 \text{Educación}_i + \hat{\beta}_2 \text{Hombre}_i + \hat{\beta}_3 (\text{Educación}_i \times \text{Hombre}_i) + \hat{u}_i $$ -->
 
-Supongamos que creemos que la asociación entre $X_1$ y $Y$ (el coeficiente $\beta_1$) depende del valor de $X_2$.^[O, a la inversa, que la asociación entre $X_2$ y $Y$ (el coeficiente $\beta_2$) depende del valor de $X_1$.] En otras palabras, creemos que hay una variable que modera la asociación entre $X_1$ y $Y$. En este caso, podemos estimar un modelo lineal con términos multiplicativos o interacciones entre las variables independientes. Las interacciones nos permiten capturar una noción teórica interesante que nos permiten capturar esta idea. 
+<!-- En R, simplemente multiplicamos los dos términos en la fórmula de `lm()` - esto se puede hacer antes y crear una nueva columna en los datos: -->
 
-En términos prácticos, una interacción es una multiplicación entre dos variables. Pueden ser dos variables numéricas, dos categóricas (recordemos que para efectos de estimar modelos, las categorías se convierten en enteros) o una numérica y una categórica. La interacción más común es la interacción entre una variable numérica y una categórica. En este caso, podríamos pensar que la relación entre educación (una variable numérica) e ingreso es distinta para hombres y para mujeres (categorías). Incorporamos esta noción teórica al modelo que vamos a estimar:
+<!-- ```{r mod-inter} -->
+<!-- modelo_inter <- lm(income ~ edu*gender, data = riverside) -->
+<!-- summary(modelo_inter) -->
+<!-- ``` -->
 
-$$ \hat{\text{Ingreso}}_i = \hat{\alpha} + \hat{\beta}_1 \text{Educación}_i + \hat{\beta}_2 \text{Hombre}_i + \hat{\beta}_3 (\text{Educación}_i \times \text{Hombre}_i) + \hat{u}_i $$
+<!-- Noten que el modelo incluye tanto el término multiplicativo (`edu:genderHombre`), como los componentes del mismo; esto es por diseño. La interpretación de los coeficientes de las variables que no hacen parte de una interacción permanece igual, pero la forma en que interpretamos la asociación entre $X_1$ y $Y$ y entre $X_2$ y $Y$ cambia de manera importante: -->
 
-En R, simplemente multiplicamos los dos términos en la fórmula de `lm()` - esto se puede hacer antes y crear una nueva columna en los datos:
-
-```{r mod-inter}
-modelo_inter <- lm(income ~ edu*gender, data = riverside)
-summary(modelo_inter)
-```
-
-Noten que el modelo incluye tanto el término multiplicativo (`edu:genderHombre`), como los componentes del mismo; esto es por diseño. La interpretación de los coeficientes de las variables que no hacen parte de una interacción permanece igual, pero la forma en que interpretamos la asociación entre $X_1$ y $Y$ y entre $X_2$ y $Y$ cambia de manera importante:
-
-- Cuando $X_2 = 0 = \text{"Mujer"}$, el intercepto es $\alpha$ y la asociación entre $X_1$ y $Y$ es $\beta_1$.
-- Cuando $X_2 = 1 = \text{"Hombre"}$, el intercepto es $\alpha + \beta_2$ y la asociación entre $X_1$ y $Y$ es $\beta_1 + \beta_3$.
+<!-- - Cuando $X_2 = 0 = \text{"Mujer"}$, el intercepto es $\alpha$ y la asociación entre $X_1$ y $Y$ es $\beta_1$. -->
+<!-- - Cuando $X_2 = 1 = \text{"Hombre"}$, el intercepto es $\alpha + \beta_2$ y la asociación entre $X_1$ y $Y$ es $\beta_1 + \beta_3$. -->
 
 ### Diagnósticos
 
@@ -382,19 +437,19 @@ datos_modelo %>%
   plot(., which = 3)
 ```
 
-Parece que no mejoró mucho la situación. Otra opción para lidiar con los problemas asociados con la heteroesquedasticidad es corregir los errores estándar después de estimar el modelo y diagnosticarlo. Después de todo, sabemos que ese es el efecto de violar el supuesto. Vamos a utilizar la función `coeftest()` de la librería `sandwich` para recalcular los errores estándar. El resultado son lo que llamamos "erorres estándar robustos":
+Parece que no mejoró mucho la situación. 
+
+##### Errores estándar "robustos"
+
+Otra opción para lidiar con los problemas asociados con la heteroesquedasticidad es corregir los errores estándar después de estimar el modelo y diagnosticarlo. Después de todo, sabemos que ese es el efecto de violar el supuesto. Vamos a utilizar la función `coeftest()` de la librería `sandwich` para recalcular los errores estándar. El resultado son lo que llamamos "erorres estándar robustos", "errores consistentes cono heteroesquedasticiad" o "errores de Huber-White":
 
 ```{r}
 coeftest(modelo_ingreso, vcov = vcovHC)
 ```
 
-Noten que los errores estándar de las variables `edu` y `senior` ahora son más grandes. La práctica de estimar errores estándar robustos de distintos tipos es bastante común en en Ciencia Política y Economía. Más adelante, los incorporamos a nuestra presentación de resultados.
+Noten que los errores estándar de las variables `edu` y `senior` ahora son más grandes. La práctica de estimar errores estándar robustos de distintos tipos es bastante común en Ciencia Política y Economía. Más adelante, los incorporamos a nuestra presentación de resultados.
 
-Hay otras soluciones al problema de heteroesquedasticidad, como aplicar "weighted least squares" (WLS) o usar técnicas como el *bootstrap*. Por el momento, procedemos con nuestro análisis y reportamos nuestros resultados, pero entendiendo que nuestros errores estándar pueden estar mal estimados. 
-
-## Más Interpretación
-
-Hasta ahora, hemos discutido brevemente cómo interpretar los coeficientes de un modelo de regresión múltiple con distintas especificaciones, utilizando la función `summary()` para ver estos resultados. Pero podemos refinar un poco más la interpretación. 
+Hay otras soluciones al problema de heteroesquedasticidad, como aplicar *weighted least squares* (WLS) o usar técnicas como el *bootstrap*. Por el momento, procedemos con nuestro análisis, estimamos errores robustos si es el caso y reportamos nuestros resultados. 
 
 <!-- La librería `broom` ofrece varias funciones para trabajar con modelos estadísticos. Primero, la función `tidy()` nos permite ver los coeficientes y su significancia en forma de `tibble`: -->
 
@@ -402,17 +457,6 @@ Hasta ahora, hemos discutido brevemente cómo interpretar los coeficientes de un
 <!-- tidy(modelo_ingreso) -->
 <!-- ``` -->
 
-```{r}
-summary(modelo_ingreso)
-```
-
-Podemos interpretar la **dirección, magnitud y significancia** de cada uno de los coeficientes utilizando lo que ya sabemos y nuestras discusiones previas:
-
-- Educación (variable continua): *ceteris paribus*, cada incremento de una unidad en la variable se asocia con un incremento de aproximadamente `r coef(modelo_ingreso)[[2]] %>% round()` unidades en la variable dependiente. En otras palabras, manteniendo las demás variables constantes, un año adicional de educación se asocia en promedio con un incremento de `r coef(modelo_ingreso)[[2]] %>% round()` USD en el ingreso anual.
-- Experiencia (continua): *ceteris paribus*, cada incremento de de una unidad en la variable se asocia con un incremento de aproximadamente `r coef(modelo_ingreso)[[3]] %>% round() * 0.01` unidades en la variable dependiente. En otras palabras, manteniendo las demás variables constantes, un año adicional de experiencia laboral se asocia en promedio con un incremento de `r coef(modelo_ingreso)[[3]] %>% round() * 0.01` USD en el ingreso anual.
-- Género (categórica): *ceteris paribus*, ser hombre se asocia con un incremento de `r coef(modelo_ingreso)[[4]] %>% round()` unidades en la variable dependiente, comparado con la categoría de base (ser mujer). En otras palabras, manteniendo las demás variables constantes, el ingreso anual de un hombre es en promedio `r coef(modelo_ingreso)[[4]] %>% round()` USD que el de una mujer.
-
-Estos tres coeficientes son estadísticamente significativos ($p < 0.05$), lo cual indica que la probabilidad de observar estos valores si la hipótesis nula ($\beta = 0$) fuese cierta es menos del 5%. O sea, es tan poco probable observar estos coeficientes, que ya que los observamos, debe ser que la hipótesis nula no representa el mundo real. En el mundo en que la hipótesis nula es cierta, $\beta = 0$ -- el *p-value* nos dice si el $\beta$ que observamos/estimamos encaja en un mundo en que $\beta = 0$.
 
 <!-- Por otro lado, la función `summary()` también nos ofrece una mirada al ajuste del modelo en general. Entre otras estadísticas de "bondad del ajuste", el $R^2$ indica la proporción de la variación de $Y$ explicada por el modelo. A menos que estemos haciendo predicciones o comparando modelos similares que utilizan los mismos datos, no vale la pena dedicarle mucho tiempo al $R^2$: -->
 
@@ -438,7 +482,9 @@ Estos tres coeficientes son estadísticamente significativos ($p < 0.05$), lo cu
 
 <!-- Vemos que el modelo se equivoca (especificamente, predice menos ingreso del observado). Eso es normal. El modelo de regresión lineal estima la ecuación que mejor describe la asociación entre variables *en promedio*. -->
 
-### Predicciones y efectos
+## Predicciones y efectos
+
+Hasta ahora, hemos discutido cómo interpretar los coeficientes de un modelo de regresión simple y múltiple con distintos tipos de variables independientes (numéricas, binarias y multinominales), utilizando la función `summary()` para ver estos resultados. Pero podemos refinar un poco más la interpretación usando el modelo de regresión como herramienta predictiva, lo cual nos permite ver mejor cambios en la variable dependiente cuando las variables independientes toman distintos valores.
 
 Una de las herramientas más potentes que nos da un modelo de regresión lineal es la capacidad de hacer predicciones. Una predicción no es más que el valor esperado de $Y$ para determinados valores de las variables independientes. Hallamos estos valores esperados o predicciones utilizando los coeficientes estimados y reemplazando los valores de las variables independientes en la ecuación del modelo de regresión lineal.
 
@@ -448,7 +494,9 @@ Calculemos un valor esperado "a mano" usando nuestro modelo. Primero, vamos a ex
 alfa <- coef(modelo_ingreso) %>% pluck(1)
 beta_edu <- coef(modelo_ingreso) %>% pluck(2)
 beta_exp <- coef(modelo_ingreso) %>% pluck(3)
-beta_gen <- coef(modelo_ingreso) %>% pluck(4)
+beta_hombre <- coef(modelo_ingreso) %>% pluck(4)
+beta_dem <- coef(modelo_ingreso) %>% pluck(5)
+beta_ind <- coef(modelo_ingreso) %>% pluck(6)
 ```
 
 Ahora, vamos a seleccionar valores de las variables independientes que nos interesan:
@@ -458,46 +506,52 @@ intercepto <- 1 # siempre es 1
 edu <- 10 # 10 años de educacion
 exp <- max(riverside$senior, na.rm = TRUE) # ejecutiva
 gen <- 0 # mujer
+dem <- 1 # demócrata
+ind <- 0
 ```
 
 Finalmente, reemplazamos para hallar el valor esperado de $Y$:
 
 ```{r}
-intercepto + beta_edu*edu + beta_exp+exp + beta_gen*gen
+intercepto + beta_edu*edu + beta_exp+exp + beta_hombre*gen + beta_dem*dem + beta_ind*ind
 ```
 
-Comparemos con nuestra predicción para un hombre:
+Comparemos con nuestra predicción para un hombre, manteniendo las demás características igual:
 
 ```{r}
 gen <- 1
-intercepto + beta_edu*edu + beta_exp+exp + beta_gen*gen
+intercepto + beta_edu*edu + beta_exp+exp + beta_hombre*gen + beta_dem*dem + beta_ind*ind
 ```
 
-¡La diferencia entre ambos valores esperados es exactamente el coeficiente de la variable género!
+¡La diferencia entre ambos valores esperados es exactamente el coeficiente de la variable género, `r coef(modelo_ingreso) %>% pluck(4)`!
 
-Con esta información, podemos hacer inferencias sobre la relación entre las variables de interés. En otras palabras, podemos ver "efectos", asumiendo que hemos superado los distintos obstáculos a la inferencia causal.
+Con esta información, podemos hacer inferencias sobre la relación entre las variables de interés. En otras palabras, podemos ver "efectos", *asumiendo que hemos superado los distintos obstáculos a la inferencia causal* (especialmente, que no hay sesgo por variables omitidas).
 
-Podemos automatizar, o si se quiere "tercerizar" este proceso. Digamos que estamos interesados en conocer el ingreso esperado de una mujer con educación y experiencia promedio en comparación con un hombre con las mismas cualificaciones. Vamos a usar la librería `ggeffects`, específicamente la función `ggpredict()`. Tomamos el modelo, lo pasamos a la función y especificamos las variables y los valores que nos interesan. La función mantiene las variables numéricas no especificadas constantes en sus valores promedio y mantiene las categóricas en su valor de referencia (es importante entonces recodificar bien):
+Podemos automatizar, o si se quiere "tercerizar", este proceso. Digamos que estamos interesados en conocer el ingreso esperado de una mujer con educación y experiencia promedio en comparación con un hombre con las mismas cualificaciones. Vamos a usar la librería `ggeffects`, específicamente la función `ggpredict()`. Tomamos el modelo, lo pasamos a la función y especificamos las variables y si queremos, los valores que nos interesan. La función mantiene las variables numéricas no especificadas constantes en la media y mantiene las categóricas en su valor de referencia (es importante entonces recodificar bien):
 
 ```{r}
 modelo_ingreso %>%
   ggpredict(terms = c("gender"))
 ```
+Vemos entonces el ingreso esperado para hombres y mujeres con 16 años de educación, 14.81 años de experiencia y con afiliación republicana.
 
-O de pronto nos interesa comparar el valor esperado del ingreso de individuos cuando se tiene poca y mucha experiencia:
+O de pronto nos interesa comparar el valor esperado del ingreso de individuos cuando se tiene poca y mucha experiencia. Usamos la opción `[minmax]` para ver el mínimo y el máximo de la variable independiente de interés:
 
 ```{r}
 modelo_ingreso %>%
   ggpredict(terms = c("senior[minmax]"))
 ```
 
-Podemos incluir más variables:
+En este caso, vemos el ingreso esperado para individuos con poca y mucha experiencia (1 y 27 años) con las siguientes características: 16 años de mujer, mujeres, republicanas.
+
+Podemos incluir más variables independientes (hasta cuatro en `ggeffects`):
 
 ```{r}
 modelo_ingreso %>%
   ggpredict(terms = c("gender","senior[minmax]"))
 ```
 
+Esta es una herramienta potente para interpretar los resultados de un modelo de regresión lineal.
 
 <!-- Por ejemplo, podríamos estar interesados en el ingreso esperado de una mujer con educación y experiencia promedio. Una forma de hacer esto es usando las funciones de `modelr`. Ponemos esta información en una tabla con `expand_grid()` y la pasamos a la función `add_predictions()`, especificando el modelo que queremos usar para hallar las predicciones: -->
 
@@ -527,19 +581,19 @@ modelo_ingreso %>%
 
 ## Presentar resultados
 
-Dos formas principales de presentar los resultados de una regresión: tablas y gráficas. Vamos a utilizar las librerías `ggeffects` y `sjPlot` para esto.
+Miremos dos formas principales de presentar los resultados de una regresión: tablas y gráficas. Vamos a utilizar las librerías `ggeffects` y `modelsummary` para esto. Hay muchas más opciones, como `margins`, `sjPlot`, `gtsummary`, `stargazer`, etc.
 
 ### Tablas de regresión
 
 Casi todos los artículos que utilizan modelos de regresión presentan los resultados en tablas. En ellas, típicamente vemos los coeficientes, intervalos de confianza o errores estándar, la significancia de los coeficientes (con *p-values*), el número de observaciones y algunas medidas del ajuste del modelo, como el $R^2$.
 
-Para hacer tablas, podemos usar las librerías `stargazer`, `texreg`, `sjPlot` o `gtsummary`, entre otras, dependiendo de nuestras necesidades. Aquí, usamos `modelsummary()` de `modelsummary`. Le pasamos nuestro modelo y la función arroja una tabla formateada. 
+Para hacer tablas de regresión, usamos la función `modelsummary()` de `modelsummary`. Le pasamos nuestro modelo y la función arroja una tabla formateada:
 
 ```{r tab-simple}
 modelsummary(modelo_ingreso)
 ```
 
-Los argumentos de la función nos permiten cambiar muchos de los elementos de la tabla, en particular traducir algunos de inglés a español o usar intervalos de confianza en vez de errores estándar:
+Los argumentos de la función nos permiten cambiar muchos de los elementos de la tabla, como ponerle etiquetas a los coeficientes, presentar intervalos de confianza en vez de errores estándar y agregar un título:
 
 ```{r tab-options}
 modelsummary(
@@ -551,18 +605,17 @@ modelsummary(
     "genderHombre" = "Género: hombre"
   ),
   statistic = "conf.int",
-  output = "html",
   title = "Resultados del análisis."
 )
 ```
 
-Una tabla de regresión puede presentar varios modelos lado a lado para efectos de comparación. Si ponemos los modelos en una lista antes, podemos darles nombres en la tabla:
+Una tabla de regresión puede presentar varios modelos lado a lado para efectos de comparación. Si ponemos los modelos que estimamos antes en una lista (y, como bono, les damos nombres), podemos incluirlos en una misma tabla:
 
 ```{r tab-multi}
 lista_modelos <- list(
-  "Completo" = modelo_ingreso, 
-  "Logaritmo" = modelo_log, 
-  "Interacción" = modelo_inter
+  "Educación" = modelo_simple,
+  "Género" = modelo_genero,
+  "Completo" = modelo_ingreso
 )
 modelsummary(
   lista_modelos, # varios modelos
@@ -570,47 +623,43 @@ modelsummary(
     "(Intercept)" = "(Intercepto)",
     "edu" = "Educación",
     "senior" = "Experiencia",
-    "senior_log" = "Experiencia (log.)",
     "genderHombre" = "Género: hombre",
-    "edu:genderHombre" = "Educación × Género: hombre"
+    "partyDem." = "Afil.: dem.",
+    "partyInd." = "Afil.: ind."
   )
 )
 ```
-Hay varias opciones adicionales. Por ejemplo, podemos indicar niveles de significancia estadística con la opción `stars = TRUE`. Finalmente, si queremos reportar errores estándar robustos, está la opción `vcov = ...` que trabaja en conjunto con las funciones de la librería `sandwich`. Así, para errores estándar robustos:
+Hay varias opciones adicionales. Por ejemplo, podemos indicar niveles de significancia estadística con la opción `stars = TRUE`. Adicionalmente, si queremos reportar errores estándar robustos, está la opción `vcov = ...` que trabaja en conjunto con las funciones de la librería `sandwich`. Así, para errores estándar robustos "básicos":
 
 ```{r tab-multi2}
-lista_modelos <- list(
-  "Completo" = modelo_ingreso, 
-  "Logaritmo" = modelo_log, 
-  "Interacción" = modelo_inter
-)
 modelsummary(
   lista_modelos, # varios modelos
   coef_map = c(
     "(Intercept)" = "(Intercepto)",
     "edu" = "Educación",
     "senior" = "Experiencia",
-    "senior_log" = "Experiencia (log.)",
     "genderHombre" = "Género: hombre",
-    "edu:genderHombre" = "Educación × Género: hombre"
+    "partyDem." = "Afil.: dem.",
+    "partyInd." = "Afil.: ind."
   ),
   stars = TRUE,
   vcov = "robust"
 )
 ```
 
-Si, en cambio, tenemos datos en panel (muchas unidades and varios periodos de tiempo), podemos usar errores estándar robustos por cluster o grupo. Miremos rápidamente con unos datos simulados en los cuales observamos 500 empresas (`firm`) a lo largo de diez años `year`, midiendo unas variables `x` y `y`. Como creemos que los residuos pueden estar correlacionados entre empresas y años, incluimos una corrección con base en las variables relevantes:
+Si, en cambio, tenemos datos en panel (muchas unidades and varios periodos de tiempo), podemos usar errores estándar robustos por *cluster* o grupo. Miremos rápidamente con unos datos simulados en los cuales observamos 500 empresas (`firm`) a lo largo de diez años `year`, midiendo unas variables `x` y `y`. Como creemos que los residuos/errores pueden estar correlacionados entre empresas y años, incluimos una corrección con base en las variables relevantes:
 
 ```{r tab-cluster}
 data("PetersenCL")
 mod_firmas <- lm(x ~ y, data = PetersenCL)
 modelsummary(
   mod_firmas,
+  # esta formula indica que variables vamos a usar para los clusters
   vcov = ~ firm + year
 )
 ```
 
-Estas tablas las podemos exportar como archivos de tipo HTML, que después podemos incorporar a un documento Word o similar posteriormente:
+Por último, podemos exportar una tabla a un documento Word:
 
 ```{r tab-guardar, eval = FALSE}
 modelsummary(
@@ -647,9 +696,9 @@ Visualizar los resultados de modelos, especialmente las predicciones y la incert
 <!-- ) -->
 <!-- ``` -->
 
-Como mencionamos arriba, podemos usar `ggpredict()` para ver los "efectos" de distintas variables, entendidos como el cambio en la variable dependiente para distintos valores de las independientes. Para esto, especificamos las variables independientes que nos interesan con `terms =`. Esta función mantiene constantes los factores (variables categóricas) en su categoría de referencia y las variables numéricas según su valor promedio. 
+Como mencionamos arriba, podemos usar `ggpredict()` para ver los "efectos" de distintas variables, entendidos como el cambio en la variable dependiente para distintos valores de las independientes. Para esto, especificamos las variables independientes que nos interesan con `terms =`. Esta función mantiene constantes los factores (variables categóricas) en su categoría de referencia y las variables numéricas según su media. 
 
-Le aplicamos la función al modelo y pasamos los resultados a `plot()`: aquí, vemos el valor esperado (predicción) de la variable dependiente ingreso en todo el rango de la variable educación, controlando por género (categoría de referencia: mujer) y experiencia (constante en la media). Como `ggeffects` funciona con `ggplot2`, podemos modificar y agregar utilizando los trucos que ya conocemos:
+Le pasamos el modelo a la función ``ggpredict()`y luego pasamos los resultados de esta a `plot()`. A continuación, vemos el valor esperado (predicción) de la variable dependiente (ingreso anual) en todo el rango de la variable educación, controlando por género (categoría de referencia: mujer), experiencia (constante en la media) y afiliación partidista (republicano). Como `ggeffects` funciona con `ggplot2`, podemos modificar y agregar utilizando los trucos que ya conocemos:
 
 ```{r plot-eff}
 modelo_ingreso %>%
@@ -661,7 +710,7 @@ modelo_ingreso %>%
        x = "Educación (años)", y = "Ingreso (USD)")
 ```
 
-Adicionalmente, podemos especificar dos variables independientes para visualizar aún más variación. Vemos cómo la "línea base" de ingreso (el intercepto) es distinto para hombres y mujeres. Así, visualizamos más claramente la diferencia en ingreso para hombres y mujeres, por ejemplo. Además, esto evidencia que incluir una variable categórica esencialmente crea un intercepto distinto para cada grupo, sin cambiar la pendiente (el coeficiente): 
+Adicionalmente, podemos especificar dos variables independientes para visualizar aún más variación. Vemos cómo la "línea base" de ingreso (el intercepto) es distinto para hombres y mujeres. Así, vemos más claramente la diferencia en ingreso para hombres y mujeres, por ejemplo. Además, esto evidencia que incluir una variable categórica esencialmente crea un intercepto distinto para cada grupo, sin cambiar la pendiente (el coeficiente): 
 
 ```{r plot-eff2}
 modelo_ingreso %>%
@@ -735,13 +784,13 @@ Utilizar R para el análisis estadístico:
 
 ## Taller: regresión lineal
 
-Encontrar una base de datos relevante para el proyecto de investigación. Limpiar y ordenar los datos. El código de esta entrega **no** debe incluir todo el procedimiento para cargar la base de datos original y el proceso de limpieza y organización de la misma; solo el resultado final de este proceso.proceso.
+Encontrar una base de datos relevante para el proyecto de investigación. Limpiar y ordenar los datos. El código de esta entrega **no** debe incluir todo el procedimiento para cargar la base de datos original y el proceso de limpieza y organización de la misma.
 
 ### Estimación
 
 Estimar dos modelos de regresión lineal **múltiple** usando la función `lm()` de R. Los modelos estimados deben cumplir con los siguientes requisitos (1.0 punto):
 
-- La variable dependiente en ambos debe ser la variable dependiente del proyecto de investigación. *Idealmente* esta debe ser una variable de tipo continuo, pero excepcionalmente puede ser de tipo ordinal (si tiene $\geq 7$ categorías ordenadas) o binaria/dummy (entendiendo que la regresión lineal no es el mejor modelo para este tipo de variables). En estos dos casos, deben asegurarse que las variables estén codificadas como tipo numérico o `dbl` en R. 
+- La variable dependiente en ambos debe ser la variable dependiente del proyecto de investigación. *Idealmente* esta debe ser una variable de tipo continuo, pero excepcionalmente puede ser de tipo ordinal (si tiene $\geq 7$ categorías ordenadas) o binaria/dummy (entendiendo que la regresión lineal no es el mejor modelo para este tipo de variables). En estos dos casos, deben asegurarse que las variables estén codificadas (temporalmente) como tipo numérico o `dbl` en R. 
 - Las variables independientes deben ser a) factores potencialmente explicativos de la variable dependiente y b) variables de control. La selección de variables debe estar basada en su revisión de literatura, teoría e hipótesis.
 - Debe haber por lo menos una variable independiente numérica en uno de los dos modelos. Si no tienen una, deben buscar más datos.
 - Debe haber por lo menos una variable independiente categórica binaria en uno de los dos modelos. Si no tienen una, deben crearla a partir de otra.
@@ -751,11 +800,11 @@ Estimar dos modelos de regresión lineal **múltiple** usando la función `lm()`
 
 ### Comunicación de resultados
 
-Presentar los resultados de los modelos estimados en una sola tabla de regresión, usando las funciones de las librerías `texreg`, `sjPlot`, `modelsummary` o `stargazer` para producirla, teniendo en cuenta las siguientes indicaciones (1.0 punto). 
+Presentar los resultados de los modelos estimados en una sola tabla de regresión, usando las funciones de la librería `modelsummary` (o alguna similar) para producirla, teniendo en cuenta las siguientes indicaciones (1.0 punto). 
 
-- La tabla debe tener título y los coeficientes deben estar nombrados apropiadamente (o sea, con algo distinto al nombre de la variable en la base de datos). Ambas funciones tienen estas opciones. 
-- Deben guardar la tabla como archivo HTML.
-- *Nota:* Pueden ejecutar `?nombre_de_fun` en la consola para explorar todas las opciones de estas funciones y cómo utilizarlas.
+- La tabla debe tener título y los coeficientes deben estar nombrados apropiadamente (o sea, con algo distinto al código de la variable en la base de datos).
+- Usar errores estándar robustos o robustos *por cluster*, dependiendo del tipo de datos (corte transversal o panel).
+- *Nota:* Pueden ejecutar `?modelsummary` en la consola para explorar todas las opciones de esta funciones y cómo utilizarlas.
 
 ### Diagnóstico
 
@@ -763,11 +812,11 @@ Evaluar si los modelos estimados cumplen el supuesto de homoesquedasticidad ($\t
   
 ### Interpretación
 
-Interpretar sustantivamente *todos* los coeficientes de los modelos incluídos en la tabla y la incertidumbre en torno a estos estimadores (pueden usar *p-values* o intervalos de confianza). *No* es necesario interpretar el coeficiente del intercepto. Cuando decimos "sustantivamente" nos referimos a que las interpretaciones deben hacer especial énfasis en la forma en que los resultados de los modelos se conectan con la evaluación de las hipótesis propuestas en el proyecto (1.0 punto).
+Interpretar sustantivamente *todos* los coeficientes de los modelos incluídos en la tabla y la incertidumbre en torno a estos estimados (pueden usar *p-values* o intervalos de confianza). *No* es necesario interpretar el coeficiente del intercepto. Cuando decimos "sustantivamente" nos referimos a que las interpretaciones deben hacer especial énfasis en la forma en que los resultados de los modelos se conectan con la evaluación de las hipótesis propuestas en el proyecto (1.0 punto).
 
 ### Interpretación gráfica
 
-Usando uno de los dos modelos de regresión estimados en el primer punto, construir una gráfica con `ggpredict` donde se presenten valores predecidos o esperados de la variable dependiente (pronósticos) para el rango de valores de una variable numérica y para todas las categorías de una variable categórica binaria (manteniendo constantes las demás variables). La gráfica debe mostrar los valores esperados de la variable dependiente (con intervalos de confianza) para dos o más grupos (definidos por la variable categórica) a lo largo del rango de una variable independiente numérica (1.0 punto).
+Usando uno de los dos modelos de regresión estimados en el primer punto, construir una gráfica con `ggpredict()` donde presenten valores esperados de la variable dependiente para el rango de valores de una variable independiente numérica y para todas las categorías de una variable categórica binaria (manteniendo constantes las demás variables). En otras palabras, la gráfica debe mostrar los valores esperados de la variable dependiente (con intervalos de confianza) para dos o más grupos (definidos por la variable categórica) a lo largo del rango de una variable independiente numérica (1.0 punto).
 
 ## Ejercicios adicionales
 
