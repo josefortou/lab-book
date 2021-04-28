@@ -531,7 +531,7 @@ Podemos automatizar, o si se quiere "tercerizar", este proceso. Digamos que esta
 
 ```{r}
 modelo_ingreso %>%
-  ggpredict(terms = c("gender"))
+  ggpredict(terms = "gender")
 ```
 Vemos entonces el ingreso esperado para hombres y mujeres con 16 años de educación, 14.81 años de experiencia y con afiliación republicana.
 
@@ -539,7 +539,7 @@ O de pronto nos interesa comparar el valor esperado del ingreso de individuos cu
 
 ```{r}
 modelo_ingreso %>%
-  ggpredict(terms = c("senior[minmax]"))
+  ggpredict(terms = "senior[minmax]")
 ```
 
 En este caso, vemos el ingreso esperado para individuos con poca y mucha experiencia (1 y 27 años) con las siguientes características: 16 años de mujer, mujeres, republicanas.
@@ -548,7 +548,7 @@ Podemos incluir más variables independientes (hasta cuatro en `ggeffects`):
 
 ```{r}
 modelo_ingreso %>%
-  ggpredict(terms = c("gender","senior[minmax]"))
+  ggpredict(terms = c("gender", "senior[minmax]"))
 ```
 
 Esta es una herramienta potente para interpretar los resultados de un modelo de regresión lineal.

@@ -2,76 +2,93 @@
 
 ## Resumen
 
-En este instructivo, estimamos e interpretamos modelos de regresión logística para variables dependientes categóricas.
+En este capítulo:
+
+- Estimamos e interpretamos modelos de regresión logística para variables dependientes categóricas binarias.
+
+**Principales conceptos**: regresión logística, modelo de probabilidad lineal.
+**Funciones clave**: `glm()`.
+
+### Librerías
 
 Vamos a utilizar las siguientes librerías:
 
 ```{r}
 library(tidyverse)
 library(ggeffects) # efectos en modelos de regresion
-library(sjPlot) # tablas de regresion
-library(haven) # datos en formato .dta
+library(modelsummary) # tablas de regresion
+library(broom) # organizar resultados de modelos
+library(haven) # leer archivos .dta
 ```
 
-
-```{r, echo = FALSE}
-# diseno de graficas
-theme_set(theme_classic(base_size = 12))
+```{r plot-theme, message=FALSE, warning=FALSE}
+theme_set(theme_light())
 ```
 
-## Repaso
+### Datos
 
-Estimar modelos de regresión lineal:
+Como ejemplo, vamos a cargar directamente de la web una base de datos con información sobre la admisión a programas de posgrado universitario en una universidad de Estados Unidos:
 
-  - Operacionalización de modelos teóricos para evaluar hipótesis sobre relaciones entre variables.
-  - Interpretar coeficientes: dirección, magnitud, significancia.
-  - Regresión múltiple para controlar por otros factores.
+```{r}
+dat <- read_csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
+```
+
+Al final, para un taller, debemos descargar el siguiente archivos de datos y guardarlo en la carpeta `/data` de nuestro proyecto de RStudio:
+
+- Datos de votos por el NAFTA: [link](https://github.com/josefortou/lab-book/blob/master/data/nafta.dta). Para descargar, hacer click en "Download" o "View raw".
 
 ## Variables dependientes categóricas
 
 No todos los fenómenos que estudiamos se pueden expresar como variables numéricas, ordenadas de menor a mayor y en las que cada intervalo (cada aumento de una unidad) es constante. En ocasiones, nos interesa estudiar cualidades o categorías, como el tipo de régimen, la adopción de una política pública o la presencia de guerra civil en un país. 
 
-El modelo de regresión lineal por mínimos cuadrados ordinarios (OLS) no es *ideal* para modelar variables dependientes categóricas. Sin embargo, sí lo podemos utilizar, una aplicación que llamamos el **modelo de probabilidad lineal** (MPL). Una mejor opción es utilizar la **regresión logística** o logit. En este instructivo, veremos cómo podemos usar ambos.
+El modelo de regresión lineal por mínimos cuadrados ordinarios (OLS) no es *ideal* para modelar variables dependientes categóricas. Sin embargo, sí lo podemos utilizar, una aplicación que llamamos el **modelo de probabilidad lineal** (MPL). Típicamente, una mejor opción es utilizar otro tipo de regresión conocido como **regresión logística** o el modelo logit. En este instructivo, veremos cómo podemos usar ambos.
 
-## Datos
-
-Pero primero, necesitamos datos. Carguemos unos datos directamente de la web. Se trata de información sobre la admisión a programas de posgrado universitario en una univerdiad de Estados Unidos:
+Empecemos por mirar los datos sobre admisiones a posgrados:
 
 ```{r}
-dat <- read_csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
 dat
 ```
 
-Tenemos cuatro variables:
+Tenemos 400 observaciones, que corresponden a 400 candidatos a posgrado, y cuatro variables:
 
-- `admit`: dummy de admisión (0=no admitio; 1=admitido).
-- `gre`: nota en el examen GRE. Puede tomar valores de 200 a 800.
-- `gpa`: promedio crédito acumulado de pregrado. Puede tomar valores de 0 a 4.
-- `rank`: ránquin de la universidad de pregrado. Hay 4 categorías, de mayor (1) a menor (4) calidad.
+- `admit`: dummy de admisión (0=no admitido; 1=admitido).
+- `gre`: nota en el examen GRE del candidato. Puede tomar valores de 200 a 800.
+- `gpa`: promedio crédito acumulado de pregrado del candidato. Puede tomar valores de 0 a 4.
+- `rank`: ránquin de la universidad de pregrado del candidato. Hay 4 categorías, de mayor (1) a menor (4) calidad.
 
-Estamos interesados en la probabilidad de que un individuo sea admitido a la universidad (`admit = 1`). Convertimos dos variables categóricas -`amit` y `rank`- a tipo factor, porque pese a que conceptualmente son categóricas, están codificadas como numéricas en R. Hacemos esto con la funciones `case_when()` (para recodificar números como categorías) y `as.factor()` (un cambio de clase simple):
+Estamos interesados en entender los efectos de la historia académica de un candidato sobre la probabilidad de que un individuo sea admitido a la universidad (`admit = 1`). Convertimos dos variables categóricas -`admit` y `rank`- a tipo factor, porque pese a que conceptualmente son categóricas, están codificadas como numéricas en R:
 
 ```{r}
 dat <- dat %>%
   mutate(
-    admit_fct = case_when(
-      admit == 0 ~ "No", # usar los valores de la variable admit
-      admit == 1 ~ "Sí"
-    ),
-    admit_fct = as.factor(admit_fct),
-    rank_fct = as.factor(rank)
+    admit_fct = factor(admit, levels = c(0, 1), labels = c("No", "Sí")),
+    rank = factor(rank)
   )
 ```
 
-Ya que recodificamos y limpiamos un poco los datos, veamos la distribución de la variable dependiente con una gráfica de frecuencias:
+Es importante primero hacer un análisis exploratorio de nuestros datos. Como ya recodificamos y limpiamos un poco los datos, veamos la distribución de la variable dependiente con una gráfica de frecuencias:
 
 ```{r}
 dat %>%
   ggplot(aes(x = admit_fct)) +
   geom_bar() +
-  labs(x = "Admitido",
-       y = "Número de observaciones")
+  labs(x = "Admitido a posgrado",
+       y = "Número de candidatos")
 ```
+
+O quizás nos interese ver si hay diferencias entre candidatos que vienen de distintos tipos de universidades:
+
+```{r}
+dat %>%
+  ggplot(aes(x = admit_fct, fill = rank)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_brewer() +
+  labs(x = "Admitido a posgrado",
+       y = "Porcentaje de candidatos",
+       fill = "Ránquin universidad \nde pregrado")
+```
+
 
 Y veamos la relaciones entre esta variable y las dos variables numéricas en la base de datos:
 
@@ -85,7 +102,7 @@ dat %>%
   )
 ```
 
-Veamos una de estas relaciones como una gráfica de dispersión con una línea de tendencia (¡estimada por `ggplot2` con OLS!):
+Hasta ahora, todo bien... Pero veamos una de estas relaciones como una gráfica de dispersión con una línea de tendencia (¡estimada automáticamente por `ggplot2` via OLS!):
 
 ```{r}
 dat %>%
@@ -96,7 +113,7 @@ dat %>%
   labs(x = "Puntaje GRE", y = "Admisión")
 ```
 
-Algo no está bien... La línea de tendencia de `geom_smooth()` es estimada usando OLS - el modelo hace lo posible por ajustarse a los datos, pero tratar de conectar las observaciones no admitidas y sus puntajes con las de estudiantes admitidos es difícil. Busquemos una alternativa.
+Algo no está bien... La línea de tendencia de `geom_smooth()` es estimada usando OLS - el modelo hace lo posible por ajustarse a los datos, pero tratar de conectar las observaciones no admitidas y sus puntajes con las de estudiantes admitidos es difícil por la naturaleza discreta de la variable dependiente. Exploremos las alternativas.
 
 ## El model de probabilidad lineal (MPL)
 
@@ -105,28 +122,21 @@ Recordemos: nos interesa ver la probabilidad de que un estudiante sea admitido, 
 Podemos hacer una primera aproximación estimando un *modelo de probabilidad lineal* (MPL). Usamos `lm()` como si estuviéramos estimando cualquier otro modelo de regresión lineal - ¡porque eso es lo que estamos haciendo! Noten que la variable dependiente en la fórmula es la versión numérica de la misma (`admit`) y no el factor que creamos arriba (`admit_fct`):
 
 ```{r}
-mpl <- lm(
-  admit ~ gre + gpa + rank_fct,
-  data = dat
-)
-```
-
-Usemos `summary()` para ver un resumen de los resultados del modelo:
-
-```{r}
+mpl <- lm(admit ~ gre + gpa + rank,
+          data = dat)
 summary(mpl)
 ```
 
-La interpretación es similar a OLS, excepto que conceptualizamos los coeficientes como *cambios en la probabilidad de que la variable dependiente sea igual a 1 ($Pr(Y|X) = 1$) asociados a cambios en las variables independientes*. En este caso, se trata de la probabilidad de que `admit` sea igual 1, o sea, de ser admitido a la universidad. Así, los resultados indican que:
+La interpretación de los resultados es similar a una regresión por OLS con una variable numérica, excepto que conceptualizamos los coeficientes como *cambios en la probabilidad de que la variable dependiente sea igual a 1 ($Pr(Y|X) = 1$) asociados a cambios en las variables independientes*. En este caso, se trata de la probabilidad de que `admit` sea igual 1, o sea, de ser admitido al posgrado. Así, los resultados indican que:
 
 - Un incremento de 1 unidad en la nota del examen GRE, se asocia con un incremento de 0.04% en la probabilidad de ser amitido.
 - Un incremento de 1 unidad en el promedio crédito acumulado, se asocia con un incremento de 16% en la probabilidad de ser amitido.
 - Comparado con estudiantes de universidades en la categoría 1 del ránquin, estudiantes de la categoría 2 tienen 16% menos probabilidad de ser admitidos.
 - Comparado con estudiantes de universidades en la categoría 1 del ránquin, estudiantes de la categoría 3 tienen 29% menos probabilidad de ser admitidos.
 - Comparado con estudiantes de universidades en la categoría 1 del ránquin, estudiantes de la categoría 4 (la más baja) tienen 32% menos probabilidad de ser admitidos.
-- Finalmente, el intercepto nos dice que la probabilidad de ser admitido para un estudiante de una universidad en la categoría 1 del ránquin, con notas de 0 en el GRE y promedio crédito acumulado (GPA) de 0 es de -25%. ¿¡Cómo!?
+- Finalmente, el intercepto nos dice que la probabilidad de ser admitido para un estudiante de una universidad en la categoría 1 del ránquin, con notas de 0 en el GRE y promedio crédito acumulado (GPA) de 0 es de -25%. *Wait...what?*
 
-La interpretación del intercepto apunta a uno de los problemas principales del MPL: el modelo puede arrojar "probabilidades" por debajo de 0. Veamos otros ejemplo. Calculemos el valor esperado de $Y$ (la probabilidad esperada de ser admitido) para un estudiante de una universidad en la categoría 4 y los valores más bajos de GRE y GPA observados en los datos. Reemplazamos en la ecuación del modelo y extraemos los coeficientes usando la función `coef()`:
+La interpretación del intercepto apunta a uno de los problemas principales del MPL: el modelo puede arrojar "probabilidades" por debajo de 0 o por encima de 1, lo cual no tiene sentido, ya que estas deben estar entre 0 y 1. Veamos esto con otro ejemplo. Calculemos el valor esperado de $Y$ (la probabilidad esperada de ser admitido) para un estudiante de una universidad en la categoría 4 y los valores más bajos de GRE y GPA observados en los datos. Reemplazamos en la ecuación del modelo y extraemos los coeficientes usando la función `coef()`:
 
 ```{r}
 coef(mpl)[[1]] + 
@@ -141,7 +151,8 @@ coef(mpl)[[1]] +
 
 ```{r}
 mpl %>%
-  predict() %>% # extrae las predicciones o "fitted values" del modelo
+  # extraemos las predicciones o "fitted values" del modelo
+  predict() %>% 
   as_tibble() %>% 
   ggplot(aes(x = value)) +
   geom_histogram(binwidth = 0.01) +
@@ -150,7 +161,7 @@ mpl %>%
   labs(x = expression(hat(Y)), y = "Número de observaciones")
 ```
 
-Esto no significa que el MPL sea inútil. Estas probabilidades negativas (y en otras ocasiones, por encima de 1.0 o 100%) solo suceden para valores extremos de las variables independientes. Además, las podemos interpretar como que la probabilidad de que el evento ocurra es extremadamente baja o extremadamente alta. Finalmente, el MPL es utilizado frecuentemente en la literatura académica de experimentos o evaluación técnica de políticas públicas con experimentos.
+Esto no significa que el MPL sea inútil. Estas probabilidades negativas (y en otras ocasiones, por encima de 1.0 o 100%) solo suceden para valores extremos de las variables independientes. Además, las podemos interpretar como que la probabilidad de que el evento ocurra es extremadamente baja (o extremadamente alta, en el caso de que estén por encima de 1). Finalmente, el MPL es utilizado frecuentemente en la literatura académica de experimentos o evaluación técnica de políticas públicas con experimentos pues da resultados similares a la regresión logística, es más fácil de interpretar y se ajusta mejor a algunas nociones de causalidad y efectos.
 
 Pese a sus limitaciones, las predicciones de un modelo como este tienen valor. Veamos los efectos de las distintas variables independientes usando `ggpredict()` de `ggeffects`:
 
@@ -164,42 +175,40 @@ O para un "perfil" específico:
 ```{r}
 mpl %>% 
   ggpredict(
-    terms = c("gpa", "rank_fct[1, 4]"), # mantiene gre constante en la media
+    # mantenemos gre constante en la media, variamos las otras dos
+    terms = c("gpa", "rank[1, 4]"), 
   ) %>%
   plot() +
   scale_y_continuous(labels = scales::percent) +
   labs(title = "Valores esperados: probabilidad de ser admitido",
-       x = "GPA", y = "Pr(Y=1)", color = "Rank pregrado")
+       x = "GPA", y = "Pr(Y=1)", color = "Ránquin")
 ```
 
 Vemos que la probabilidad de ser admitido aumenta a medida que sube el promedio crédito acumulado o GPA, pero que los estudiantes que provenienen de universidades con un mejor ránquin tienen una ventaja comparados con los de universidades menos prestigiosas.
 
 ## Regresión logística
 
-La alternativa al MPL es la *regresión logística* o el modelo logit.^[Otros modelos como el probit son similares, pero menos populares y con frecuencia equivalentes en su interpretación o resultados.]. A diferencia de OLS, la regresión logística, está diseñada explícitamente para modelar variables dependientes categóricas (específicamente binarias) y se estima via máxima verosimilitud (o *maximum likelihood estimation*, MLE), no mínimos cuadrados ordinarios.^[Mientras que OLS busca los parámetros que minimizan una distancia -los cuadrados de los residuos-, MLE busca los parámetros que maximizan la probabilidad o *likelihood* de observar los datos que tenemos.] El logit está diseñadao para ver la asociación entre una serie de variables independientes y la *probabilidad* de que $Y = 1$ dado $X$ ($Pr(Y|X) = 1$).
+La alternativa al MPL es la *regresión logística* o el modelo logit.^[Otros modelos como el probit son similares, pero menos populares y con frecuencia equivalentes en su interpretación o resultados.]. A diferencia de OLS, la regresión logística, está diseñada explícitamente para modelar variables dependientes categóricas binarias y se estima via máxima verosimilitud (o *maximum likelihood estimation*, MLE), en vez de mínimos cuadrados ordinarios/OLS.^[Mientras que OLS busca los parámetros que *minimizan* una distancia -los cuadrados de los residuos-, MLE busca los parámetros que *maximizan* la probabilidad o *likelihood* de observar los datos que tenemos.] El logit está diseñado para ver modelar la asociación entre una serie de variables independientes y la *probabilidad* de que $Y = 1$ dado unas $X$.
 
 Estimemos el mismo modelo que trabajamos arriba, pero esta vez usando regresión logística. En R, usamos la funciónm `glm()` y especificamos que el modelo usa una distribución binomial, lo cual le indica a R que es una regresión logística:
 
 ```{r}
-logit <- glm( # modelos lineales generalizados estimados por MLE
-  admit_fct ~ gre + gpa + rank_fct, # formula
-  data = dat, # datos
-  family = binomial() # tipo de modelo/distribucion
-)
+logit <- glm(admit_fct ~ gre + gpa + rank, 
+             data = dat, 
+             # tipo de modelo/distribucion
+             family = "binomial")
 ```
 
 Aparte: podemos estimar un modelo de regresión lineal con `glm()` y obtener los mismos resultados que con `lm()` - comparen con los resultados del MPL:
 
 ```{r}
-glm( # modelos lineales generalizados estimados por MLE
-  admit ~ gre + gpa + rank, # formula
-  data = dat, # datos
-  family = "gaussian" # tipo de modelo/distribucion
-) %>%
+glm(admit ~ gre + gpa + rank,
+    data = dat, 
+    family = "gaussian") %>%
   summary() # ver coeficientes
 ```
 
-Volviendo al modelo logit, coeficientes que vemos en los resultados del modelo son "log-odds" y, por el momento, solo interpretamos la dirección de la relación (el signo del coeficiente, positivo o negativo) y la significancia estadística de los mismos. Los log-odds son el logaritmo de los *odds*:^[En español, a veces se usan los términos "oportunidades", "probabilidades" o "momios". Porque no hay una terminología equivalente en español, usamos *odds*.] la tasa o razón entre el número veces que algo sucede y el número de veces que no sucede. Mientras, *probabilidad* es la tasa de casos positivos a casos posibles. Si yo llego tarde a clase 1 de cada 5 veces, los odds de yo llegar tarde son $\frac{1}{4} = 0.25$ (y los log-odds son $\log(0.25) = -1.39$), pero la probabilidad de que llegue tarde es $\frac{1}{5} = 0.20$. Son formas distintas de expresar ideas muy similares.
+Volviendo al modelo logit, los coeficientes que vemos en los resultados del modelo son "log-odds" y, por el momento, solo interpretamos la dirección de la relación (el signo del coeficiente, positivo o negativo) y la significancia estadística de los mismos, no su magnitud. Los log-odds son el logaritmo de los *odds*:^[En español, a veces se usan los términos "oportunidades", "probabilidades" o "momios". Porque no hay una terminología equivalente en español, usamos *odds*.] la tasa o razón entre el número veces que algo sucede y el número de veces que no sucede. Mientras, *probabilidad* es la tasa de casos positivos a casos posibles. Si yo llego tarde a clase 1 de cada 5 veces, los odds de yo llegar tarde son $\frac{1}{4} = 0.25$ (y los log-odds son $\log(0.25) = -1.39$), pero la probabilidad de que llegue tarde es $\frac{1}{5} = 0.20$. Son formas distintas de expresar ideas muy similares.
 
 En ese orden de ideas, los resultados del modelo logístico que estimamos corroboran lo encontrado con el MPL - aumentos en el GRE y GPA se asocian con aumentos la probabilidad de admisión, mientras que los estudiantes de universidades de universidades mejor ranqueadas tienen una mayor probabilidad de admisión que los demás:
 
@@ -207,7 +216,7 @@ En ese orden de ideas, los resultados del modelo logístico que estimamos corrob
 summary(logit)
 ```
 
-Podemos convertir los log-odds a odds usando la función exponencial `exp()`. En este caso, valores por encima de 1 indican que hay una asociación positiva (aumentos en la variable independiente se asocian con aumentos en $Pr(Y) = 1$) y valores por debajo de 1 indican una asociación negativa (reducciones en $Pr(Y) = 1$):
+Podemos convertir los log-odds a odds (también llamados *odds ratios*) usando la función exponencial `exp()`. En este caso, valores por encima de 1 indican que hay una asociación positiva (aumentos en la variable independiente se asocian con aumentos en $Pr(Y) = 1$) y valores por debajo de 1 indican una asociación negativa (reducciones en $Pr(Y) = 1$):
 
 ```{r}
 coef(logit) %>%
@@ -215,20 +224,36 @@ coef(logit) %>%
   mutate(odds = exp(value))
 ```
 
-Veamos una tabla resumen comparando ambos modelos -el MPL y el logit. Por defecto, `tab_model()` nos muestra odds en los coeficientes:
+Veamos una tabla resumen comparando ambos modelos -el MPL y el logit:
 
 ```{r}
-tab_model(
-  mpl, logit,
-  dv.labels = c("MPL", "Logit")
+modelsummary(
+  list(
+    "MPL" = mpl,
+    "Logit" = logit
+  ),
+  stars = TRUE
 )
 ```
 
-Los resultados son prácticamente idénticos... ¿por qué hacer una regresión logística, entonces? Porque el logit nos permite pasar entre log-odds, odds y probabilidades de forma tal que podemos hacer mejores predicciones.
+Por defecto, `modelsummary` nos muestra log-odds en los coeficientes, pero podemos exponenciarlos y presentar odds-ratios en cambio:
+
+```{r}
+modelsummary(
+  list(
+    "MPL" = mpl,
+    "Logit" = logit
+  ),
+  stars = TRUE, 
+  exponentiate = TRUE
+)
+```
+
+En últimas, los resultados parecen ser prácticamente idénticos en términos de dirección y significancia estadística. ¿Por qué hacer una regresión logística, entonces? Porque el modelo logit nos permite pasar entre log-odds, odds y probabilidades de forma tal que podemos hacer mejores predicciones y mostrar "efectos" más efectivamente.
 
 ### Coeficientes como probabilidades
 
-La mejor forma de interpretar los resultados de un modelo de regresión logística (más fácil y más informativa) pasa por convertir los log-odds a probabilidades. Esto lo hacemos pasando los log-odds por la función logística:
+La mejor forma de interpretar los resultados de un modelo de regresión logística (la forma más fácil y más informativa) pasa por convertir los log-odds a probabilidades. Esto lo hacemos pasando los log-odds por la función logística, de ahí el nombre:
 
 $$ \text{logistic}(\alpha) = \frac{\exp(\alpha)}{1 + \exp(\alpha)} $$
 
@@ -246,7 +271,7 @@ tibble(x = -15:15, y = plogis(x)) %>%
   geom_line(size = 1, color = "red")
 ```
 
-Volviendo a nuestro modelo de regresión, la probabilidad que resulta de pasar el coeficiente (en log-odds) por la función logística es $Pr(Y) = 1$ en la mitad de la curva de la función logística:
+Volviendo a nuestro modelo de regresión, la probabilidad que resulta de pasar el coeficiente (en log-odds) por la función logística es la probabilidad de que $Y$ sea igual a 1 $Pr(Y) = 1$ en la mitad de la curva de la función logística:
 
 ```{r}
 coef(logit) %>%
@@ -257,30 +282,38 @@ coef(logit) %>%
   )
 ```
 
+Otra forma de interpretar los coeficientes de una regresión logística en términos de probabilidades es usando la regla de "dividir por 4". Tomamos el coeficiente de la regresión, lo dividimos por 4 y el resultado es una aproximación al "efecto" máximo de $X$ sobre la probabilidad de que $Y$ ocurra:
+
+```{r}
+coef(logit)/4
+```
+
+Así, por ejemplo, un incremento de 1 unidad en la variable `gpa` se asocia con un incremento aproximado del 20% en la probabilidad de ser admitido al posgrado. En este caso, vemos una diferencia entre este valor y el que obtuvimos con el MPL, que era de aproximadamente 15.5%.
+
 #### Visualizar probabilidades
 
-Estos resultados son más interpretables de forma gráfica. Podemos usar `ggpredict()` nuevamente, especificando las variables independientes cuyos efectos queremos ver usando `terms = `:
+Pese a que podemos usar log-odds, odds-ratios y probabilidades, los resultados de una regresión logística son más interpretables de forma gráfica. Vamos a usar `ggpredict()` nuevamente, especificando las variables independientes cuyos efectos queremos ver usando `terms = `:
 
 ```{r}
 logit %>%
-  ggpredict(terms = c("gpa", "rank_fct")) %>%
+  ggpredict(terms = c("gpa", "rank")) %>%
   plot() +
   labs(title = "Valores esperados: probabilidad de ser admitido",
-  color = "Rank", x = "GPA", y = "Pr(Y=1)")
+  color = "Ránquin", x = "GPA", y = "Pr(Y=1)")
 ```
 
 Una representación gráfica del modelo de regresión logística nos permite evidenciar dos elementos muy importantes en su interpretación:
 
-- La pendiente de la línea cambia levemente a lo largo de su trayecto, indicando que se trata de una *curva* y que la asociación entre $X$ (GPA) y $Y$ (probabilidad de ser admitido) no es constante, sino que depende del valor de $X$. 
-- La pendiente de la curva para cada grupo definido por la variable categórica $Z$ (ránquin) también es distinta, lo cual indica que la asociación entre $X$ y $Y$ depende de las demás variables incluidas en el modelo. En otras palabras, ¡hay una interacción inherente!
+- La pendiente de la línea cambia levemente a lo largo de su trayecto, indicando que se trata de una *curva* -y no una recta como en OLS- y que la asociación entre $X$ (GPA) y $Y$ (probabilidad de ser admitido) no es constante, sino que depende del valor de $X$ misma. 
+- La pendiente de la curva para cada grupo definido por la variable categórica $Z$ (ránquin) también es distinta, lo cual indica que la asociación entre $X$ y $Y$ depende de las demás variables incluidas en el modelo. En otras palabras, ¡hay una interacción inherente en una regresión logística, aunque no la hayamos especificado!
 
 ### Evaluar el modelo
 
-¿Cómo evaluar un modelo de regresión logística? Miremos dos opciones.
+Hemos estimado e interpretado los resultados de un modelo de regresión logística. Ahora, ¿cómo lo evaluamos? Miremos dos opciones.
 
 #### Variables omitidas
 
-Esta es una evaluación tanto teórica, como metodológica. Al igual que en la regresión lineal por OLS, para que uno modelo de regresión logística tenga coeficientes insesgados, es necesario que hayamos incluido todas las variables relevantes (causales). Así mismo, es importante que no hayamos incluido otras variables irrelevantes.
+Esta es una evaluación tanto teórica, como metodológica. Al igual que en la regresión lineal por OLS, para que uno modelo de regresión logística tenga coeficientes insesgados, es necesario que hayamos incluido todas las variables relevantes (causales). Así mismo, es importante que no hayamos incluido otras variables irrelevantes. En últimas, debemos evitar el sesgo por variables omitidas. Si queremos hacer inferencia causal, este punto es crítico.
 
 <!-- #### Robustez a la inclusión de outliers -->
 
@@ -311,24 +344,21 @@ Esta es una evaluación tanto teórica, como metodológica. Al igual que en la r
 
 #### Predicciones y falsos positivos
 
-Otra forma común de evaluar un modelo de regresión logística es comparando las predicciones del modelo con los valores reales. Recordemos que para cada observación en nuestros datos, sabemos si fue admitido o no. Además, podemos calcular la probabilidad de ser admitido a partir de los resultados del modelo. 
+Otra forma común de evaluar un modelo de regresión logística es comparando las predicciones del modelo con los valores reales. Vale aclarar que en este caso estamos minimizando la importancia de la estimación de un efecto causal y, más bien, enfocándonos en la capacidad predictiva del modelo. Estos son dos objetivos muy distintos.
 
-Para facilitar la comparación entre probabilidades (probabilidad de ser admitido o no) y valores de 0 *o* 1 (admitido o no), asumimos que si el modelo estimó una probabilidad de admisión por encima del 50% (0.5) para una observación, la predicción del modelo es que ese individuo será "admitido":
+Recordemos que para cada candidato en nuestros datos, sabemos si fue admitido o no a un programa posgrado (el valor de $Y$, `admit`). Además, una vez estimamos un modelo de regresión logística, estimamos la probabilidad esperada de ser admitido para cada candidato. 
+
+Para facilitar la comparación entre probabilidades (probabilidad de ser admitido o no) y valores de 0 *o* 1 (admitido o no), debemos imponer un umbral a partir del cual clasificamos nuestras predicciones de la admisión de cada candidato como "admitido" o "no admitido". Por ejemplo, vamos a asumir que si el modelo estima una probabilidad de admisión por encima del 50% (0.5) para una observación, la predicción del modelo es que ese individuo será "admitido" al programa de posgrado. Usando la función `augment` de `broom` podemos obtener los valores esperados (predicciones) de $Y$ para cada observación que entró al modelo:
 
 ```{r}
-modelo_aug <- as_tibble(logit$model)
-modelo_aug <- modelo_aug %>%
-  mutate(fitted = logit$fitted.values,
-         residuals = logit$residuals,
-         std_residuals = rstandard(logit),
-         cooks_d = cooks.distance(logit))
-preds <- modelo_aug %>% 
-  mutate(
-    model_prob = plogis(fitted), # probabilidad de ser admitido
-    model_pred = if_else(
-      model_prob > 0.5, "Sí", "No" # convertir a binario (clasificar)
-    )
-  )
+preds <- logit %>% 
+  # agregamos las predicciones a los datos
+  # especificamos que queremos probabilidades 
+  augment(type.predict = "response") %>% 
+  # seleccionamos unas columnas para simplificar
+  select(admit_fct, gre, gpa, rank, prob_admit = .fitted) %>% 
+  # aplicamos nuestra regla para clasificar predicciones como admitido
+  mutate(pred_admit = if_else(prob_admit > 0.5, "Sí", "No"))
 preds
 ```
 
@@ -339,18 +369,18 @@ Para ver el desempeño del modelo, podemos ver:
 - Negativos verdaderos: datos dicen no, modelo predice no.
 - Falsos negativos: datos dicen sí, modelo predice no.
 
-Organicemos una tabla cruzada con esa información (una matriz de confusión):
+Organicemos una tabla cruzada con esa información (también conocida como una matriz de confusión):
 
 ```{r}
 preds %>%
-  group_by(admit_fct, model_pred) %>% # agrupar
+  group_by(admit_fct, pred_admit) %>%
   summarize(casos = n()) %>%
   ungroup() %>%
   mutate(prop = casos/sum(casos)) %>%
-  pivot_wider(admit_fct, names_from = model_pred, values_from = prop)  # organizar
+  pivot_wider(admit_fct, names_from = pred_admit, values_from = prop) 
 ```
 
-El modelo predice correctamente (No-No y Sí-Sí) el 71% de las observaciones. Sin embargo, tenmos aproximadamente un 24% de falsos negativos. Si nuestra pretensión es construir un modelo que identifique correctamente los admitidos, claramente podríamos mejorar. Esto lo haríamos a) agregando variables, b) transformando las existentes de forma tal que haya una relación más clara con la variable dependiente o c) cambiando el modelo.
+El que estimamos modelo predice correctamente (No-No y Sí-Sí) aproximadamente el 71% de las observaciones. Sin embargo, tenemos aproximadamente un 24% de falsos negativos y 5% de falsos positivos. Si nuestra pretensión es construir un modelo que identifique correctamente los admitidos, claramente podríamos mejorar. Esto lo haríamos a) agregando variables relevantes, b) transformando las existentes de forma tal que haya una relación más clara con la variable dependiente o c) cambiando el modelo completamente. 
 
 <!-- Finalmente, una manera de acercarnos a este mismo problema es usando la tasa de verdaderos positivos (TVP o *true positive ratio*, TPR) a falsos negativos (TFP o *false positive ratio*, FPR) -->
 
@@ -407,7 +437,7 @@ Con frecuencia queremos explicar, entender, describir o predecir variable depend
 
 ### Explicando el voto nominal
 
-¿Por qué algunos legisladores votan a favor de un proyecto de ley? ¿Cómo se relaciona la identificación partidista con la probabilidad de que un legislador vote "sí"? Utilicemos datos (el archivo `nafta.dta` disponibles en https://github.com/josefortou/lab-book/tree/master/data) para intentar responder estas preguntas.
+¿Por qué algunos legisladores votan a favor de un proyecto de ley? ¿Cómo se relaciona la identificación partidista con la probabilidad de que un legislador vote "sí"? Utilicemos datos (el archivo `nafta.dta` disponible en https://github.com/josefortou/lab-book/tree/master/data/nafta.dta) para intentar responder estas preguntas usando modelos de regresión logística.
 
 #### Los datos
 
@@ -416,10 +446,11 @@ Miremos cómo votaron los representates a la cámara de Estados Unidos frente al
 ```{r datos-nafta}
 nafta <- read_dta("data/nafta.dta") %>%
   zap_label()
-nafta
+nafta %>% 
+  count(vote)
 ```
 
-Además de la variable de voto a favor/en contra (`vote` que toma los valores "Yes" y "No"), tenemos tres variables más:
+234 votaron a favor y 200 en contra. Además de la variable de voto a favor/en contra (`vote` que toma los valores "Yes" y "No"), tenemos tres variables más:
 
 - `democrat`: dummy de membrecía partidista (Republicano o Demócrata).
 - `pcthispc`: porcentaje de la población que es de origen latino en el distrito de donde viene el representante.
@@ -430,10 +461,8 @@ Recodifiquemos las variables categóricas:
 ```{r recode-nafta}
 nafta <- nafta %>%
   mutate(
-    vote = factor(vote, levels = c(0, 1), 
-                  labels = c("No", "Yes")),
-    democrat = factor(democrat, levels = c(0, 1), 
-                      labels = c("Rep./other", "Dem."))
+    vote = factor(vote, levels = c(0, 1), labels = c("No", "Yes")),
+    democrat = factor(democrat, levels = c(0, 1), labels = c("Rep./other", "Dem."))
   )
 ```
 
@@ -464,11 +493,9 @@ Donde $\lambda$ es la función de distribución acumulada (CDF) logística.
 Estime el modelo usando la función `glm()`.
 
 ```{r, echo = FALSE, eval = FALSE}
-mod_nafta <- glm(
-  vote ~ democrat + cope93 + pcthispc,
-  data = nafta,
-  family = "binomial"
-)
+mod_nafta <- glm(vote ~ democrat + cope93 + pcthispc,
+                 data = nafta,
+                 family = "binomial")
 ```
 
 #### Resultados
@@ -476,15 +503,13 @@ mod_nafta <- glm(
 Presente los resultados en una tabla de regresión:
 
 ```{r, echo = FALSE, eval = FALSE}
-summary(mod_nafta)
+modelsummary(mod_nafta)
 ```
 
-Presente los resultados utilizando gráficas:
+Presente resultados que evalúen las hipótesis utilizando gráficas de probabilidades esperadas/predicciones:
 
 ```{r, echo = FALSE, eval = FALSE}
-library(ggeffects)
-
 mod_nafta %>%
-  ggpredict(terms = c("cope93", "democrat")) %>%
+  ggpredict(terms = c("cope93[all]", "democrat")) %>%
   plot()
 ```
