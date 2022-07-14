@@ -1,5 +1,5 @@
 ## GP0070: Laboratorio
 
-Este repositorio contiene materiales de estudio para el curso GP0070 Laboratorio.
+This repository includes materials for the undergraduate course GP0070 Laboratorio at EAFIT University (2020 and 2021 academic years). It contains references, exercises, labs, and other class materials, which help Political Science students learn how to program and analyze data in R. The objective is to strengthen their methodological, research, and data science skills.
 
-Este libro contiene instructivos y materiales de clase para el curso GP0070 Laboratorio del área de métodos del pregrado en Ciencias Políticas de la Universidad EAFIT. El documento está en fase de desarrollo y los contenidos pueden cambiar. Por favor, no citar.
+This document is not intended for widespread publication or citation.
